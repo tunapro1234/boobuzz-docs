@@ -16,11 +16,15 @@ klasörünün içinde, her biri ayrı dizin:
 TeamCode/
 ├── core/                                      Gradle modülü :core — saf Java, SDK YOK
 │   └── src/main/java/boobuzz/core/
-│       ├── hal/          L1 sözleşmesi (arayüz; implementasyon yok)
-│       ├── contract/     L2 ↔ L3 sözleşmeleri (§6)
-│       ├── logic/        L2 — engine/ · drive/ · (world/, shooter/… sırası gelince)
+│       ├── hal/          L1 sözleşmesi + veri tipleri (Hal, RobotState, RobotAction,
+│       │                 GamepadState, Mechanism/MechanismLoader, Probe) — implementasyon yok
+│       ├── contract/     L2 ↔ L3 sözleşmeleri (§6) — dondurulacak
+│       ├── logic/        L2 — kökte RobotEngine · Subsystem arayüzleri;
+│       │                 cplx_engine_1/  = tek engine (Pedro'lu C1). Her mantık
+│       │                 iterasyonu KENDİ klasöründe (cplx_engine_2/ …), aralarında
+│       │                 kod paylaşımı yok — yeni iterasyon kopyalanıp geliştirilir
 │       ├── controller/   L3
-│       └── RobotLoop · RobotFactory · mechanism/ · probe/     (katman dışı)
+│       └── RobotLoop · RobotFactory                            (katman dışı, 2 dosya)
 └── src/main/java/org/firstinspires/ftc/teamcode/
     ├── hal/      L1 implementasyonu — SDK'ya dokunan TEK yer (RealHal, Hardware)
     └── opmode/   kabuk: HAL + Engine + Controller birleştirir
