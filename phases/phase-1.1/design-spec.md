@@ -165,3 +165,23 @@ D1 docs: architecture refresh + LaTeX + CHANGELOG + tag
 _(append only; never rewrite the sections above)_
 
 - 2026-09-16 v1 — initial, approved.
+- 2026-09-16 **R3** (approved by Tuna in conversation, before code):
+  - **Naming/tree.** Interfaces carry an `I` prefix (`IHal`, `ISubsystem`, `IDrive`, `IShooter`,
+    `IIntake`, `ITurret`, `IRobotEngine`, `IController`, `IGamepadSource`). Shared classes sit at
+    the package root, variants in subfolders: `subsystem/{pedro,stub}`, `logic/{direct,cplx1}`,
+    `controller/{teleop,auto,opmodes}`. `controller/autos` (data) was too close to
+    `controller/auto` (framework) → `opmodes`. Why: v1 mixed interfaces, implementations and data
+    in one folder and reused names (`contract/Drive` vs `subsystem/Drive`).
+  - **Intent → RequestBatch; Drive DTO removed.** Two message kinds from controller to logic:
+    `Request` ("TCP": edge-triggered, id, answered with `RequestStatus`; includes drive targets
+    GOTO/PATH/TURN_TO) and `RequestStream` ("UDP": per-tick levels, no id, no answer; manual
+    drive now, offsets/tuning later). `RequestBatch = stream + requests + cancels` is the
+    controller's tick output. Manual stream overrides an active drive request.
+  - **Logic gets structure.** `cplx1/{MotionLogic, TurretLogic, ShooterLogic}`. Turret is fully
+    automatic (no controller request); `ShooterLogic` owns the shot state machine and tells
+    `TurretLogic` to hold the target while feeding. `DirectEngine` splits into wiring
+    (`DirectEngine`) and the editable map (`DirectMap`).
+  - **Controller.** `Buttons` edge/toggle helper, `teleop/TeleopMap` as the editable gamepad map,
+    teleop can run `AutoBuilder` sequences (fluent chains), `SWITCH_ENGINE` request handled by
+    `RobotLoop` for mid-match contingency. `ITurret` + `StubTurret` added to `Subsystems`.
+  - Task: `robot-cx-13-r3-naming-logic-requests.md`. Flow diagrams: `request-flow.md`.
