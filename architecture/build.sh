@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Build architecture.md without adding a project-wide Node/npm dependency.
-# Mermaid is rendered only when an already-installed mmdc + browser works;
-# otherwise its source is retained as a labelled verbatim block.
+# Build architecture.md with Pandoc's real TeX PDF path.  Mermaid is rendered
+# only with already-installed tools; no package manager or browser download is
+# performed by this script.
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 INPUT="$ROOT/architecture.md"
@@ -24,12 +24,61 @@ fi
 
 MARKDOWN="$TMP/architecture.md"
 MERMAID_RENDERED=0
+MERMAID_BROWSER=""
+
+# Puppeteer bundled with mmdc may look for a cached Chrome revision even when a
+# system browser exists.  Prefer an explicit executable so an installed Chrome
+# can be used without downloading anything.
+for candidate in "${PUPPETEER_EXECUTABLE_PATH:-}" chromium chromium-browser \
+                 google-chrome google-chrome-stable; do
+  [[ -n "$candidate" ]] || continue
+  if [[ "$candidate" == /* ]]; then
+    [[ -x "$candidate" ]] || continue
+    MERMAID_BROWSER="$candidate"
+  else
+    MERMAID_BROWSER=$(command -v "$candidate" || true)
+  fi
+  [[ -n "$MERMAID_BROWSER" ]] && break
+done
+
+render_mermaid() {
+  local rendered_md="$TMP/mermaid.md"
+  local converted=1
+  local svg pdf count=0
+
+  [[ -n "$MERMAID_BROWSER" ]] || return 1
+  PUPPETEER_EXECUTABLE_PATH="$MERMAID_BROWSER" \
+    mmdc -i "$INPUT" -o "$rendered_md" -q >/dev/null 2>&1 || return 1
+
+  # Pandoc's LaTeX writer can include PDF graphics portably.  mmdc emits SVG
+  # files for a Markdown input; convert each one before rewriting the image
+  # references in the temporary Markdown.
+  for svg in "$TMP"/mermaid-*.svg; do
+    [[ -f "$svg" ]] || continue
+    count=$((count + 1))
+    pdf="${svg%.svg}.pdf"
+    if command -v rsvg-convert >/dev/null 2>&1; then
+      rsvg-convert -f pdf -o "$pdf" "$svg" >/dev/null 2>&1 || converted=0
+    elif command -v inkscape >/dev/null 2>&1; then
+      inkscape "$svg" --export-type=pdf --export-filename="$pdf" \
+        >/dev/null 2>&1 || converted=0
+    else
+      converted=0
+    fi
+    [[ "$converted" -eq 1 ]] || break
+  done
+  [[ "$converted" -eq 1 && "$count" -gt 0 ]] || return 1
+
+  sed 's/\.svg)/.pdf)/g' "$rendered_md" > "$TMP/mermaid-pdf.md"
+  MARKDOWN="$TMP/mermaid-pdf.md"
+  return 0
+}
 
 # mmdc accepts Markdown and rewrites Mermaid fences to image references.  A
-# successful command is the renderer capability check; missing Chromium (or a
-# malformed diagram) deliberately takes the source-preserving fallback below.
-if command -v mmdc >/dev/null 2>&1 && mmdc -i "$INPUT" -o "$TMP/mermaid.md" -q >/dev/null 2>&1; then
-  MARKDOWN="$TMP/mermaid.md"
+# successful SVG plus PDF conversion is the renderer capability check;
+# missing Chrome/converter (or a malformed diagram) deliberately takes the
+# source-preserving fallback below.
+if command -v mmdc >/dev/null 2>&1 && render_mermaid; then
   MERMAID_RENDERED=1
 else
   awk '
@@ -51,15 +100,34 @@ else
   ' "$INPUT" > "$MARKDOWN"
 fi
 
-echo "pandoc=$PANDOC mermaid_renderer=$MERMAID_RENDERED"
+if [[ "$MERMAID_RENDERED" -eq 1 ]]; then
+  echo "pandoc=$PANDOC mermaid_renderer=mmdc+pdf browser=$MERMAID_BROWSER"
+else
+  echo "pandoc=$PANDOC mermaid_renderer=verbatim (no working mmdc/browser/image converter)"
+fi
 
-# Prefer a real TeX engine.  Some minimal TeX installations ship the binary
-# but not its format file; in that case Pandoc exits non-zero and we continue
-# to the portable groff fallback instead of leaving a half-built PDF behind.
+# Prefer a real TeX engine.  If a binary has no format file, Pandoc exits
+# non-zero and the next installed TeX engine is tried.  Repair a user TeX
+# installation once with `fmtutil-user --all` before this script; no system
+# packages are installed here.
 PDF_METHOD=""
-for engine in tectonic xelatex pdflatex; do
+for engine in xelatex pdflatex; do
   if command -v "$engine" >/dev/null 2>&1; then
     echo "trying pdf engine: $engine"
+    TEX_MARKDOWN="$MARKDOWN"
+    if [[ "$engine" == "pdflatex" ]] && command -v iconv >/dev/null 2>&1; then
+      # The installed pdfTeX format is healthy but its default input encoding
+      # cannot typeset box-drawing/Greek symbols in the source tree.  This is
+      # a build-only transliteration; architecture.md itself remains UTF-8.
+      sed \
+        -e 's/├/|-/g' -e 's/└/`-/g' -e 's/│/|/g' -e 's/─/-/g' \
+        -e 's/→/->/g' -e 's/←/<-/g' -e 's/↔/<->/g' \
+        -e 's/π/pi/g' -e 's/ω/omega/g' -e 's/×/x/g' -e 's/±/+\/-/g' \
+        -e 's/²/^2/g' -e 's/°/ deg/g' -e 's/–/-/g' -e 's/—/--/g' \
+        -e 's/“/"/g' -e 's/”/"/g' -e "s/’/'/g" -e 's/…/.../g' \
+        "$MARKDOWN" | iconv -c -t ASCII//TRANSLIT > "$TMP/pdflatex.md"
+      TEX_MARKDOWN="$TMP/pdflatex.md"
+    fi
     if "$PANDOC" \
       --from=gfm \
       --standalone \
@@ -67,7 +135,7 @@ for engine in tectonic xelatex pdflatex; do
       --resource-path="$TMP:$ROOT" \
       --variable=geometry:margin=1in \
       --output="$OUTPUT" \
-      "$MARKDOWN"; then
+      "$TEX_MARKDOWN"; then
       PDF_METHOD="pandoc+$engine"
       break
     fi
@@ -75,18 +143,8 @@ for engine in tectonic xelatex pdflatex; do
   fi
 done
 
-# groff is present on the development image even when TeX format files are not.
-# Pandoc's man output is intentionally a conservative text rendering, but it
-# keeps the complete source and produces a useful, dependency-free PDF.
-if [[ -z "$PDF_METHOD" ]] && command -v groff >/dev/null 2>&1; then
-  echo "trying PDF fallback: pandoc+groff"
-  "$PANDOC" --from=gfm --to=man --output="$TMP/architecture.man" "$MARKDOWN"
-  groff -k -K utf8 -t -T pdf -man "$TMP/architecture.man" > "$OUTPUT"
-  PDF_METHOD="pandoc+groff"
-fi
-
 if [[ -z "$PDF_METHOD" || ! -s "$OUTPUT" ]]; then
-  echo "no working PDF path (checked tectonic, xelatex, pdflatex, groff)" >&2
+  echo "no working Pandoc TeX PDF path (checked xelatex, pdflatex)" >&2
   exit 1
 fi
 
