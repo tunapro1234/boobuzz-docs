@@ -1,7 +1,8 @@
 # Faz 1 — katman yerleşimi + Gradle çözümü (tasarım notu)
 
 Takım liderinin bağlayıcı kararı uygulanıyor. `_parked/phases/phase-1/robot-cx-02-rapor.md`'nin
-**§2 öneri kısmı geçersizdir** (L2/L3'ü `:core`'da, TeamCode dışında tutuyordu); §1 envanteri ve §6 riskleri
+**§2 öneri kısmı geçersizdir** (untracked report; L2/L3'ü `:core`'da, TeamCode dışında tutuyordu);
+§1 envanteri ve §6 riskleri
 geçerlidir ve burada kullanıldı.
 
 Repo: `robot-code`, dal `dev-phase-2`. Gradle 9.1.0, AGP 8.13.2, `:core`/`:sim` Java 17.
