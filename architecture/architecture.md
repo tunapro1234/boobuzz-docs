@@ -17,7 +17,7 @@ Turkish or pre-R3 name.
 | Repository | Branch | Local path | Observed revision | Role |
 |---|---|---|---|---|
 | boobuzz-docs | stable | /home/shared/projects/boobuzz/docs | D1 A2 commit 9a9c9c2 while this draft is refreshed | Journey records, protocol pointer, architecture |
-| boobuzz-robocode (local robot-code) | dev-phase-1.1 | /home/shared/projects/boobuzz/robot-code | committed R3.1 rename 5defadf; Request edits were in progress in the working tree | Java core, FTC/Android HAL, Java simulator client |
+| boobuzz-robocode (local robot-code) | dev-phase-1.1 | /home/shared/projects/boobuzz/robot-code | d4226eb (R3.8; clean) | Java core, FTC/Android HAL, Java simulator client |
 | boobuzz-recocknize (local re-cock-nize) | dev-phase-1.1 | /home/shared/projects/boobuzz/re-cock-nize | 8af8281 | Python physics server, viewer, simulator tests |
 | boobuzz-ballautoistic (local ball-auto-istic) | project repository | /home/shared/projects/boobuzz/ball-auto-istic | not used by this seam | Separate ball/strategy work |
 
@@ -43,10 +43,10 @@ robot-code/
 │   │       │   ├── pedro/                     # Pedro 3.0 bridge
 │   │       │   └── stub/                      # timing-only mechanisms
 │   │       ├── logic/
-│   │       │   ├── direct/                    # DirectEngine (DirectMap is R3 WIP)
-│   │       │   └── cplx1/                     # CplxEngine1 (logic modules R3 WIP)
+│   │       │   ├── direct/                    # DirectEngine and DirectMap
+│   │       │   └── cplx1/                     # CplxEngine1 and logic modules
 │   │       ├── controller/
-│   │       │   ├── teleop/                    # TeleopController (TeleopMap R3 WIP)
+│   │       │   ├── teleop/                    # TeleopController and TeleopMap
 │   │       │   ├── auto/                      # AutoController/Builder/Sequence/Step/Runner
 │   │       │   └── opmodes/                   # six routine data classes
 │   │       ├── RobotLoop.java
@@ -103,18 +103,17 @@ not imported by the server.
 | Subsystem interfaces | boobuzz.core.subsystem | ISubsystem, IDrive, IShooter, IIntake, ITurret, Subsystems |
 | Pedro implementation | boobuzz.core.subsystem.pedro | PedroDrive, HalDrivetrain, HalLocalizer, PathRegistry, PedroConstants |
 | Mechanism stubs | boobuzz.core.subsystem.stub | StubShooter, StubIntake, StubTurret |
-| Logic engines | boobuzz.core.logic and logic/direct, logic/cplx1 | IRobotEngine, DirectEngine, planned DirectMap, CplxEngine1, planned MotionLogic, TurretLogic, ShooterLogic |
+| Logic engines | boobuzz.core.logic and logic/direct, logic/cplx1 | IRobotEngine, DirectEngine, DirectMap, CplxEngine1, MotionLogic, TurretLogic, ShooterLogic |
 | Controllers | boobuzz.core.controller and controller/teleop, controller/auto, controller/opmodes | IController, Buttons, TeleopMap, TeleopController, AutoController, AutoBuilder, AutoSequence, AutoStep, SequenceRunner, AutoRegistry and six routine classes |
 | Tick/orchestration | boobuzz.core | RobotLoop, RobotFactory |
 | Real HAL and FTC shell | org.firstinspires.ftc.teamcode.hal and .opmode | Hardware, RealHal, TeleopMain, AutoMain, six *OpMode wrappers |
 | Java simulator seam | boobuzz.sim in Gradle :sim | SimHal, SimMain, Json, protocol exceptions |
 | Python physics seam | sim.* | SimServer, Mechanism, PhysicsBackend, MotorModel, three backends, Viewer |
 
-RequestBatch/RequestStream and the removed Drive/Intent are in the R3 working
-transition. The R3 classes after the 5defadf rename are present in the shared
-working tree, but robot-cx-13 still owns their review and final commit; this
-draft therefore marks their status rather than treating the work-in-progress
-tree as a released contract.
+RequestBatch/RequestStream and the removed Drive/Intent are the R3 contract at
+d4226eb. The header remains DRAFT because the requested final pass and
+cross-review are still a documentation gate, not because these classes are
+uncommitted.
 
 ## 2. Robot architecture
 
@@ -169,10 +168,10 @@ The current R3 transition has this fixed single-threaded order:
 7. hal.write(action).
 
 hal.now() is the HAL clock; no wall-clock call orders a tick in core.
-R3.7 will add RobotLoop.setEngine(IRobotEngine): a SWITCH_ENGINE(index) request
-is consumed by the loop before the current engine sees the batch, the old engine
-receives cancel-all, and the new engine starts on the next tick over the same
-Subsystems object.
+`RobotLoop.setEngine(IRobotEngine)` is the explicit composition hook. A
+`SWITCH_ENGINE(index)` request is consumed by the loop before the current engine
+sees the batch, the old engine receives cancel-all, and the selected engine
+starts on the next tick over the same `Subsystems` object.
 
 ## 3. Simulator capabilities
 
@@ -208,6 +207,14 @@ axes, alliance edges, robot trail, truth pose, encoders, events, and a panel.
 --headless never imports pygame and runs without real-time pacing. Repeating a
 reset seed and exactly the same step sequence is deterministic; the seeded
 noise stream is part of the state sequence.
+
+### Coordinate conventions
+
+The field is a 144 × 144 inch top view with its origin at a corner. Field +x is
+right, field +y is up, and heading `h` is counter-clockwise from +x. Robot-frame
+`vx` is forward, `vy` is left, and `omega` is counter-clockwise. The viewer's
+screen y axis is inverted only at the drawing boundary; the wire and Java/Python
+physics retain the field convention.
 
 ### Calibration and origin
 
@@ -274,11 +281,11 @@ logic/
     └── ShooterLogic.java
 ```
 
-At the committed R3.1 rename, CplxEngine1 is present and its Pedro-backed
-Subsystems are present; MotionLogic, TurretLogic, ShooterLogic and DirectMap
-are R3 work in progress. The current transition implementation composes
-CplxEngine1 with DirectEngine, so request dispatch is intentionally simple until
-the three modules land.
+The R3.8 commit d4226eb contains this complete tree. `CplxEngine1` owns
+`MotionLogic`, `TurretLogic`, and `ShooterLogic`; `DirectEngine` remains a
+separate wiring-only engine selected by `RobotFactory`, and `DirectMap` is its
+single request switch. The DRAFT marker remains until the requested final
+cross-review, but these classes are no longer merely planned files.
 
 Pedro bridging is in subsystem/pedro, not in the engine package:
 
@@ -302,13 +309,12 @@ The behaviours exposed by the R3 contract are:
 | FollowPath | RequestType.PATH carrying a named PathRequest or ordered segments |
 | Hold | No active drive request means IDrive.stop(); a path may also set holdEnd |
 
-MotionLogic will own stream/request arbitration: manual stream wins and rejects
-an active drive request; a tick with neither manual stream nor drive request stops
-the drive. TurretLogic will aim at the configured goal every tick (or scan when
-pose is unavailable) and expose a lock state. ShooterLogic will implement
+MotionLogic owns stream/request arbitration: manual stream wins and rejects an
+active drive request; a tick with neither manual stream nor drive request stops
+the drive. TurretLogic aims at the configured goal every tick (or scans when
+pose is unavailable) and exposes a lock state. ShooterLogic implements
 IDLE → SPINNING → FEEDING × count → DONE, coordinating turret hold and shooter
-readiness. These module names and the call graph are the R3 design, not claims
-that the uncommitted classes have already been reviewed.
+readiness. The final behavioural review is still a documentation gate.
 
 ### Subsystem pattern and extension recipe
 
@@ -321,10 +327,10 @@ interface ISubsystem {
 }
 ```
 
-IDrive, IShooter, and IIntake extend it. Subsystems is a fixed-order record
-(IDrive drive, IShooter shooter, IIntake intake) with observe(state) and
-update(); its R3 form adds ITurret. Stubs are timing-only and individually
-unit-tested.
+IDrive, IShooter, IIntake, and ITurret extend it. `Subsystems` is a fixed-order
+record `(IDrive drive, IShooter shooter, IIntake intake, ITurret turret)` with
+`observe(state)` and `update()`: drive, shooter, intake, then turret each write
+to the same action builder. Stubs are timing-only and individually unit-tested.
 
 To add a subsystem:
 
@@ -375,11 +381,19 @@ record Event(String name, long tMs, Map<String,Double> data) {}
 record RobotAction(Map<String,Double> motors,
                    Map<String,Double> servos,
                    List<Event> events) {}
+record GamepadState(double lx, double ly, double rx, double ry,
+                    boolean a, boolean b, boolean x, boolean y,
+                    boolean lb, boolean rb,
+                    double lt, double rt, Dpad dpad,
+                    boolean back, boolean start) {}
+enum Dpad { NONE, UP, DOWN, LEFT, RIGHT }
 ```
 
 RobotState.t is milliseconds; encoder values are integer ticks; vel is
 ticks/second; yaw and pinpoint.heading are radians; Pinpoint x/y are inches;
-voltage is volts. RobotState never contains simulator truth. RobotAction values
+voltage is volts. RobotState never contains simulator truth. Gamepad stick values
+are in [-1,1], triggers are in [0,1], and `ly` is negative when the physical
+stick is pushed forward (FTC/pygame convention). RobotAction values
 are named motor powers in [-1,1], named servo positions [0,1], and optional
 timestamped events. A missing motor/servo key is treated as zero by SimHal and
 RealHal.
@@ -410,7 +424,8 @@ Request is an immutable edge-triggered message:
 ```
 record Request(int id, RequestType type, double[] params, PathRequest path) {}
 enum RequestType {
-    SHOOT, INTAKE, GOTO, PATH, SPIN_UP, INTAKE_ON, INTAKE_OFF, TURN_TO
+    SHOOT, INTAKE, GOTO, PATH, SPIN_UP, INTAKE_ON, INTAKE_OFF, TURN_TO,
+    TURRET_AIM, RESET_POSE, SWITCH_ENGINE
 }
 record RequestStatus(int id, State state, double progress, String note) {
     enum State { ACCEPTED, ACTIVE, DONE, FAILED, REJECTED }
@@ -418,8 +433,9 @@ record RequestStatus(int id, State state, double progress, String note) {
 ```
 
 Request validates that only PATH carries a non-null PathRequest; params are a
-defensive copy. The enum above is the committed transition shape. R3 adds
-RESET_POSE, SWITCH_ENGINE, and test-only TURRET_AIM when their owners land.
+defensive copy. The first eight enum values were in the committed rename;
+`TURRET_AIM`, `RESET_POSE`, and `SWITCH_ENGINE` are present in the R3 working
+tree (turret aim is rejected by cplx1 because aiming is automatic).
 A drive request has an id and is answered with RequestStatus; status arrives in
 Feedback on the next tick.
 
@@ -481,8 +497,9 @@ in the request, in field inches/radians and Pedro constraints' native units.
 
 There is no current MechanismLoader and no mechanism.yaml. The old YAML schema
 is closed: configuration errors must fail at Java compile time, and removing a
-runtime parser leaves fewer moving parts. Mechanism is the immutable runtime
-value built by RobotConstants.DEFAULT:
+runtime parser leaves fewer moving parts. `Mechanism.DEFAULT` is the immutable
+runtime value built by `RobotConstants.buildMechanism()` and returned by
+`RobotConstants.mechanism()`:
 
 ```
 record Mechanism(List<String> motorNames,
@@ -514,15 +531,23 @@ public static final Pinpoint PINPOINT = new Pinpoint(xOffsetMm, yOffsetMm, xDire
 ```
 
 The actual motor declarations are one physical line in the Java file; the
-wrapped form above shows the grammar only. Scalar names currently read by the
-Python regex include ROBOT_WIDTH, ROBOT_LENGTH, ROBOT_MASS_KG, WHEEL_DIAMETER,
-BATTERY_V, MOTOR_TAU_S, EFFICIENCY_FL/FR/BL/BR, STRAFE_EFF,
-ZERO_POWER_DECEL_FORWARD_IN_S2, and ZERO_POWER_DECEL_LATERAL_IN_S2. String names
-are ANGLE_UNIT and DRIVETRAIN_TYPE. Each motor has exactly seven arguments:
-name, drives, xForward, yLeft, rollerDeg, ticksPerRev, and freeRpm; Python
-converts roller degrees to radians. MOTORS defines protocol motor order and
-SERVOS defines servo names. Pinpoint carries offsets, directions, and pod type.
-Java validates the server ready name lists before a run continues.
+wrapped form above shows the grammar only. The Python regex reader requires
+`ROBOT_WIDTH`, `ROBOT_LENGTH`, `WHEEL_DIAMETER`, `BATTERY_V`, `MOTOR_TAU_S`,
+`STRAFE_EFF`, `ZERO_POWER_DECEL_FORWARD_IN_S2`, and
+`ZERO_POWER_DECEL_LATERAL_IN_S2`; it also reads the optional per-motor
+`EFFICIENCY_<NAME>` scalars (default 1.0). `ROBOT_MASS_KG` is matched but not
+stored in the Python `Mechanism` yet. String declarations are matched for
+`ANGLE_UNIT` and `DRIVETRAIN_TYPE`, with the latter selecting the drivetrain.
+Each motor has exactly seven arguments: name, drives, xForward, yLeft,
+rollerDeg, ticksPerRev, and freeRpm; Python converts roller degrees to radians.
+The Java `MOTORS` array defines Java's protocol motor order; Python currently
+preserves the order of the motor declarations rather than parsing that array.
+`SERVOS` defines servo names. `PINPOINT` has the Java line format above and is
+consumed by Java's `RobotConstants`; the current Python reader does not parse
+Pinpoint offsets.
+The remaining Java-only constants (alliance, goal, shooter, stub timing, and
+TeleOp reset values) are not part of the Python reader contract. Java validates
+the server ready name lists before a run continues.
 
 #### Subsystems and events
 
@@ -621,6 +646,9 @@ Python replies with a state object:
 enc is integer motor ticks; vel is ticks/second; x/y lengths are inches; all
 headings are radians; voltage is volts. Gamepad sticks are [-1,1], triggers
 are [0,1], buttons are booleans, and dpad is one of none/up/down/left/right.
+The current viewer/server emits the 13 keys shown above; the newer Java
+`GamepadState.back` and `.start` fields are optional at this seam and
+`SimHal` treats missing keys as false.
 truth is deliberately not a RobotState field: only SimHal.truth() and the
 viewer may read it. The server does not advance physics until step arrives, and
 SimHal.write() blocks waiting for the matching state.
@@ -837,16 +865,16 @@ BlueMissionary9PieceLever, and RedMissionary9PieceLever.
 | HalDrivetrain | Pedro DrivePowers to named, finite motor powers |
 | HalLocalizer | Pinpoint sample bridge and software pose offset |
 | PathRegistry / PedroConstants | Named test paths and follower construction |
-| StubShooter / StubIntake | Timing/state stubs with events |
+| StubShooter / StubIntake / StubTurret | Timing/state stubs with events |
 | IRobotEngine | Sense/act/action/status engine seam |
 | DirectEngine | Request jobs, stream arbitration, cancellation, direct wiring |
-| DirectMap | R3 editable request-to-subsystem switch (pending) |
-| CplxEngine1 | Complex-engine shell; currently delegates to direct dispatch |
-| MotionLogic / TurretLogic / ShooterLogic | R3 drive, aim, and shot modules (pending at draft snapshot) |
+| DirectMap | Editable request-to-subsystem switch used by DirectEngine |
+| CplxEngine1 | Complex engine composing motion, turret, shooter, and intake logic |
+| MotionLogic / TurretLogic / ShooterLogic | Drive arbitration, automatic aim, and shot state machine |
 | IController | Feedback to RequestBatch policy seam |
 | TeleopController | Gamepad source and field-oriented drive mapping |
-| Buttons / TeleopMap | R3 edge/toggle helper and editable control map (pending) |
-| AutoController | Advances AutoSequence from statuses/time |
+| Buttons / TeleopMap | Edge/toggle helper and editable control map |
+| AutoController / SequenceRunner | Advance AutoSequence from statuses/time |
 | AutoBuilder / AutoSequence / AutoStep | Fluent autonomous data and cursor |
 | AutoRegistry and six routine classes | Names and builders for last season's autos |
 | RobotLoop / RobotFactory | Fixed tick and engine/subsystem composition |
@@ -888,9 +916,9 @@ does not choose a winner:
    and the old controller/autos tree; its appended R3 revision names IHal,
    RequestBatch, cplx1, and controller/opmodes.
 2. robot-cx-13-r3-naming-logic-requests.md is written against pre-R3 2573880,
-   while the observed branch has committed R3.1 rename 5defadf plus uncommitted
-   RequestBatch/RequestStream edits. DirectMap, ITurret, StubTurret, and the
-   cplx1 logic modules are not in the committed tree at this draft snapshot.
+   while the observed branch has since landed R3.1–R3.8 through d4226eb.
+   The task file's snapshot therefore calls several now-present classes
+   “pending”; the code and the task are not at the same revision.
 3. Older README, architecture, and Phase 1 task notes still use mechanism.yaml,
    MechanismLoader, or --mechanism mechanism.yaml; current robot/simulator code
    reads RobotConstants.java.
@@ -903,6 +931,11 @@ does not choose a winner:
 6. The old Drive.Manual wording and current R3 RequestStream wording describe
    the same robot-frame values but different DTO names; R3 removal is still
    under review.
-7. mimari.md is an intentionally stale Turkish historical inventory and
+7. The first request-flow Mermaid diagram models HAL→Subsystem observe as a
+   separate edge, while current `IRobotEngine.sense` invokes `Subsystems.observe`
+   internally; the diagram is retained verbatim as the design source.
+8. `GamepadState` now has `back`/`start` fields, but the current Python viewer
+   omits those JSON keys and `SimHal` defaults missing keys to false.
+9. mimari.md is an intentionally stale Turkish historical inventory and
    references legacy Python modules; it is not a second current architecture
    source.
