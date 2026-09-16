@@ -1,3 +1,5 @@
+> Güncel Faz 1.1 mimari taslağı için [architecture/architecture.md](architecture/architecture.md) dosyasına bakın; bu belge tarihsel kayıttır.
+
 # BOOBUZZ Mimarisi
 
 > **Gall's Law:** Çalışan karmaşık bir sistem, her zaman çalışan basit bir sistemden

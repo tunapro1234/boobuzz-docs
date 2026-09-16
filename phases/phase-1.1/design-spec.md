@@ -185,3 +185,18 @@ _(append only; never rewrite the sections above)_
     teleop can run `AutoBuilder` sequences (fluent chains), `SWITCH_ENGINE` request handled by
     `RobotLoop` for mid-match contingency. `ITurret` + `StubTurret` added to `Subsystems`.
   - Task: `robot-cx-13-r3-naming-logic-requests.md`. Flow diagrams: `request-flow.md`.
+- 2026-09-16 **S3 multi-robot sim** (Tuna request, after R3 design): `sim.server --robots N`
+  binds `port+i`, one shared pymunk/PyBullet world, lockstep across all connected clients
+  (world advances only when every ready client has a pending equal-dt step); disconnected
+  bodies stay in the world and coast. Robot-robot contact test on both backends, two-robot
+  determinism, viewer Tab cycles the HUD robot, `scripts/two_robots.sh`. Why: collisions
+  between robots and defence scenarios cannot be tested with one body. Task: `sim-cx-11-multi-robot.md`.
+- 2026-09-16 **R4 seam taps, bagging, replay, socket** (Tuna request): `core/debug/DebugTap`
+  streams one JSON line per tick per seam (hal, subsystem, logic) on `DEBUG_TAP_PORT`; the same
+  stream is written to a bag file (`--bag`); `controller/replay/ReplayController` replays a bag
+  bit-equal; `controller/socket/SocketController` lets an external process (an LLM or a tool)
+  drive the robot over `CONTROL_SOCKET_PORT`. Taps and sockets must work on the real robot over
+  the Robot Controller WiFi so the robot can be debugged from a laptop. Why: ROS-style
+  introspection without ROS. Task: `robot-cx-14-r4-taps-bag-replay.md`.
+- 2026-09-16 **Docs order**: no separate R3 architecture pass; `architecture.md` is refreshed once
+  after R4 (docs-cx-06 A3 stays a draft until then).
