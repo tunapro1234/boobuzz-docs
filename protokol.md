@@ -10,38 +10,25 @@ Değişiklik önce burada, sonra kodda. Bu dosyayı ftc-main günceller.
 - **Lockstep:** her tick tam bir `step` ↔ `state` çifti. Python `step` gelmeden ilerlemez.
 - Taşıma: TCP `127.0.0.1:5555`, satır sonlu JSON (bir mesaj = bir satır).
 
-## Tek gerçek kaynak: `robot-code/mechanism.yaml`
-İki taraf da **aynı dosyayı** okur. Motor/servo/sensör **adları** buradan gelir; protokol
-şeması sabit kalır, adlar konfigürasyondur. Java başlangıçta ad listesini doğrular,
-uyuşmazlık = anında çökme (sessiz kayma yasak).
-
-```yaml
-units: {length: in, angle: deg}          # dosyada derece; PROTOKOLDE RADYAN
-robot: {width: 18, length: 18}            # ayak izi; duvar kırpma + çizim
-frames:
-  robot:  {parent: field}
-  turret: {parent: robot, xyz: [0, 1.5, 8], joint: revolute, axis: z, limits: [-180, 180]}
-  camera: {parent: turret, xyz: [0, 4, 2], rpy: [0, -20, 0], hfov: 63.3, vfov: 49.7}
-drivetrain: {type: mecanum, track_width: 13.0, wheel_base: 11.0, wheel_diameter: 4.0}
-motors:                                   # ad = protokol anahtarı
-  # pos = [x ileri, y sol] robot çerçevesi (aşağıdaki çerçeve kuralı)
-  fl: {drives: wheel, pos: [ 6.5, 5.5], roller: 45,  ticks_per_rev: 537.7, free_rpm: 312, kV: 0.0, kS: 0.0}
-  fr: {drives: wheel, pos: [ 6.5,-5.5], roller: -45, ticks_per_rev: 537.7, free_rpm: 312, kV: 0.0, kS: 0.0}
-  bl: {drives: wheel, pos: [-6.5, 5.5], roller: -45, ticks_per_rev: 537.7, free_rpm: 312, kV: 0.0, kS: 0.0}
-  br: {drives: wheel, pos: [-6.5,-5.5], roller: 45,  ticks_per_rev: 537.7, free_rpm: 312, kV: 0.0, kS: 0.0}
-servos: {}
-sensors:
-  imu: {parent: robot}
-  pinpoint: {parent: robot, xyz: [0, 0, 0]}
-```
-Faz 0/1'de sadece 4 tekerlek. Shooter/turret/tof/limelight **eklendiğinde** buraya
-girer, protokol değişmez.
+## Tek gerçek kaynak: `robot-code/TeamCode/core/src/main/java/boobuzz/core/hal/RobotConstants.java`
+(16 Eyl: `mechanism.yaml` KALDIRILDI — runtime parser istenmiyor, hatalar derlemede görülsün.)
+İki taraf da **aynı Java dosyasını** okur: Java derleme zamanı sabit olarak, Python
+(`sim/mechanism.py`) regex ile satır satır. Makine-okunur sözleşme:
+- skaler: `public static final double NAME = value;` tek satır (ROBOT_WIDTH, ROBOT_LENGTH,
+  WHEEL_DIAMETER, BATTERY_V, MOTOR_TAU_S, EFFICIENCY_FL/FR/BL/BR, STRAFE_EFF,
+  ZERO_POWER_DECEL_FORWARD_IN_S2, ZERO_POWER_DECEL_LATERAL_IN_S2); string: ANGLE_UNIT="deg",
+  DRIVETRAIN_TYPE="mecanum".
+- motor: `public static final Motor FL = new Motor("fl", "wheel", xForward, yLeft, rollerDeg, ticksPerRev, freeRpm);`
+  tek satır; `MOTORS` dizisi; `SERVOS = {}`; `PINPOINT = new Pinpoint(xOffset, yOffset, xDir, yDir, pod)`.
+- Motor/servo/sensör **adları** buradan gelir; protokol şeması sabit kalır. Java başlangıçta
+  `ready` içindeki ad listesini doğrular, uyuşmazlık = anında çökme (sessiz kayma yasak).
+Faz 0/1'de sadece 4 tekerlek. Shooter/turret/tof **eklendiğinde** buraya girer, protokol değişmez.
 
 ## Çerçeve kuralı (Pedro/FTC ile aynı — Faz 2.5'te çevrim yok)
 - **Saha:** 144×144 in, orijin köşe, `x`,`y` ∈ [0,144]. `h` = robotun ileri yönünün saha
   `+x` ekseninden **CCW** açısı, radyan. `h=0` ⇒ robot `+x`'e bakar.
 - **Robot:** `+x` ileri, `+y` SOL, dönüş CCW pozitif. `Drive.Manual(vx,vy,ω)` de bu çerçevede
-  (`vy>0` = sola kayma). `mechanism.yaml`'daki tüm `pos`/`xyz` bu çerçevede.
+  (`vy>0` = sola kayma). `RobotConstants`'taki tüm `xForward/yLeft` bu çerçevede.
 - `imu.yaw` ile `pinpoint.h` aynı tanım; ikisi de seed'li gürültülü (σ 0.002 rad).
   Gürültüsüz sensör `truth`'u `:core`'a sızdırır — yasak.
 - `free_rpm`: `kV=0` "ideal" modunda hız = `power × free_rpm`. Zorunlu alan.
@@ -66,10 +53,15 @@ girer, protokol değişmez.
 ### Java → Python
 ```json
 {"type":"reset","seed":0,"pose":{"x":0,"y":0,"h":0}}
-{"type":"step","dt_ms":20,"motors":{"fl":0.5,"fr":-0.3,"bl":0.5,"br":-0.3},"servos":{}}
+{"type":"step","dt_ms":20,"motors":{"fl":0.5,"fr":-0.3,"bl":0.5,"br":-0.3},"servos":{},
+ "events":[{"name":"shooter.feed.start","t_ms":1240,"data":{}}]}
 {"type":"bye"}
 ```
 `motors` değerleri −1..1 güç. Eksik anahtar = 0.
+- `events` (Faz 1.1, opsiyonel, boş liste = yok): subsystem olayları (`shooter.feed.start/end`,
+  `intake.on/off`, ileride controller→logic Intent olayları). Python **fiziği bundan türetmez**;
+  sadece kaydeder ve viewer'da gösterir. Topun ne zaman atıldığı motor izinden çözülmez, buradan bilinir.
+  `t_ms` Java'nın o tick'teki `hal.now()` değeri.
 
 ### Python → Java
 ```json
@@ -97,20 +89,28 @@ girer, protokol değişmez.
 
 ## Java tarafı tipler (`:core`, SDK'sız)
 ```java
-record RobotAction(Map<String,Double> motors, Map<String,Double> servos) {}
+record RobotAction(Map<String,Double> motors, Map<String,Double> servos, List<Event> events) {}
+record Event(String name, long tMs, Map<String,Double> data) {}
 record RobotState (long t, Map<String,Integer> enc, Map<String,Double> vel,
                    double yaw, Pose pinpoint, double voltage) {}
 interface Hal           { long now(); RobotState read(); void write(RobotAction a); }
 interface GamepadSource { GamepadState get(); }
 ```
-Ad-anahtarlı map = `mechanism.yaml`'a motor eklemek `:core`'u değiştirmez.
+Ad-anahtarlı map = `RobotConstants`'a motor eklemek protokolü değiştirmez. `RealHal` `events`'i yok sayar.
 (Kayıt/sealed Android'de derlenmezse düz final sınıf; buna zaman gömme.)
 
 ## Determinizm
 Aynı `seed` + aynı `step` dizisi ⇒ bit-bit aynı `state` dizisi. Python tarafında
 gürültü yalnızca `seed`'li RNG'den. Test: 500 adım iki kez koş, `truth` eşit olmalı.
 
-## Faz 1 fizik (Python) — asgari
+## Faz 1.1 fizik (Python) — rijit cisim
+- `sim.server --physics pymunk|pybullet` (varsayılan pymunk). Tek `PhysicsBackend` arayüzü:
+  `reset(seed, pose)`, `step(dt_ms, powers, events)`, `state(dt)`. Motor modeli (τ, batarya,
+  verim, roller açısı) backend'den bağımsız ortak Python kodu; backend yalnızca rijit cisim,
+  duvar, sürtünme ve temas. Açılı duvar teması robotu döndürür ve duvar boyunca kaydırır.
+- Determinizm ve mesaj şeması backend'den bağımsız; iki backend aynı e2e'yi toleransla geçer.
+
+## Faz 1 fizik (Python) — asgari (tarihsel, 1.1'de yerini yukarıdaki alır)
 - Motor: `power → hedef hız = (power·V − kS)/kV`, birinci derece gecikme (τ ≈ 0.1 s).
   Faz 1'de kV/kS 0 ise "ideal": hız = power × serbest hız.
 - Mecanum ters/düz kinematik → şasi twist → pozu Euler'le ilerlet. Sürtünme yok, çarpışma
@@ -124,3 +124,4 @@ gürültü yalnızca `seed`'li RNG'den. Test: 500 adım iki kez koş, `truth` e�
 - 15 Eyl: `ready` başlangıç state'i taşır (ftc-robot'un boşluğu; alternatif dt_ms=0 reddedildi — sıfır adım fizik için anlamsız).
 - 15 Eyl: Pedro çerçeve araştırması → protokolde değişiklik YOK; FTC-standart çevrim, MeepMeep yönelimi (90° CW, 141 in) ve mirror uyarısı eklendi.
 - 15 Eyl: ittifak kenarı görsele göre kırmızı x=0 / mavi x=144 (viewer yer tutucusu tersti, takas edildi); ızgara 24 in kaldı.
+- 16 Eyl: `mechanism.yaml` → `RobotConstants.java` (tek kaynak, derleme zamanı). Faz 1.1: `step.events` alanı, `--physics` backend seçimi.

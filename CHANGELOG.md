@@ -30,7 +30,7 @@ Sezonun ilk tam çalışma günü ve şimdiye kadarki en yoğunu. Anlatı hâli:
 - `567667f` Field-oriented sürüş: stick saha çerçevesinde, dönüşüm L3'te biter — *ftc-robot*
 - `c9907c9` `SimMain`: viewer kapanınca temiz çıkış, stack trace yok — *ftc-robot*
 
-**Faz 1 / `robot-cx-01` — Pedro Pathing 3.0 HAL üstüne** (spec: `gorevler/robot-cx-01-pedro-hal.md`) — *ftc-robot-cx (Codex)*
+**Faz 1 / `robot-cx-01` — Pedro Pathing 3.0 HAL üstüne** (spec: `phases/phase-1/robot-cx-01-pedro-hal.md`) — *ftc-robot-cx (Codex)*
 - `85be43f` HAL Pinpoint verisini Pedro localizer'a bağla
 - `15e5721` Pedro drivetrain çıkışını HAL eylemine bağla
 - `8a3d030` Pedro follower ve yol motorunu ekle
@@ -45,7 +45,7 @@ Sezonun ilk tam çalışma günü ve şimdiye kadarki en yoğunu. Anlatı hâli:
   `ForesightConfig`. `DrivePowers` alan sırası `forward, strafe, turn`.
 
 **Review** — sıfır bağlamlı Claude Opus subagent'ı, diff `c9907c9..dd4bd3f` — *review*
-- BLOKER yok; 4 ÖNEMLİ + 8 KÜÇÜK bulgu → `gorevler/robot-cx-03-review-duzeltme.md`
+- BLOKER yok; 4 ÖNEMLİ + 8 KÜÇÜK bulgu → `phases/phase-1/robot-cx-03-review-duzeltme.md`
 
 **`robot-cx-03` — review düzeltmeleri** — *ftc-robot-cx (Codex)*
 - `ceff098` Heading offsetinde localizer hızını döndür (A1 — `setPose` heading
@@ -58,13 +58,13 @@ Sezonun ilk tam çalışma günü ve şimdiye kadarki en yoğunu. Anlatı hâli:
   hatası — `6.282678 rad` çıktısının kaynağı — burada kapandı)
 
 **`robot-cx-02` — katman ağacı envanteri** (ÖNCE RAPOR, kod yok) — *ftc-robot-cx (Codex)*
-- Çıktı: `gorevler/robot-cx-02-rapor.md` (mevcut ağaç + katman etiketleri, taşıma
+- Çıktı: `phases/phase-1/robot-cx-02-rapor.md` (mevcut ağaç + katman etiketleri, taşıma
   listesi, Gradle yönü, riskler)
 - `ftc-main` + Tuna kararı: raporun §2 önerisi (L2/L3'ü TeamCode dışında tutmak)
-  **reddedildi**; bağlayıcı yerleşim `gorevler/faz1-katman-plani.md`'ye yazıldı —
+  **reddedildi**; bağlayıcı yerleşim `phases/phase-1/faz1-katman-plani.md`'ye yazıldı —
   üç katman `TeamCode/` içinde, `:core` fiziksel olarak `TeamCode/core/`
 
-**`robot-cx-04` — katman taşıma** (`gorevler/faz1-katman-plani.md`) — *ftc-robot-cx (Codex)*, `dev-phase-1`'de sürüyor
+**`robot-cx-04` — katman taşıma** (`phases/phase-1/faz1-katman-plani.md`) — *ftc-robot-cx (Codex)*, `dev-phase-1`'de sürüyor
 - `981b8a9` Core modülünü TeamCode altına taşı
 - `acd0c1c` SDK guard taramasını sourceSet'lere bağla (guard'ın sessizce ölme
   riski — `robot-cx-02` §6 — burada kapatıldı)
@@ -102,7 +102,7 @@ Sezonun ilk tam çalışma günü ve şimdiye kadarki en yoğunu. Anlatı hâli:
 - Doğrulama: `./run_tests.sh` → 44 geçti, 6 atlandı
 
 **`sim-cx-01` — motor elektriği + gerçek mecanum kinematiği + kalibrasyon**
-(spec: `gorevler/sim-cx-01-motor-mecanum-fizik.md`) — *ftc-sim-cx (Codex)*
+(spec: `phases/phase-1/sim-cx-01-motor-mecanum-fizik.md`) — *ftc-sim-cx (Codex)*
 - `0770dd6` Motor elektriğini YAML parametrelerine bağla — batarya voltajı
   (`battery_v: 12.0`), motor zaman sabiti (`motor_tau_s: 0.1`), teker başına
   verimlilik (`efficiency`, hepsi 1.0 — **ölçülmedi**) `physics:` bloğuna taşındı
@@ -123,7 +123,7 @@ Sezonun ilk tam çalışma günü ve şimdiye kadarki en yoğunu. Anlatı hâli:
   Faz 1'e katlandı**; Faz 0 "BİTTİ" olarak işaretlendi — *ftc-main*
 - `mimari.md` §0 "Dizin yerleşimi" eklendi (üç katman `TeamCode/` içinde) — *ftc-main*
 - `protokol.md`: çerçeve kuralı, saha orijini, `ready` mesajı, `physics:` bloğu — *ftc-main*
-- `gorevler/`: `robot-cx-01`, `robot-cx-02` (+rapor), `robot-cx-03`, `sim-cx-01`
+- `phases/phase-1/`: `robot-cx-01`, `robot-cx-02` (+rapor), `robot-cx-03`, `sim-cx-01`
   spec'leri, `faz1-katman-plani.md`, `devir-ftc-main-cx.md`, `devir-rapor.md`
 - Bu depo kuruldu: `README.md`, `CHANGELOG.md`, `gunluk/`, `engine-iterasyonlari/`
 
@@ -132,9 +132,9 @@ Sezonun ilk tam çalışma günü ve şimdiye kadarki en yoğunu. Anlatı hâli:
 - ~06:50 — `ftc-main` model limitine takıldı; koordinasyon geçici olarak
   `ftc-main-cx`'e (Codex) devredildi. Tuna'nın şartı: **aşamayı tamamla ama
   `ftc-main` kontrol etmeden bir sonraki aşamaya geçme.** Devir notu:
-  `gorevler/devir-ftc-main-cx.md`.
+  `phases/phase-1/devir-ftc-main-cx.md`.
 - Limit sıfırlanınca koordinasyon `ftc-main`'e geri döndü; `ftc-main-cx` devir
-  raporunu yazdı (`gorevler/devir-rapor.md`) ve review başlatıldı.
+  raporunu yazdı (`phases/phase-1/devir-rapor.md`) ve review başlatıldı.
 - `ftc-ball-cx` gün boyu **beklemede** tutuldu (Tuna kararı: aktif kapsam yalnız
   robot + sim).
 

@@ -34,7 +34,7 @@ bu kez **süreci** de yazıyoruz, sonucu değil sadece.
 | `CHANGELOG.md` | Gün bazlı, repo bazlı, commit hash'li değişiklik kaydı; hangi ajanın yaptığı yazılı. |
 | `gunluk/` | Her gün bir dosya: ne denendi, ne yanlış gitti, ne öğrenildi. Şablon: `gunluk/SABLON.md`. |
 | `engine-iterasyonlari/` | Her logic engine iterasyonu için karşılaştırmalı doküman (C1, Pedro, …). |
-| `gorevler/` | Ajanlara verilen görev spec'leri ve dönen raporlar — yolculuğun ham kaydı. |
+| `phases/phase-1/` | Ajanlara verilen görev spec'leri ve dönen raporlar — yolculuğun ham kaydı. |
 
 Okuma sırası ilk kez gelen biri için: bu dosya → `plan.md` → `mimari.md` →
 `CHANGELOG.md` → `gunluk/` (en yeniden geriye).
@@ -75,7 +75,7 @@ varlık sebeplerinden biri de tam olarak bunu şeffaf biçimde belgelemek.
 
 - **İnsan (Tuna).** Kararı verir: hangi faz, hangi yerleşim, neyi kesiyoruz. Spec'i
   onaylar, raporu okur, kabul eder ya da reddeder. Ajanlar hiçbir mimari kararı
-  kendi başına vermez — `gorevler/*.md` dosyalarındaki "Tuna'nın şartları
+  kendi başına vermez — `phases/phase-1/*.md` dosyalarındaki "Tuna'nın şartları
   (bağlayıcı)" blokları bunun kaydıdır.
 - **`ftc-main` — Claude (Fable 5.1), orkestratör.** `plan.md`, `mimari.md`,
   `protokol.md`'nin tek sahibi. Görev spec'lerini yazar (kabul ölçütleri, yasaklar
@@ -89,7 +89,7 @@ varlık sebeplerinden biri de tam olarak bunu şeffaf biçimde belgelemek.
 - **Sıfır-bağlamlı Claude Opus review/temizlik subagent'ları.** Bir diff'i,
   onu üreten konuşmayı hiç görmeden inceler. Bağlam yokluğu özelliktir: yazan
   ajanın "bunu zaten konuşmuştuk" savunması review'a ulaşmaz. `robot-cx-03`
-  görevi (`gorevler/robot-cx-03-review-duzeltme.md`) doğrudan böyle bir
+  görevi (`phases/phase-1/robot-cx-03-review-duzeltme.md`) doğrudan böyle bir
   review'ın çıktısıdır — A1'den B8'e kadar madde madde.
 - **`bp` (blueprint).** Ajanların haberleştiği tmux tabanlı ajan altyapısı.
   `bp msg <ajan>` ile mesaj, ayrı tmux oturumlarında canlı paneller. Hiyerarşik
@@ -115,7 +115,7 @@ varlık sebeplerinden biri de tam olarak bunu şeffaf biçimde belgelemek.
 - Ajan teslimatı bazen kayboluyor (bkz. `gunluk/2026-09-15.md` — Codex panelinde
   doğrulanmayan `bp msg`).
 - Orkestratör limitine takılabiliyor; 15 Eylül'de koordinasyon geçici olarak bir
-  Codex ajanına devredildi (`gorevler/devir-ftc-main-cx.md`), sonra geri alındı.
+  Codex ajanına devredildi (`phases/phase-1/devir-ftc-main-cx.md`), sonra geri alındı.
 
 ---
 

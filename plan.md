@@ -79,7 +79,7 @@ C1'i, simde koşuyor) ve `:sim` `SimHal`/`SimMain` — ikisi de yeni **Faz 1**'e
 Eski Faz 1 (sim) / Faz 2 (C1) / Faz 2.5 (Pedro) **bu faza katlandı.** Robot bir süre
 elimizde yok → kanıt sim'de üretilir, robot geldiğinde aynı bytecode robota çıkar.
 
-Tasarım notu ve adım adım uygulama listesi: **`gorevler/faz1-katman-plani.md`** (bağlayıcı).
+Tasarım notu ve adım adım uygulama listesi: **`phases/phase-1/faz1-katman-plani.md`** (bağlayıcı).
 
 **Yerleşim kararı (takım lideri):** L1 HAL / L2 logic / L3 controller katmanları
 `TeamCode/` klasörünün **içinde**, her biri ayrı dizin. `:core` modülü fiziksel olarak

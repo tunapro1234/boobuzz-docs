@@ -6,8 +6,8 @@
 **Yazan ajan:** ftc-robot-cx (Codex gpt-5.6) · spec: ftc-main ·
 review: sıfır bağlamlı Claude Opus subagent'ı
 
-Spec: `../gorevler/robot-cx-01-pedro-hal.md` · Rapor: `../gorevler/devir-rapor.md`
-Review maddeleri: `../gorevler/robot-cx-03-review-duzeltme.md`
+Spec: `../phases/phase-1/robot-cx-01-pedro-hal.md` · Rapor: `../phases/phase-1/devir-rapor.md`
+Review maddeleri: `../phases/phase-1/robot-cx-03-review-duzeltme.md`
 
 ---
 
@@ -91,7 +91,7 @@ başlangıç `(72,72,0)`, dt=20 ms, 1000 adım, seed=1):
 - İki `seed=1` koşusunda truth ve pinpoint x/y/h **double bitleri birebir aynı**
 - Kabul ölçütü (x ∈ [118,122], |y−72| < 2, |h| < 0.1 rad): **geçti**
 - `robot-cx-03` düzeltmeleri sonrası koşu tekrarlandı (A5) — çıktının rapor dökümü
-  `gorevler/` altına düşmedi → **doldurulacak**
+  `phases/phase-1/` altına düşmedi → **doldurulacak**
 
 ## 5. Neyi daha iyi yaptı
 

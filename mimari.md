@@ -34,7 +34,7 @@ sim/  →  :sim — L1'in sim tarafı, ince adapter: SimHal · SimMain · Json �
 
 `settings.gradle`: `project(':core').projectDir = file('TeamCode/core')`. Modül
 sınırı — dolayısıyla kural 1'in derleyiciye devri — aynen korunur; `:sim` ve robot
-**aynı bytecode'u** koşar. Gerekçe ve elenen seçenekler → `gorevler/faz1-katman-plani.md`.
+**aynı bytecode'u** koşar. Gerekçe ve elenen seçenekler → `phases/phase-1/faz1-katman-plani.md`.
 
 ---
 
@@ -358,7 +358,7 @@ Sim ile gerçek arasındaki **tek fark L1'dir.**
 |---|---|
 | Üç seviye, L2 iki yönlü | Yığın değil döngü |
 | `:core` / `TeamCode` / `:sim` | Kural 1 derleyiciye devredilir |
-| Katmanlar `TeamCode/` içinde görünür dizinler | Kod okunduğunda mimari görünsün; modül sınırı korunsun diye `:core`'un `projectDir`'i `TeamCode/core/` (→ `gorevler/faz1-katman-plani.md`) |
+| Katmanlar `TeamCode/` içinde görünür dizinler | Kod okunduğunda mimari görünsün; modül sınırı korunsun diye `:core`'un `projectDir`'i `TeamCode/core/` (→ `phases/phase-1/faz1-katman-plani.md`) |
 | `TeamCode/src` altına `:core` kaynağı konmadı | AGP exclude filtresi deprecated yüzeyde; elle senkron iki filtre = sessiz çift derleme riski |
 | Sözleşmeler ayrı `contract/` paketinde | `Intent`/`Feedback` ne L2 ne L3'tür (§6) |
 | Seam motor seviyesinde | Arayüzün stabil olduğu yer |

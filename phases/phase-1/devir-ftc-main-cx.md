@@ -13,7 +13,7 @@ BİR SONRAKİ AŞAMAYA GEÇME. Kontrol = ftc-main'in review'ı; sen review yapma
 - Tahmin yok; her iddia komut çıktısına dayanır; "bulamadım" yazılır.
 
 ## Devam eden işler
-1. ftc-robot-cx → robot-cx-01: docs/gorevler/robot-cx-01-pedro-hal.md (Faz 2.5 adım 1).
+1. ftc-robot-cx → robot-cx-01: docs/phases/phase-1/robot-cx-01-pedro-hal.md (Faz 2.5 adım 1).
    Rapor gelince: sadece kabul ölçütlerine karşı özetle, hash'leri kaydet, BEKLE.
    Tutmayan varsa Codex'e spec içinde düzelttir; yeni kapsam ekleme.
 2. ftc-sim-cx → sim-cx-00 bitti (dev=dev-phase-2=f4bea22). Son istek: ./run_tests.sh ile 44 test
@@ -27,5 +27,5 @@ BİR SONRAKİ AŞAMAYA GEÇME. Kontrol = ftc-main'in review'ı; sen review yapma
 - Tuna'nın saha/hizalama onayı ve 09.15.1 tag'i BEKLİYOR — ftc-main karar verir.
 
 ## ftc-main döndüğünde
-Sonuçları docs/gorevler/devir-rapor.md'ye yaz: hash'ler, test sayıları, entegrasyon koşusu son poz,
+Sonuçları docs/phases/phase-1/devir-rapor.md'ye yaz: hash'ler, test sayıları, entegrasyon koşusu son poz,
 açık sorunlar. ftc-main bunu okuyup review başlatır.
