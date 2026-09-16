@@ -4,25 +4,22 @@ Stage 1 (Markdown) — implementation reference, checked 2026-09-16.
 
 This document describes what is in the two code repositories now. It is not a
 proposal and it does not expand the contracts in `protokol.md`. The source of
-truth for behaviour is the code; the source of truth for the Java/Python seam is
-`protokol.md` (owned by `ftc-main`).
+truth for behaviour is the code; `RobotConstants.java` is the shared
+compile-time configuration source, and `protokol.md` (owned by `ftc-main`) is
+the source of truth for the Java/Python wire seam.
 
 The working snapshots observed while writing were:
 
 | Repository | Branch | Path | Last committed HEAD observed | Role |
 |---|---|---|---|---|
-| `boobuzz-docs` | `stable` | `/home/shared/projects/boobuzz/docs` | `8c36274` | Journey records and this architecture document |
-| `robot-code` | `dev-phase-1` | `/home/shared/projects/boobuzz/robot-code` | `8c23e15` | Java core, FTC/Android HAL, and Java sim client |
-| `re-cock-nize` | `dev-phase-1` | `/home/shared/projects/boobuzz/re-cock-nize` | `2a6165e` | Python physics server, viewer, and physics tests |
+| `boobuzz-docs` | `stable` | `/home/shared/projects/boobuzz/docs` | `10fec86` | Journey records and this architecture document |
+| `robot-code` | `dev-phase-1` | `/home/shared/projects/boobuzz/robot-code` | `656f166` | Java core, FTC/Android HAL, and Java sim client |
+| `re-cock-nize` | `dev-phase-1` | `/home/shared/projects/boobuzz/re-cock-nize` | `5cc95cf` | Python physics server, viewer, and physics tests |
 
-The current code snapshots include the English-comment translation commits from
-`robot-cx-08` (Java) and `sim-cx-04` (Python). Those agents also rename any
-transient Turkish identifiers/diagnostics as they encounter them. At the read
-point, other uncommitted engine/configuration edits were present in the shared
-worktrees; they are intentionally excluded from the HEADs named above. Names
-and signatures below are the symbols in the checked code; an older or remaining
-Turkish name/message should be read as the English intent stated here, not as a
-new contract.
+All code and comments at these heads are English after the translation commits
+from `robot-cx-08` (Java, `8c23e15`) and `sim-cx-04` (Python, `2a6165e`). The
+architecture below cites only symbols present in the checked heads; older
+Turkish names in history are not current identifiers or new contracts.
 
 ## 1. Where the code lives
 
@@ -35,7 +32,6 @@ team's three-layer implementation.
 ```text
 robot-code/
 ├── settings.gradle
-├── mechanism.yaml                         # shared configuration; :core copies it as a resource
 ├── FtcRobotController/                    # FTC SDK module
 ├── TeamCode/
 │   ├── build.gradle                        # Android app; depends on :core
@@ -43,7 +39,7 @@ robot-code/
 │   │   ├── build.gradle
 │   │   └── src/
 │   │       ├── main/java/boobuzz/core/
-│   │       │   ├── hal/
+│   │       │   ├── hal/                    # includes RobotConstants.java
 │   │       │   ├── contract/
 │   │       │   ├── logic/
 │   │       │   │   └── cplx_engine_1/
@@ -70,11 +66,13 @@ re-cock-nize/
 ├── sim/
 │   ├── server.py                           # TCP protocol and lockstep
 │   ├── physics.py                          # motor + mecanum + pose
-│   ├── mechanism.py                        # YAML reader
+│   ├── mechanism.py                        # RobotConstants.java regex reader
 │   ├── encoder.py                          # integer tick quantisation
 │   ├── field.py                            # field constants and projection
-│   └── viewer.py                           # optional pygame input/drawing
+│   ├── assets/field_biobuzz.png            # optional viewer background
+│   └── viewer.py                            # optional pygame input/drawing
 ├── tests/
+│   ├── common.py                           # path to RobotConstants.java
 │   ├── test_calibrated_physics.py
 │   ├── test_determinism.py
 │   ├── test_gamepad.py
@@ -88,7 +86,7 @@ re-cock-nize/
 
 | Layer or boundary | Package/module path | Key classes and data |
 |---|---|---|
-| L1 HAL contracts and configuration | `boobuzz.core.hal` | `Hal`, `GamepadSource`, `GamepadState`, `RobotState`, `RobotAction`, `Mechanism`, `MechanismLoader` |
+| L1 HAL contracts and configuration | `boobuzz.core.hal` | `Hal`, `GamepadSource`, `GamepadState`, `RobotState`, `RobotAction`, `RobotConstants`, `Mechanism` |
 | L2↔L3 contract | `boobuzz.core.contract` | `Intent`, sealed `Drive`, `Feedback`, `WorldSnapshot`, `Request`, `RequestStatus`, `RequestType` |
 | L2 common interfaces | `boobuzz.core.logic` | `RobotEngine`, `Subsystem` |
 | L2 engine 1 | `boobuzz.core.logic.cplx_engine_1` | `CplxEngine1`, `DriveSubsystem`, `HalLocalizer`, `HalDrivetrain`, `PathRegistry`, `PedroConstants` |
@@ -158,7 +156,7 @@ the timestamp from the most recently received simulator state.
   `x` is robot-forward, `y` is robot-left, and `omega` is CCW-positive. No
   hand-written wheel-sign table is used by the Python physics.
 * **Measured lateral efficiency.** The recovered lateral velocity is multiplied
-  by `strafe_eff` (0.7346 in the canonical file).
+  by `RobotConstants.STRAFE_EFF` (0.7346).
 * **Zero-power coasting.** When all wheel powers are zero, forward and lateral
   chassis velocities move toward zero by their configured decelerations. The
   motor outputs are adjusted to remain consistent with that chassis velocity.
@@ -188,36 +186,43 @@ the timestamp from the most recently received simulator state.
   steps, reset reproducibility, and gamepad exclusion from the physics claim.
 
 The word “electrical” needs a precise qualification. The current model carries
-`physics.battery_v` and reports it as the bus voltage, but `MotorSim.target_rpm`
+`RobotConstants.BATTERY_V` and reports it as the bus voltage, but `MotorSim.target_rpm`
 does not use voltage (and there is no voltage sag, `kV`, or `kS` term). Thus the
 implemented per-wheel model is a first-order power-to-speed model with a fixed
 voltage value, not a voltage-dependent electrical circuit model.
 
 ### Calibration and provenance
 
-The canonical `/home/shared/projects/boobuzz/robot-code/mechanism.yaml` is read
-by the Java and Python sides. Values below are the current inputs; “measured”
+The canonical source is
+`/home/shared/projects/boobuzz/robot-code/TeamCode/core/src/main/java/boobuzz/core/hal/RobotConstants.java`.
+Java compiles these values into `Mechanism.DEFAULT`; Python reads the same source
+file with regular expressions. Values below are the current inputs; “measured”
 means the value was present in last season's code/data, not that the new chassis
 has been measured.
 
 | Input | Current value | Origin/status |
 |---|---:|---|
-| `physics.battery_v` | `12.0 V` | Fixed configuration; reported, not coupled into RPM yet |
-| `physics.motor_tau_s` | `0.1 s` | Phase-1 model choice |
-| `physics.efficiency.{fl,fr,bl,br}` | `1.0` each | Default/placeholder; explicitly **not measured** |
-| `physics.strafe_eff` | `0.7346` | `54.09 / 73.63`, carried from last season's `pedroPathing/Constants.java` |
-| `zero_power_decel_forward_in_s2` | `36.17 in/s²` | Absolute value of last season's `forwardZeroPowerAcceleration` |
-| `zero_power_decel_lateral_in_s2` | `85.98 in/s²` | Absolute value of last season's `lateralZeroPowerAcceleration` |
-| wheel `free_rpm` | `351.55735379568756 rpm` | Derived from `73.63 in/s` and a 4-inch wheel; direct RPM was not found |
-| wheel `ticks_per_rev` | `537.7` | Canonical motor/encoder configuration |
-| wheel positions | `(±6.5, ±5.5) in` | Current mechanism geometry, robot `(forward,left)` frame |
-| roller angles | `+45, -45, -45, +45°` | Current mechanism geometry; Python converts to radians |
-| Pinpoint offsets | `x=161.0 mm, y=0.0 mm` | Last season's measured Constants/Hardware value; re-measure on the new chassis |
+| `ROBOT_WIDTH`, `ROBOT_LENGTH` | `18.0`, `18.0 in` | Current footprint used for wall clamp/rendering |
+| `ANGLE_UNIT` | `"deg"` | Documentation marker; motor `rollerDeg` values are degrees |
+| `DRIVETRAIN_TYPE` | `"mecanum"` | Current drivetrain |
+| `WHEEL_DIAMETER` | `4.0 in` | Current wheel geometry |
+| `BATTERY_V` | `12.0 V` | Fixed configuration; reported, not coupled into RPM yet |
+| `MOTOR_TAU_S` | `0.1 s` | Phase-1 model choice |
+| `EFFICIENCY_FL/FR/BL/BR` | `1.0` each | Default/placeholder; explicitly **not measured** |
+| `STRAFE_EFF` | `0.7346` | `54.09 / 73.63`, carried from last season's `pedroPathing/Constants.java` |
+| `ZERO_POWER_DECEL_FORWARD_IN_S2` | `36.17 in/s²` | Absolute value of last season's `forwardZeroPowerAcceleration` |
+| `ZERO_POWER_DECEL_LATERAL_IN_S2` | `85.98 in/s²` | Absolute value of last season's `lateralZeroPowerAcceleration` |
+| each `RobotConstants.Motor.freeRpm` | `351.55735379568756 rpm` | Derived from `73.63 in/s` and a 4-inch wheel; direct RPM was not found |
+| each `RobotConstants.Motor.ticksPerRev` | `537.7` | Current motor/encoder configuration |
+| motor positions | `(±6.5, ±5.5) in` | Current geometry, robot `(forward,left)` frame |
+| motor `rollerDeg` | `+45, -45, -45, +45°` | Current geometry; Python converts to radians |
+| `PINPOINT` offsets | `x=161.0 mm, y=0.0 mm` | Last season's measured Constants/Hardware value; re-measure on the new chassis |
+| `SERVOS` | empty array | No servos configured in this phase |
 
-The independent Java test fixture uses the same four-wheel geometry but
-`free_rpm: 312`; it is not the integration calibration. The canonical Python
-fixture was synchronised to the `161/0` Pinpoint values in sim commit
-`6432808`.
+The earlier sim calibration/integration run at commit `6432808` synchronised
+the `161/0` Pinpoint values. The current Python tests no longer carry a separate
+configuration fixture: `tests/common.py` points at `RobotConstants.java`, so
+Java and Python consume the same declarations.
 
 ### What is not simulated
 
@@ -250,7 +255,7 @@ constructs `CplxEngine1` unconditionally, and `SimMain` has no `--engine` flag.
 | `HalLocalizer` | Pedro 3.0 `Localizer` bridge over `RobotState.pinpoint`; no frame conversion. It computes velocity from successive samples, rotates velocity for a heading offset, and implements software-only `setPose`/`reset`. |
 | `HalDrivetrain` | Pedro 3.0 `Drivetrain` bridge. It stores the last FL/FR/BL/BR output and exposes it as a `RobotAction`; it never writes hardware. |
 | `PathRegistry` | Registers `test-line` from `(72,72,0)` to `(120,72,0)`. `test-turn` is a hold at `(120,72,pi/2)` because Pedro 3.0 rejects a zero-length `Line`; unknown IDs throw `IllegalArgumentException`. |
-| `PedroConstants` | Builds a fresh `ForesightConfig` and `Follower` from `Mechanism` physics/geometry. PID starting values are conservative; velocity and brake parameters are derived from the YAML values above. |
+| `PedroConstants` | Builds a fresh `ForesightConfig` and `Follower` from `Mechanism` physics/geometry. PID starting values are conservative; velocity and brake parameters are derived from the `RobotConstants` values above. |
 
 Pedro 3.0 APIs actually used are `Follower(Localizer, Drivetrain, Algorithm)`,
 `update()`/`update(double)`, `follow(Path)`, `hold(Pose)` (and the available
@@ -308,9 +313,11 @@ SimHal <====== line-delimited JSON/TCP ======> re-cock-nize SimServer
 ```
 
 The only mutable cross-layer values are the values passed through this tick.
-`mechanism.yaml` is shared configuration, not a runtime global. Core has no
-singleton scheduler or global state. `Drive.HOLD` is an immutable static value;
-other static values are constants or protocol defaults.
+`RobotConstants` is compile-time configuration, not a runtime control channel.
+`Mechanism.DEFAULT` is one shared projection of those constants (configuration,
+not control state). Core has no mutable singleton scheduler or global state.
+`Drive.HOLD` is an immutable static value; other static values are constants or
+protocol defaults.
 
 The actual mutable state is local to these objects:
 
@@ -327,8 +334,8 @@ The actual mutable state is local to these objects:
 
 There is no shared mutable singleton between these owners. Records cross the
 boundaries by value (with the map/list copying noted below), and the only
-cross-process shared input is the canonical `mechanism.yaml` plus the JSON
-messages.
+cross-process shared configuration input is the canonical `RobotConstants.java`
+source plus the JSON messages.
 
 ### L1 Java contracts
 
@@ -483,98 +490,106 @@ that status is drained on a later `sense`. `Intent.cancels` is not read at all.
 No `SHOOT` or `INTAKE` implementation exists. The request lifecycle and whether
 the contract should be frozen or revised are explicitly pending a team decision.
 
-### Mechanism and `mechanism.yaml`
+### RobotConstants (compile-time configuration)
 
-`Mechanism` is the Java configuration projection:
+`mechanism.yaml`, SnakeYAML, and `MechanismLoader` have been removed. The one
+configuration source is
+`TeamCode/core/src/main/java/boobuzz/core/hal/RobotConstants.java`. Java builds
+the shared `Mechanism.DEFAULT` projection from these constants, and the
+Python simulator reads the same Java source with regular expressions. A bad
+Java declaration is therefore a compile-time failure for the robot; the Python
+reader additionally validates the values it extracts.
+
+The public configuration fields currently are:
+
+| Field | Type/units | Current meaning |
+|---|---|---|
+| `ROBOT_WIDTH`, `ROBOT_LENGTH` | `double`, inches | 18.0 × 18.0 footprint; Python wall clamp/rendering |
+| `ANGLE_UNIT` | `String` | `"deg"` marker; motor `rollerDeg` values are degrees |
+| `DRIVETRAIN_TYPE` | `String` | `"mecanum"` |
+| `WHEEL_DIAMETER` | `double`, inches | 4.0-inch wheel |
+| `BATTERY_V` | `double`, volts | Fixed simulator bus-voltage report (not a motor-voltage model) |
+| `MOTOR_TAU_S` | `double`, seconds | First-order motor lag, 0.1 s |
+| `EFFICIENCY_FL`, `EFFICIENCY_FR`, `EFFICIENCY_BL`, `EFFICIENCY_BR` | `double`, dimensionless | Per-wheel factors, all 1.0 today |
+| `STRAFE_EFF` | `double`, dimensionless | 0.7346 lateral-efficiency factor |
+| `ZERO_POWER_DECEL_FORWARD_IN_S2` | `double`, inches/s² | 36.17 forward deceleration |
+| `ZERO_POWER_DECEL_LATERAL_IN_S2` | `double`, inches/s² | 85.98 lateral deceleration |
+| `FL`, `FR`, `BL`, `BR` | `RobotConstants.Motor` | Four wheel declarations, listed below |
+| `MOTORS` | `Motor[]` | Aggregate in protocol order; Python discovers the individual declarations |
+| `SERVOS` | `String[]` | Servo names; empty today |
+| `PINPOINT` | `RobotConstants.Pinpoint` | Java hardware offsets/directions/type; not parsed by Python |
+
+The nested records are exact:
 
 ```java
-record Mechanism(
-    List<String> motorNames,
-    List<String> servoNames,
-    Map<String, Motor> motors,
-    Drivetrain drivetrain,
-    Pinpoint pinpoint,
-    Physics physics
-) {}
-
-record Motor(String drives, double forward, double left, double freeRpm) {}
-record Drivetrain(double wheelDiameter) {}
+record Motor(String name, String drives, double xForward, double yLeft,
+             double rollerDeg, double ticksPerRev, double freeRpm) {}
 record Pinpoint(double xPodOffsetMm, double yPodOffsetMm,
                 String xPodDirection, String yPodDirection, String podType) {}
-record Physics(
-    Map<String, Double> efficiency,
-    double strafeEfficiency,
-    double zeroPowerDecelForwardInchesPerSecondSquared,
-    double zeroPowerDecelLateralInchesPerSecondSquared
-) {}
 ```
 
-`Mechanism` copies lists/maps. `wheelMotorNames()` selects motors whose
-`drives` is `"wheel"`; `motor(name)` and `pinpoint()` fail with
-`MechanismException` when absent; `requireNames(actualMotors, actualServos)`
-compares sorted lists with the simulator handshake.
+`RobotConstants.mechanism()` returns the one `Mechanism.DEFAULT` object. During
+construction, each `RobotConstants.Motor` becomes a `Mechanism.Motor` (which
+currently retains only `drives`, `forward`, `left`, and `freeRpm`), and
+`RobotConstants.PINPOINT` becomes a `Mechanism.Pinpoint`. `Mechanism` still
+copies its lists/maps; `wheelMotorNames()` selects `drives == "wheel"`,
+`motor(name)`/`pinpoint()` fail with `MechanismException` when absent, and
+`requireNames(actualMotors, actualServos)` compares sorted lists with the sim
+handshake.
 
-`MechanismLoader` provides `load(Path) throws IOException`,
-`load(InputStream, String origin)`, and `loadDefault()`. It uses SnakeYAML and
-packages the root `mechanism.yaml` as a `:core` resource. It requires a mapping,
-at least one motor, two numeric `pos` values, `drives`, `free_rpm`, a drivetrain
-wheel diameter, each motor's physics efficiency, strafe efficiency, and the two
-zero-power decelerations. `sensors.pinpoint` is optional in the parser but the
-current real hardware and drive setup require it.
+#### Machine-readable line format
 
-The canonical file currently has this schema (all lengths are inches unless the
-field name says `mm`; angles in the file are degrees):
+`sim/mechanism.py` is intentionally a small source reader, not a Java parser.
+The following formatting is part of the cross-repository contract:
 
-```yaml
-units: {angle: deg}
-robot: {width: 18, length: 18}
-drivetrain: {type: mecanum, wheel_diameter: 4.0}
-physics:
-  battery_v: 12.0
-  motor_tau_s: 0.1
-  efficiency: {fl: 1.0, fr: 1.0, bl: 1.0, br: 1.0}
-  strafe_eff: 0.7346
-  zero_power_decel_forward_in_s2: 36.17
-  zero_power_decel_lateral_in_s2: 85.98
-motors:
-  fl: {drives: wheel, pos: [6.5, 5.5], roller: 45,
-       ticks_per_rev: 537.7, free_rpm: 351.55735379568756}
-  fr: {drives: wheel, pos: [6.5, -5.5], roller: -45,
-       ticks_per_rev: 537.7, free_rpm: 351.55735379568756}
-  bl: {drives: wheel, pos: [-6.5, 5.5], roller: -45,
-       ticks_per_rev: 537.7, free_rpm: 351.55735379568756}
-  br: {drives: wheel, pos: [-6.5, -5.5], roller: 45,
-       ticks_per_rev: 537.7, free_rpm: 351.55735379568756}
-servos: {}
-sensors:
-  imu: {}
-  pinpoint: {x_pod_offset_mm: 161.0, y_pod_offset_mm: 0.0,
-             x_pod_direction: FORWARD, y_pod_direction: REVERSED,
-             pod_type: goBILDA_4_BAR_POD}
-```
+* Numeric scalar constants must be one line in the form
+  `public static final double NAME = NUMBER;`, with an all-capital `NAME` and a
+  decimal/scientific numeric literal. The reader uses the `_SCALAR_RE` pattern;
+  expressions such as `Math.PI * 4` are not machine-readable.
+* String constants must be one line in the form
+  `public static final String NAME = "value";`, again with an all-capital
+  `NAME`. The reader uses `_STRING_RE` (currently for `DRIVETRAIN_TYPE`; it
+  does not use `ANGLE_UNIT` to choose a conversion).
+* Each motor must be a single physical line with exactly seven comma-separated
+  constructor arguments:
+  `public static final Motor NAME = new Motor("name", "drives", xForward, yLeft, rollerDeg, ticksPerRev, freeRpm);`
+  `NAME` is all-capital; the first two arguments are strings and the remaining
+  five are numeric literals. `_MOTOR_RE` does not accept a line break or an
+  expression in the numeric positions. The four current lines are `FL`, `FR`,
+  `BL`, and `BR`.
+* `SERVOS` is read only when declared on one line as
+  `public static final String[] SERVOS = {"servo", ...};`; an empty `{}` is
+  valid. `MOTORS` and `PINPOINT` are Java-side declarations and are not parsed
+  by the Python reader.
 
-The Python `sim.mechanism.load` projection additionally retains `robot.width`
-and `.length`, drivetrain `type`, per-motor `roller_rad` and `ticks_per_rev`,
-`physics.battery_v` and `motor_tau_s`, and servo names. It accepts
-`units.angle` as `deg` or `rad` and converts roller angles to radians. The Java
-projection intentionally does not retain roller/tick fields, robot footprint,
-or battery/tau; it uses only the fields needed by current core/Pedro code. The
-current YAML has no runtime `frames` tree, turret, camera, or game-element
-schema; examples of those in design notes are future work.
+The Python `load(path)` function therefore takes a path to
+`RobotConstants.java`, extracts the scalar/string/motor/servo lines, converts
+`rollerDeg` from degrees to `roller_rad`, and validates positive/range values
+and four mecanum wheels. It derives per-motor efficiency from
+`EFFICIENCY_<NAME>` (defaulting to 1.0 if absent). `SimServer --mechanism`
+now names this Java source file (and defaults to the repository's
+`RobotConstants.java`); there is no YAML or PyYAML dependency and no separate
+simulator fixture. The Python `Mechanism` projection retains robot
+width/length, drivetrain type and diameter, roller/tick fields, battery/tau,
+efficiencies, and servo names; Python has no use for the Java-only Pinpoint
+record metadata.
 
 ### Real robot and Java sim seam
 
 `Hardware` is the SDK-only device finder/configurator. It obtains every motor
 and servo by the names in `Mechanism`, sets wheel direction/zero-power brake and
 run mode, configures the GoBILDA Pinpoint offsets/directions/pod type, sets the
-start pose, and collects voltage sensors. `RealHal` then reads Pinpoint,
-encoders, velocities, IMU heading, and bus voltage and maps `gamepad1`; writes
-are clamped to the FTC motors/servos.
+start pose, and collects voltage sensors. `TeleopMain` obtains `Mechanism` from
+`RobotConstants.mechanism()`; no runtime configuration file is loaded.
+`RealHal` then reads Pinpoint, encoders, velocities, IMU heading, and bus voltage
+and maps `gamepad1`; writes are clamped to the FTC motors/servos.
 
 `SimHal` is the L1 TCP client. It validates the protocol version and sorted
 motor/servo lists against `Mechanism`, keeps the latest `RobotState` and
 `GamepadState`, exposes `truth()` only as a sim-test/viewer diagnostic, and
-never puts truth into core.
+never puts truth into core. `SimMain` likewise obtains the same
+`Mechanism.DEFAULT`; the Python-side reader (server and tests) reads the Java
+source path supplied by `--mechanism` (or its repository default).
 
 ### JSON protocol (`SimHal` ↔ `sim.server`)
 
@@ -645,7 +660,8 @@ sequenceDiagram
     participant C as Controller
     participant P as Python SimServer
 
-    Note over H,P: Sim startup: SimHal sends reset; Python replies ready.state (t_ms=0)
+    Note over H,P: SimMain uses Mechanism.DEFAULT; server --mechanism reads RobotConstants.java; SimHal sends reset
+    P-->>H: ready.state (t_ms=0)
     L->>H: now()
     L->>H: read()
     alt simulation
@@ -689,10 +705,11 @@ project(':core').projectDir = file('TeamCode/core')
 include ':sim'
 ```
 
-`:core` is a Java 17 `java-library` with Pedro `core:3.0.0`, SnakeYAML, and
-JUnit. `:sim` is Java 17 `java-library` + `application`, depends on `:core`,
-and has no TeamCode dependency. `TeamCode` is the Android application and
-depends on both `FtcRobotController` and `:core`. The wrapper is Gradle 9.1.0;
+`:core` is a Java 17 `java-library` with Pedro `core:3.0.0` and JUnit; it has
+no SnakeYAML or other configuration-parser dependency. `:sim` is Java 17
+`java-library` + `application`, depends on `:core`, and has no TeamCode
+dependency. `TeamCode` is the Android application and depends on both
+`FtcRobotController` and `:core`. The wrapper is Gradle 9.1.0;
 the Android plugin is 8.13.2 and the FTC SDK dependencies are 12.0.0.
 
 `gradle/sdk-guard.gradle` is applied to `:core` and `:sim`. Before
@@ -728,7 +745,7 @@ Start the Python server first (terminal A):
 ```bash
 cd /home/shared/projects/boobuzz/re-cock-nize
 .venv/bin/python -m sim.server \
-  --mechanism /home/shared/projects/boobuzz/robot-code/mechanism.yaml \
+  --mechanism /home/shared/projects/boobuzz/robot-code/TeamCode/core/src/main/java/boobuzz/core/hal/RobotConstants.java \
   --headless --port 5556
 ```
 
@@ -739,21 +756,22 @@ cd /home/shared/projects/boobuzz/robot-code
 export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
 ./gradlew :sim:installDist
 sim/build/install/sim/bin/sim \
-  --mechanism mechanism.yaml --port 5556 \
+  --port 5556 \
   --path test-line --x 72 --y 72 --h 0 \
   --dt 20 --steps 1000 --seed 1
 ```
 
 `SimMain` also accepts `--drive vx,vy,omega` for a fixed manual command,
 `--host`, `--connect-timeout`, and the usual `--steps`/`--dt` options. `--path`
-and `--drive` are mutually exclusive. There is no engine selector: the factory
-always creates `cplx_engine_1`.
+and `--drive` are mutually exclusive. It has no `--mechanism` option: the Java
+client always obtains `Mechanism.DEFAULT` through `RobotConstants.mechanism()`.
+There is no engine selector: the factory always creates `cplx_engine_1`.
 
 The recorded Phase-1 integration evidence (headless, port 5556,
 `test-line`, start `(72,72,0)`, `dt=20 ms`, 1,000 steps, `seed=1`) entered the
 acceptance band at step 64 and ended at approximately truth
 `(120.0020 in, 71.9599 in, 0.000102 rad)` after the Pinpoint fixture was
-aligned by `6432808`. Two equal-seed runs were bit-identical. The real robot
+aligned by sim commit `6432808`. Two equal-seed runs were bit-identical. The real robot
 path has not yet been hardware-validated.
 
 ## 7. Appendix
@@ -767,8 +785,9 @@ path has not yet been hardware-validated.
 | `GamepadState` | Immutable sticks/buttons/triggers/dpad snapshot. |
 | `RobotState` | Immutable raw sensor snapshot; no truth. |
 | `RobotAction` | Immutable motor/servo output maps and builder. |
-| `Mechanism` | Immutable Java projection of names, geometry, Pinpoint, and Pedro physics. |
-| `MechanismLoader` | SnakeYAML loader (`Path`, stream, or classpath default). |
+| `RobotConstants` | Compile-time Java configuration and machine-readable motor/Pinpoint records. |
+| `RobotConstants.Motor` / `.Pinpoint` | Source records consumed by Java and (for motors/scalars) the Python regex reader. |
+| `Mechanism` | Java projection of names, geometry, Pinpoint, and Pedro physics (top-level lists/maps copied); `DEFAULT` comes from `RobotConstants`. |
 | `Intent` | One downward drive plus request/cancel arrays. |
 | `Drive` | Sealed Manual/Velocity/GoTo/FollowPath/Hold command family. |
 | `Feedback` | World snapshot plus request statuses and time. |
@@ -785,14 +804,14 @@ path has not yet been hardware-validated.
 | `HalLocalizer` | Pinpoint-to-Pedro localizer bridge and software pose offset. |
 | `HalDrivetrain` | Pedro output-to-`RobotAction` bridge; no hardware write. |
 | `PathRegistry` | `test-line` path and `test-turn` hold target. |
-| `PedroConstants` | Mechanism-derived Foresight/Pedro configuration. |
+| `PedroConstants` | `Mechanism`/`RobotConstants`-derived Foresight/Pedro configuration. |
 | `Hardware` | FTC device lookup and Pinpoint/motor setup. |
 | `RealHal` | FTC implementation of the core HAL. |
 | `TeleopMain` | `RealHal` + `RobotFactory` OpMode shell. |
 | `SimHal` | TCP client implementation of the core HAL. |
 | `SimMain` | Java command-line runner and fixed-drive shell. |
 | `Json` / sim exceptions | Line JSON codec and explicit protocol/connection errors. |
-| Python `Mechanism` / `Motor` / `PhysicsConfig` | YAML-derived Python configuration. |
+| Python `Mechanism` / `Motor` / `PhysicsConfig` | Configuration projected from `RobotConstants.java`. |
 | Python `MotorSim` | First-order output RPM and encoder source. |
 | Python `MecanumKinematics` | Geometry-derived forward/inverse chassis mapping. |
 | Python `Physics` / `Pose` | Deterministic world state, Euler integration, clamp, noise. |
@@ -806,11 +825,20 @@ path has not yet been hardware-validated.
   `Drive.Velocity` is not implemented, `Request`/cancel semantics are unused,
   and `GoTo.constraints` are not applied. `ftc-main` must decide what is frozen
   before later engine/subsystem phases.
-* **Pinpoint offsets.** Current `mechanism.yaml` and `Hardware` use measured
-  last-season values `x=161.0 mm`, `y=0.0 mm`. The FTC sample contains an
-  alternative `-84.0/-168.0 mm` product-insight example. Which pair belongs to
-  the new chassis must be measured and chosen; this document does not silently
-  change the current `161/0` configuration.
+* **Configuration representation (closed).** YAML, SnakeYAML, and
+  `MechanismLoader` were removed. `RobotConstants.java` is the compile-time
+  source because configuration errors must fail at compile time and this leaves
+  fewer moving parts. Its one-line declaration format is now a compatibility
+  contract for the Python regex reader.
+* **Pinpoint offsets.** Current `RobotConstants.PINPOINT` and `Hardware` use
+  measured last-season values `x=161.0 mm`, `y=0.0 mm`. The FTC sample contains
+  an alternative `-84.0/-168.0 mm` product-insight example. Which pair belongs
+  to the new chassis must be measured and chosen; this document does not
+  silently change the current `161/0` configuration.
+* **Duplicate configuration records.** `RobotConstants.Motor`/`Pinpoint` and
+  `Mechanism.Motor`/`Pinpoint` currently duplicate overlapping data. Fold them
+  into one representation in the next cleanup without breaking the Python
+  source-reader contract.
 * **Android Studio nested module sync.** `:core` is physically nested at
   `TeamCode/core` while being a separate Gradle project. The source/build
   contract is tested by Gradle, but Android Studio sync/navigation behaviour
@@ -819,9 +847,9 @@ path has not yet been hardware-validated.
 * **Real hardware validation.** `RealHal`, Pinpoint setup, motor directions,
   and TeleOp have not yet been exercised on the robot; sim is the current
   evidence path.
-* **Translation.** `robot-cx-08` and `sim-cx-04` are translating remaining
-  Turkish comments, diagnostics, and any transient identifiers. Translation is
-  intentionally not treated as an architecture change.
+* **Translation (closed for this snapshot).** `robot-cx-08` and `sim-cx-04`
+  completed the English rename/comment pass in commits `8c23e15` and
+  `2a6165e`; translation is not an architecture change.
 * **Stage 2.** LaTeX/PDF rendering follows `ftc-main`'s Markdown review.
 
 ### AI-assisted methodology
