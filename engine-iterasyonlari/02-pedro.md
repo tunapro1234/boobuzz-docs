@@ -6,7 +6,8 @@
 **Yazan ajan:** ftc-robot-cx (Codex gpt-5.6) · spec: ftc-main ·
 review: sıfır bağlamlı Claude Opus subagent'ı
 
-Spec: `../phases/phase-1/robot-cx-01-pedro-hal.md` · Rapor: `../phases/phase-1/devir-rapor.md`
+Spec: `../phases/phase-1/robot-cx-01-pedro-hal.md` · Rapor:
+`../_parked/phases/phase-1/devir-rapor.md` (untracked)
 Review maddeleri: `../phases/phase-1/robot-cx-03-review-duzeltme.md`
 
 ---

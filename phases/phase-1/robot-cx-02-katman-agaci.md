@@ -1,7 +1,8 @@
 # Görev robot-cx-02 — TeamCode'da L1/L2/L3 katman ağacı (ÖNCE RAPOR, kod yok)
 
 Repo /home/shared/projects/boobuzz/robot-code, dal dev-phase-2. Bu görevde KOD YAZILMAZ, dosya taşınmaz.
-Çıktı: /home/shared/projects/boobuzz/docs/phases/phase-1/robot-cx-02-rapor.md (≤120 satır) + bp msg ftc-main "rapor hazır".
+Çıktı: /home/shared/projects/boobuzz/docs/_parked/phases/phase-1/robot-cx-02-rapor.md
+(untracked; ≤120 satır) + bp msg ftc-main "rapor hazır".
 
 Tuna'nın şartları (bağlayıcı):
 - TeamCode ağacında L1 HAL / L2 logic-engine / L3 controller ayrımı dizin/paket düzeyinde GÖRÜNÜR olacak.

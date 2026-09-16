@@ -27,5 +27,5 @@ BİR SONRAKİ AŞAMAYA GEÇME. Kontrol = ftc-main'in review'ı; sen review yapma
 - Tuna'nın saha/hizalama onayı ve 09.15.1 tag'i BEKLİYOR — ftc-main karar verir.
 
 ## ftc-main döndüğünde
-Sonuçları docs/phases/phase-1/devir-rapor.md'ye yaz: hash'ler, test sayıları, entegrasyon koşusu son poz,
-açık sorunlar. ftc-main bunu okuyup review başlatır.
+Sonuçları docs/_parked/phases/phase-1/devir-rapor.md'ye (untracked) yaz: hash'ler, test sayıları,
+entegrasyon koşusu son poz, açık sorunlar. ftc-main bunu okuyup review başlatır.

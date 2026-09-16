@@ -34,7 +34,7 @@ bu kez **süreci** de yazıyoruz, sonucu değil sadece.
 | `CHANGELOG.md` | Gün bazlı, repo bazlı, commit hash'li değişiklik kaydı; hangi ajanın yaptığı yazılı. |
 | `gunluk/` | Her gün bir dosya: ne denendi, ne yanlış gitti, ne öğrenildi. Şablon: `gunluk/SABLON.md`. |
 | `engine-iterasyonlari/` | Her logic engine iterasyonu için karşılaştırmalı doküman (C1, Pedro, …). |
-| `phases/phase-1/` | Ajanlara verilen görev spec'leri ve dönen raporlar — yolculuğun ham kaydı. |
+| `phases/phase-1/` | Ajanlara verilen görev spec'leri — yolculuğun ham kaydı. Park edilen raporlar `_parked/` altındadır. |
 
 Okuma sırası ilk kez gelen biri için: bu dosya → `plan.md` → `mimari.md` →
 `CHANGELOG.md` → `gunluk/` (en yeniden geriye).
@@ -115,7 +115,7 @@ varlık sebeplerinden biri de tam olarak bunu şeffaf biçimde belgelemek.
 - Ajan teslimatı bazen kayboluyor (bkz. `gunluk/2026-09-15.md` — Codex panelinde
   doğrulanmayan `bp msg`).
 - Orkestratör limitine takılabiliyor; 15 Eylül'de koordinasyon geçici olarak bir
-  Codex ajanına devredildi (`phases/phase-1/devir-ftc-main-cx.md`), sonra geri alındı.
+  Codex ajanına devredildi (`_parked/phases/phase-1/devir-ftc-main-cx.md`, untracked), sonra geri alındı.
 
 ---
 
@@ -125,6 +125,7 @@ varlık sebeplerinden biri de tam olarak bunu şeffaf biçimde belgelemek.
 - Kod depoları ayrı: `robot-code` (Java, FTC SDK + `:core` + `:sim`),
   `re-cock-nize` (Python sim/fizik), `ball-auto-istic` (balistik, bu sezon
   beklemede). Onların dal düzeni: `stable` / `dev` / `dev-phase-N`.
+- `_parked/` untracked handoff/report dosyalarını tutar; geçmiş notlar yerelde korunur.
 - Bu depodaki hiçbir dosya kod üretmez; kaynak kodun tek gerçeği kod depolarıdır.
 
 ## Durum (15 Eylül 2026)

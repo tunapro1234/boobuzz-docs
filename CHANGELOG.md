@@ -58,8 +58,8 @@ Sezonun ilk tam çalışma günü ve şimdiye kadarki en yoğunu. Anlatı hâli:
   hatası — `6.282678 rad` çıktısının kaynağı — burada kapandı)
 
 **`robot-cx-02` — katman ağacı envanteri** (ÖNCE RAPOR, kod yok) — *ftc-robot-cx (Codex)*
-- Çıktı: `phases/phase-1/robot-cx-02-rapor.md` (mevcut ağaç + katman etiketleri, taşıma
-  listesi, Gradle yönü, riskler)
+- Çıktı: `_parked/phases/phase-1/robot-cx-02-rapor.md` (untracked; mevcut ağaç +
+  katman etiketleri, taşıma listesi, Gradle yönü, riskler)
 - `ftc-main` + Tuna kararı: raporun §2 önerisi (L2/L3'ü TeamCode dışında tutmak)
   **reddedildi**; bağlayıcı yerleşim `phases/phase-1/faz1-katman-plani.md`'ye yazıldı —
   üç katman `TeamCode/` içinde, `:core` fiziksel olarak `TeamCode/core/`
@@ -123,8 +123,9 @@ Sezonun ilk tam çalışma günü ve şimdiye kadarki en yoğunu. Anlatı hâli:
   Faz 1'e katlandı**; Faz 0 "BİTTİ" olarak işaretlendi — *ftc-main*
 - `mimari.md` §0 "Dizin yerleşimi" eklendi (üç katman `TeamCode/` içinde) — *ftc-main*
 - `protokol.md`: çerçeve kuralı, saha orijini, `ready` mesajı, `physics:` bloğu — *ftc-main*
-- `phases/phase-1/`: `robot-cx-01`, `robot-cx-02` (+rapor), `robot-cx-03`, `sim-cx-01`
-  spec'leri, `faz1-katman-plani.md`, `devir-ftc-main-cx.md`, `devir-rapor.md`
+- `phases/phase-1/`: `robot-cx-01`, `robot-cx-02`, `robot-cx-03`, `sim-cx-01`
+  spec'leri, `faz1-katman-plani.md`; handoff/rapor dosyaları
+  `_parked/phases/phase-1/` altında (untracked)
 - Bu depo kuruldu: `README.md`, `CHANGELOG.md`, `gunluk/`, `engine-iterasyonlari/`
 
 ### Koordinasyon olayları
@@ -132,9 +133,9 @@ Sezonun ilk tam çalışma günü ve şimdiye kadarki en yoğunu. Anlatı hâli:
 - ~06:50 — `ftc-main` model limitine takıldı; koordinasyon geçici olarak
   `ftc-main-cx`'e (Codex) devredildi. Tuna'nın şartı: **aşamayı tamamla ama
   `ftc-main` kontrol etmeden bir sonraki aşamaya geçme.** Devir notu:
-  `phases/phase-1/devir-ftc-main-cx.md`.
+  `_parked/phases/phase-1/devir-ftc-main-cx.md` (untracked).
 - Limit sıfırlanınca koordinasyon `ftc-main`'e geri döndü; `ftc-main-cx` devir
-  raporunu yazdı (`phases/phase-1/devir-rapor.md`) ve review başlatıldı.
+  raporunu yazdı (`_parked/phases/phase-1/devir-rapor.md`, untracked) ve review başlatıldı.
 - `ftc-ball-cx` gün boyu **beklemede** tutuldu (Tuna kararı: aktif kapsam yalnız
   robot + sim).
 
