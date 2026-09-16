@@ -74,7 +74,7 @@ Faz 0/1'de sadece 4 tekerlek. Shooter/turret/tof **eklendiğinde** buraya girer,
  "pinpoint":{"x":3.1,"y":0.4,"h":0.12},
  "voltage":12.6,
  "gamepad":{"lx":0,"ly":-0.8,"rx":0,"ry":0,"a":false,"b":false,"x":false,"y":false,
-            "lb":false,"rb":false,"lt":0,"rt":0,"dpad":"none"},
+            "lb":false,"rb":false,"back":false,"start":false,"lt":0,"rt":0,"dpad":"none"},
  "truth":{"x":3.0,"y":0.5,"h":0.12}}
 ```
 - `enc` tam sayı tick, `vel` tick/s, açılar **radyan**, uzunluk **inç**.
@@ -125,3 +125,4 @@ gürültü yalnızca `seed`'li RNG'den. Test: 500 adım iki kez koş, `truth` e�
 - 15 Eyl: Pedro çerçeve araştırması → protokolde değişiklik YOK; FTC-standart çevrim, MeepMeep yönelimi (90° CW, 141 in) ve mirror uyarısı eklendi.
 - 15 Eyl: ittifak kenarı görsele göre kırmızı x=0 / mavi x=144 (viewer yer tutucusu tersti, takas edildi); ızgara 24 in kaldı.
 - 16 Eyl: `mechanism.yaml` → `RobotConstants.java` (tek kaynak, derleme zamanı). Faz 1.1: `step.events` alanı, `--physics` backend seçimi.
+- 16 Eyl (R3.6): `gamepad` şemasına `back`, `start` alanları eklendi (teleop reset-pose ve engine switch). Eksik anahtar = false.
