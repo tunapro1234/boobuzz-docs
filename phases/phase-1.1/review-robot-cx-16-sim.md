@@ -158,3 +158,14 @@ Physics backend selection, seeded noise, event forwarding, gamepad `back`/`start
 and the normal one-client `ready`/`step` shape match the referenced documents on
 the tested paths. The findings above should be resolved before treating the
 multi-robot, tap, and bag tools as a production-safe protocol implementation.
+
+## sim-cx-16 response
+
+- Blocker input validation: `37d45b7`; multi-robot deadline/eviction: `0a348c6`; single-client server I/O deadline: `e3eee77`.
+- Reset epochs/barrier: `d9b3320`; strict three-seam bag groups: `c16b676`; tap-drop compatibility/reporting: `d81c138`.
+- Cheap minors: numeric event data `f501507`, TapReader reconnect `bfa9c29`, explicit servo validation/rejection `f6666b0`.
+- Verification: `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh` — 81 tests passed.
+- Pymunk/Java test-line on port 5590: 1000 ticks completed; final `x=119.98 y=71.97 h=6.283`, truth `x=119.94 y=72.01 h=6.283`; port released.
+- Java `SimHal` timeout changes were intentionally not made because this task forbids robot-code edits; the Python server now bounds reads/writes.
+- Java `DebugTap` producer was not edited; Python accepts its existing bare `tap_dropped` line and canonical `seam:meta` footer.
+- Process/network byte-for-byte determinism was not added: it is a non-cheap minor and outside the requested behavior changes.
