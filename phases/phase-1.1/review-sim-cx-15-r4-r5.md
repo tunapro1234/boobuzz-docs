@@ -262,3 +262,179 @@ integration test before treating R4 as production-ready.
 8. Semantically malformed batches refresh the socket watchdog.
 9. Opmode/exception shutdown does not reliably close or join all threads.
 10. Replay coverage is unit-level only; add a seeded bit-equal simulator test.
+
+## R5 addendum
+
+I reviewed every commit in `33ace3f..4151143` on robot-code
+`dev-phase-1.1`, including the in-range R4.4 follow-up `aca0f19`.  The review is
+read-only: no robot-code files were edited.  I inspected each patch, its added or
+updated tests, the cumulative source at `4151143`, and the R3 review findings.
+The robot worktree was clean at the review pin and `git diff --check 33ace3f..HEAD`
+reported no whitespace errors.  I did not run Gradle because this was a source-only
+cross-review.
+
+### Per-commit disposition
+
+#### `aca0f19` — R4.4 replay initial pose
+
+**[major regression]** `TeamCode/core/src/main/java/boobuzz/core/controller/replay/ReplayController.java:29-58`
+stores the header pose in `headerPose`, then lets the first `hal` seam populate
+`loadedPose`, and finally always chooses `loadedPose` when it exists.  A normal bag
+has both values, so the explicit reset pose in the header is silently ignored and
+replay starts at the first-tick HAL sample (`RobotLoop.java:76-110`) rather than
+the recorded reset metadata.  This undoes the header-based deterministic start and
+can shift every replayed tick.
+`ReplayControllerTest.java:23-45` has no HAL seam and therefore misses the regression.
+Fix: prefer `headerPose` when present and use the first HAL pose only when the
+header has no pose (or record a true pre-action reset seam); add tests for both
+precedence cases and a seeded equality run.
+
+#### `20f3812` — FTC loop yield
+
+**[resolved]** `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/opmode/AutoMain.java:43`
+and `TeleopMain.java:54` now call `idle()` after each tick, addressing the named
+watchdog/scheduler starvation finding without changing the control order.  No
+regression was introduced.  The separate R4 shutdown/lifecycle finding remains:
+these entry points still do not close `RobotLoop` in a `finally` block on early stop
+or exception.
+
+#### `4f0b38f` — RESET_POSE consumer
+
+**[resolved for PedroDrive]** `CplxEngine1.java:154-165` and
+`DirectMap.java:199-211` validate the pose, cancel active drive work, call the new
+`IDrive.resetPose`, and return `DONE`; `PedroDrive.java:110-117` applies the pose
+offset to `HalLocalizer`.  `ResetPoseEngineTest.java:25-46` covers both engines.
+The compatibility default `IDrive.java:24-26` is a **[minor residual]**: a future
+non-Pedro implementation can silently ignore reset while the engine still reports
+`DONE`.  Make reset mandatory (or return an explicit unsupported result) and test
+every production drive implementation.  The default is a reasonable source-
+compatibility choice only while PedroDrive is the sole production implementation.
+
+#### `3775131` — SHOOT RPM semantics
+
+**[resolved]** `SequenceRunner.java:116-123`, `CplxEngine1.java:138-151`, and
+`DirectMap.java:143-162` now use the same count-only calibrated RPM and validate
+explicit RPM/count values identically.  `ShooterRpmConsistencyTest.java:25-78`
+covers count-only, explicit, and invalid requests.  The interpretation is
+consistent with the R3 contract.  A **[minor architectural regression]** is the
+new `DirectMap.java:6` dependency on `logic.cplx1.ShooterLogic` for a shared
+calculation, which couples the supposedly independent direct and cplx variants.
+Move `calibratedRpm` to a neutral shared utility/contract location and keep both
+engines on that dependency.  No functional RPM mismatch remains.
+
+#### `5ef4a18` — stale action on engine handoff
+
+**[resolved]** `RobotLoop.java:80-107` writes `RobotAction.zero()` on every actual
+handoff tick, so an A→B→A switch cannot emit a retained action.  The regression test
+`RobotLoopSwitchTest.java:94-129` exercises both handoffs.  No new behavior issue
+was found; status forwarding for the cancellation itself was completed by the
+later `2fa9655` commit.
+
+#### `8c11fb7` — cancel-all turret safety
+
+**[resolved]** both engine cancel-all paths call `ITurret.hold()`
+(`CplxEngine1.java:61-67`, `DirectEngine.java:154-168`), and
+`EngineCancelAllTurretTest.java:25-49` covers automatic aim and direct handoff.
+No regression was found.  The test verifies the subsystem call rather than the
+real turret's final actuator output; retain a HAL-level assertion when the real
+turret implementation lands.
+
+#### `658c3d4` — cplx1 per-request shooter cancellation
+
+**[resolved]** `CplxEngine1.java:69-75` routes non-sentinel IDs to
+`ShooterLogic.cancel`, which spins down, releases shot hold, clears state, and
+emits a terminal cancellation status (`ShooterLogic.java:137-149`).  The direct
+logic tests in `ShooterCancellationTest.java:29-56` and cplx routing test at
+`:58-74` cover the path.  Coverage is still **[minor]** for an active `SHOOT`
+through `CplxEngine1` itself (the engine-level case exercises `SPIN_UP`); add that
+case and assert the feed mechanism is stopped.
+
+#### `ef039a5` — manual sequence override
+
+The safety intent is **[resolved]**: `TeleopController.java:59-65` exports all
+sequence-owned IDs, and both engines stop drive, shooter, and intake owners.
+However, the implementation introduces a **[major request-lifecycle regression]**.
+`CplxEngine1.java:125-136` and `DirectEngine.java:86-97` immediately report
+`INTAKE_ON`/positive `INTAKE` as `DONE` and also retain that same request ID in
+`activeIntakeRequestIds`.  A later manual takeover cancels the retained ID and
+emits `REJECTED("cancelled")` (`CplxEngine1.java:69-75`,
+`DirectEngine.java:65-73`), so one request can be observed as `DONE` and then
+`REJECTED`.  Track actuator ownership separately from the terminal request, or
+stop the intake without a second status for an already-DONE ID; add a test that
+asserts one terminal status per ID while still proving the intake motor stops.
+
+#### `164619d` — attached sequence completion barriers
+
+**[resolved]** `SequenceRunner.java:65-85,205-225` remembers terminal statuses and
+holds advancement until every attached request is `DONE`; the new
+`AutoControllerTest.java:55-77` proves a warmup cannot be bypassed by a completed
+path.  No regression was found.  Rejection and cancellation are handled on the
+tick where they are observed; add a retained-status failure test if status streams
+can be sparse in a future controller.
+
+#### `1620e33` — axis-aligned interpolation
+
+**[resolved]** `HalDrivetrain.java:94-125` skips zero trigonometric terms and keeps
+the forward/strafe limiting value for axis moves.  `HalDrivetrainTest.java:85-107`
+covers forward-only, strafe-only, diagonal, and zero-speed cases.  No regression
+was found for the non-negative velocity-limit contract.
+
+#### `2fa9655` — switch statuses and validation
+
+**[resolved]** `RobotLoop.java:78-108,211-240` queues invalid-switch rejections,
+completes a valid same-engine switch, forwards old-engine cancellation statuses,
+and preserves the zero-action handoff.  `RobotLoopSwitchTest.java:143-222`
+covers malformed, out-of-range, repeated, and old-status cases.  No regression was
+found; multiple valid switches are deterministically resolved by accepting the
+first and rejecting the rest.
+
+#### `3e7ab31` — unreachable ACCEPTED state
+
+**[resolved]** `RequestStatus.State` is now `ACTIVE, DONE, FAILED, REJECTED`
+(`RequestStatus.java:9-23`), matching all observed producers; the contract test
+covers the active/terminal split.  The removal is justified by the producer search
+and does not alter the JSON field names.  If old binary clients or hand-written
+bags can contain `ACCEPTED`, retain a deprecated parser alias during migration;
+no such producer exists in this tree.
+
+#### `4e8f5fe` — path constraint validation
+
+**[resolved]** `PathRequest.Constraints` and `Braking` reject non-finite and out-of-
+range values at construction (`PathRequest.java:120-132,170-177`), before Pedro
+modifiers are built.  `PathRequestValidationTest.java:7-35` covers representative
+invalid powers, velocity, and braking.  The remaining **[minor test gap]** is the
+absence of explicit negative/zero velocity and non-finite-power cases; add boundary
+tests even though the constructor guards already reject them.
+
+#### `4151143` — R3 safety coverage
+
+This is **[partial]**, not a complete resolution of the named coverage finding.
+`RobotLoopSafetyIntegrationTest.java:34-76` adds a useful cplx sequence → manual
+takeover → engine-switch integration assertion, and the preceding commits add
+focused unit tests.  There is still no real-HAL/SDK cadence test, no direct-engine
+equivalent integration path, and no seeded end-to-end reset/RPM/replay assertion.
+Add those cases (including a shutdown test) before marking R3 safety coverage
+complete.
+
+### Author choices, disagreements, and regressions
+
+No commit body records an explicit disagreement with the R3 review; each describes
+itself as a direct fix.  The compatibility no-op in `IDrive`, the shared-RPM helper
+placement, and removal of `ACCEPTED` are implementation choices rather than
+documented objections.  The only material behavior regression found in the range
+is `aca0f19`'s header-pose precedence; the `ef039a5` duplicate terminal status is
+the other material protocol defect.  All other named fixes are effective at the
+behavior level, subject to the test gaps called out above.
+
+### R5 addendum ten-line summary
+
+1. Review pin is `4151143`; every commit in `33ace3f..HEAD` was inspected read-only.
+2. `aca0f19` regresses replay by preferring a first-tick HAL pose over header reset pose.
+3. `20f3812` adds FTC `idle()` and fixes the named loop starvation issue.
+4. `4f0b38f` routes RESET_POSE through both engines and Pedro's software localizer.
+5. `3775131` aligns count-only and explicit SHOOT RPM semantics across engines.
+6. `5ef4a18` safely zeros outputs on A→B→A handoffs; `2fa9655` forwards statuses.
+7. `8c11fb7` and `658c3d4` quiesce turret and cplx shooter cancellation paths.
+8. `ef039a5` stops manual-sequence owners but can emit DONE then REJECTED for intake IDs.
+9. `164619d`, `1620e33`, `3e7ab31`, and `4e8f5fe` resolve their named logic/validation findings.
+10. `4151143` improves coverage but leaves direct, SDK, shutdown, and seeded replay tests.
