@@ -15,6 +15,75 @@ Gün bazlı kayıt. Her günün altında repo bazlı değişiklikler, commit has
 
 ---
 
+## 2026-09-16 — Faz 1.1 açıldı; R3 sözleşmesine ve çift fizik backend'ine geçiş
+
+Günün anlatısı: `gunluk/2026-09-16.md`. Bu bölümdeki commitler, gün içindeki
+`dev-phase-1` tabanından açılan `dev-phase-1.1` çalışmasını da kapsar.
+
+### Koordinasyon ve repo kimlikleri
+
+- GitHub depoları sırasıyla `boobuzz-robocode`, `boobuzz-ballautoistic` ve
+  `boobuzz-recocknize` olarak yeniden adlandırıldı; yerel klasör adları
+  (`robot-code`, `ball-auto-istic`, `re-cock-nize`) değişmedi.
+- Codex iş ajanları `gpt-5.6-luna max` profiline taşındı. Kullanım limiti
+  nedeniyle Claude Opus review'ları durdu; çapraz review Codex ajanlarına
+  devredildi. Bu bir koordinasyon kararıdır, tek başına bir kod commit'i yoktur.
+- Robot kodu ve yorumları `8c23e15`, sim kodu ve testleri `2a6165e` ile
+  İngilizceye çevrildi. Faz 1.1 spec/task metinleri de İngilizce tutuldu;
+  yolculuk anlatısı bu depoda Türkçe kalır.
+
+### robot-code — `dev-phase-1.1`
+
+`dev-phase-1` üzerindeki RobotConstants tabanı `656f166` ile sabitlendi; yeni
+konfigürasyon artık YAML değil derleme-zamanı Java sabitleri. Günün aşamalı
+taşıma ve sözleşme commitleri:
+
+- `89d7277` DTO'ları `contract` paketine taşıdı.
+- `1b68195` subsystem katmanını ve Pedro sürüşünü ekledi.
+- `6e77340` direct ve subsystem-backed engine seçimini bağladı.
+- `3d42b41` subsystem olaylarını simülasyon sınırında serileştirdi.
+- `f9bec30` core katman bağımlılık yönünü korudu; `9795f38` stub/direct akışını
+  test etti.
+- `454e876` gamepad DTO'larını sözleşmeye aldı; `01db267` ve `384fc3f`
+  otonom istek akışını genişletip yürüttü.
+- `6bb87e5` `AutoController`/fluent builder'ı, `5ad15fd` geçen sezonun altı
+  otonom rutin verisini, `900dba9` da sim ve FTC girişlerini ekledi. Faz 1.1
+  tasarım kabulünde bu altı rutin chassis-only olarak simde kanıtlanmış durumda.
+- `9e4b776` Pedro sınırında sonlu motor gücü korumasını ekledi; `87db6cd`
+  doğrusal heading yönünü korudu; `2573880` sonlu güç sınır testlerini ekledi.
+- `5defadf` R3.1 isim ağacını uyguladı: `IHal`, `IRobotEngine`, `IController`,
+  `cplx1`, `direct`, `teleop` ve `opmodes` paket adları.
+
+### re-cock-nize — `dev-phase-1.1`
+
+- `5cc95cf` Python okuyucuyu robot-code'daki `RobotConstants.java` dosyasına
+  bağladı; mekanizma YAML'ı artık kaynak değil.
+- `461d6a9` backend arayüzü ve kinematik backend'i, `9fe12df` Pymunk rijit
+  cisim backend'ini, `cbb0f07` duvar kayması ve determinism testlerini ekledi.
+- `5e02ea9` sim adımlarındaki olayları kaydetti; `d753cd8` viewer uyumunu
+  backend seçimine taşıdı.
+- `e260e02` deterministik PyBullet backend'ini, `fd364c8` yerel PyBullet GUI
+  modunu, `486a8d2` iki backend'i birlikte test etmeyi ekledi; `1f23b37`
+  robot kütlesini backend testlerine açtı.
+- `3ff0113` eski notları `_parked/` altına aldı, `a449b52` bunları ignore etti;
+  `9423f12` sanal ortam komutlarını README'ye yazdı.
+- `8af8281`, ftc-main'in tick 147'de 10× encoder uyuşmazlığından fark ettiği
+  NaN zincirini, encoder entegrasyonunu doğrudan motor teker hızlarına bağlayarak
+  düzeltti. Robot tarafındaki `9e4b776` sonlu-güç guard'ı bunun bağımsız güvenlik
+  katmanıdır.
+
+### docs ve açık iş
+
+- `2203d83` Faz 1.1 pre-write design spec'i ve faz görevlerini açtı; `73104b0`
+  R3 isimlendirme/ağaç, `Request` + `RequestStream`, logic modülleri ve altı
+  akış diyagramını kayda aldı; `d2a9a8f` gamepad haritası analizini ekledi.
+- Markdown temizliğiyle eski devir/rapor notları `_parked/` altına taşındı
+  (`0f13c41`, `28898b2`, `541ce24`).
+- `robot-cx-13` R3 uygulaması ve cross-review hâlâ **devam ediyor**; sözleşme
+  dondurma ve senkron tag bir sonraki kontrol noktasına kaldı.
+
+---
+
 ## 2026-09-15 — Faz 0 kapandı, Faz 1 açıldı; Pedro oturdu, sim fiziği gerçekleşti
 
 Sezonun ilk tam çalışma günü ve şimdiye kadarki en yoğunu. Anlatı hâli:
