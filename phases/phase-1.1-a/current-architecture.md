@@ -1,7 +1,7 @@
 # Current architecture (as built)
 
-**Snapshot:** docs `dev-phase-1.1-a@21dae9a`; robot-code
-`dev-phase-1.1-a@4b8ba23`; re-cock-nize `dev-phase-1.1-a@518bf9c`.
+**Snapshot:** docs `dev-phase-1.1-a@9e4114c`; robot-code
+`dev-phase-1.1-a@d5bda62`; re-cock-nize `dev-phase-1.1-a@518bf9c`.
 This document describes source at those commits. Historical requirements remain in
 `phases/phase-1.1/design-spec.md`; it is protected and is not rewritten here.
 
@@ -142,7 +142,7 @@ tests/viewer and never enters `RobotState` (`robot-code/sim/src/main/java/boobuz
 are the narrow drive/shooter/intake/turret interfaces (`robot-code/TeamCode/core/src/main/java/boobuzz/core/subsystem/ISubsystem.java:6-12`,
 `IDrive.java:7-30`, `IShooter.java:3-14`, `IIntake.java:3-11`, `ITurret.java:3-14`).
 `RobotFactory` currently wires one `PedroDrive` and three timing stubs, for both
-engines (`robot-code/TeamCode/core/src/main/java/boobuzz/core/RobotFactory.java:76-100`).
+ engines (`robot-code/TeamCode/core/src/main/java/boobuzz/core/RobotFactory.java:76-100`).
 
 ## 5. Logic and controllers
 
@@ -244,9 +244,10 @@ step; a missing client is evicted after the configured deadline
   `pymunk_backend.py:79-87`; `pybullet_backend.py:183-196`).
 - The original design's pseudo-code shows explicit subsystem observe/update calls;
   source places them inside engine `sense`/`act`. This document follows source.
-- R7's independent review ended at `05d79ff`; post-review `0b77bee` adds writer
-  watchdogs and `4b8ba23` preserves terminal bag errors. They require fresh
-  cross-review evidence before being called closed.
+- R7's independent review ended at `05d79ff`; R8 independently reviewed the
+  post-review writer/bag fixes through `4b8ba23` with no findings
+  (`phases/phase-1.1-a/review-robot-r8-sim.md:3-19`). R9's `1e555cb` turret-hold
+  fix is included in `d5bda62`; its simulator cross-review is still pending.
 
 No protected document was edited. The next acceptance checklist is: worker-pinned
 R9/R8 reports, post-R7 source review, post-`4b8ba23` JVM/Android gates, and a real
