@@ -34,10 +34,15 @@
   It records one major multi-robot socket deadline gap and two minor gaps
   (fractional event timestamps and fresh-process determinism); these are simulator
   findings, not robot changes.
-- sim-cx-21 reproduced the fresh-process staggered-start race from the acceptance
-  report and is implementing a startup reset barrier plus subprocess JSONL tests.
-  Its `sim-cx-21-report.md` and `review-robot-cx-22-sim.md` remain in progress and
-  are not staged in this snapshot.
-- Docs staged the robot report/review copies only after the robot worker confirmed
-  the stable pushed hash. No protected document, tag, reviewer, ball task, or phase
-  transition was touched.
+- sim-cx-21 reproduced the fresh-process staggered-start race and pushed simulator
+  `78bad12`, adding the connection/reset startup barrier, followed by `5dd6daa`,
+  which compares exact process-boundary JSONL transcripts. The final report records
+  83 Python tests, 8 multi-robot tests, 2 process-network tests and isolated Java
+  smoke against robot `4b8ba23`.
+- `review-robot-cx-22-sim.md` reviews robot `d5bda62` against simulator `78bad12`:
+  zero blocker/major, one coverage-only minor because the new turret-hold test does
+  not exercise `scanEventPending`; the implementation itself clears that state.
+- Docs now stages `sim-cx-21-report.md`, `review-robot-r8-sim.md`, and
+  `review-robot-cx-22-sim.md` only after the worker published the stable simulator
+  hash. No protected document, tag, reviewer, ball task, or phase transition was
+  touched.

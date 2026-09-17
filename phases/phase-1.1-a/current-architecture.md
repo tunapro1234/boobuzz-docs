@@ -1,7 +1,7 @@
 # Current architecture (as built)
 
-**Snapshot:** docs `dev-phase-1.1-a@9e4114c`; robot-code
-`dev-phase-1.1-a@d5bda62`; re-cock-nize `dev-phase-1.1-a@518bf9c`.
+**Snapshot:** docs baseline `dev-phase-1.1-a@8d80ba4`; robot-code
+`dev-phase-1.1-a@d5bda62`; re-cock-nize `dev-phase-1.1-a@5dd6daa`.
 This document describes source at those commits. Historical requirements remain in
 `phases/phase-1.1/design-spec.md`; it is protected and is not rewritten here.
 
@@ -142,7 +142,7 @@ tests/viewer and never enters `RobotState` (`robot-code/sim/src/main/java/boobuz
 are the narrow drive/shooter/intake/turret interfaces (`robot-code/TeamCode/core/src/main/java/boobuzz/core/subsystem/ISubsystem.java:6-12`,
 `IDrive.java:7-30`, `IShooter.java:3-14`, `IIntake.java:3-11`, `ITurret.java:3-14`).
 `RobotFactory` currently wires one `PedroDrive` and three timing stubs, for both
- engines (`robot-code/TeamCode/core/src/main/java/boobuzz/core/RobotFactory.java:76-100`).
+engines (`robot-code/TeamCode/core/src/main/java/boobuzz/core/RobotFactory.java:76-100`).
 
 ## 5. Logic and controllers
 
@@ -229,9 +229,12 @@ and Python sides use the same `RobotConstants.java` source, but the Python reade
 only extracts its documented scalar/string/servo/motor subset (`sim/mechanism.py:20-31,112-211`).
 
 For `--robots N`, the server listens on `port+i`, holds one backend per robot, and
-steps a shared world only after every ready client has submitted one equal-`dt_ms`
-step; a missing client is evicted after the configured deadline
-(`re-cock-nize/sim/server.py:453-524,554-614`; `physics/multi.py:11-86`).
+first blocks an early `step` until every configured slot has connected and reset in
+the current epoch. It then advances the shared world only after every ready client
+has submitted one equal-`dt_ms` step; a missing client is evicted after the
+configured per-tick deadline (`re-cock-nize/sim/server.py:453-524,554-614,651-658`;
+`physics/multi.py:11-86`). The process-boundary proof compares canonical `ready`
+and `state` JSONL across normal and staggered starts (`tests/test_process_network.py:188-280`).
 
 ## 8. Readiness and known gaps
 
@@ -247,8 +250,13 @@ step; a missing client is evicted after the configured deadline
 - R7's independent review ended at `05d79ff`; R8 independently reviewed the
   post-review writer/bag fixes through `4b8ba23` with no findings
   (`phases/phase-1.1-a/review-robot-r8-sim.md:3-19`). R9's `1e555cb` turret-hold
-  fix is included in `d5bda62`; its simulator cross-review is still pending.
+  fix is included in `d5bda62`; simulator `78bad12` closes the startup barrier and
+  `5dd6daa` adds exact process-boundary JSONL comparisons. The R9 cross-review has
+  one coverage-only minor: the
+  new hold test does not exercise the pending scan event
+  (`phases/phase-1.1-a/review-robot-cx-22-sim.md:3-63`).
 
-No protected document was edited. The next acceptance checklist is: worker-pinned
-R9/R8 reports, post-R7 source review, post-`4b8ba23` JVM/Android gates, and a real
-Control Hub + mechanism run.
+No protected document was edited. The next acceptance checklist is: close the
+R9 scan-event coverage minor, resolve the RobotConstants mass parser/backend
+mismatch, obtain post-R9 JVM/Android gates independently, and run a real Control
+Hub + mechanism acceptance.
