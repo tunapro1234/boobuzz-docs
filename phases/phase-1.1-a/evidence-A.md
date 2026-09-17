@@ -4,7 +4,9 @@ Status: **Chapter A released; documentation-only evidence ledger.** This is the 
 Chapter A evidence file. It records approved pins, task slots, commands and
 limitations; an empty result is not a passing result. No unrun implementation or
 acceptance outcome is claimed here. A02 is unblocked at protected pin `26f915b`;
-B01 remains blocked pending the ADR record-signature pin.
+the record-signature protocol gate is satisfied at ftc-main pin `7447546`.
+Chapter B becomes eligible only after this A05 evidence commit and
+`p11a-baseline-v1` tag are verified.
 
 ## Pinned inputs
 
@@ -24,20 +26,21 @@ not a test result; later entries must name the exact command and artifact.
 | Slot | Owner / seam | Planned evidence | State |
 |---|---|---|---|
 | A00 | D release cleanup | fixed-prefix retirement, English-content rule, ADR/evidence paths | **Recorded in this docs increment; no implementation outcome** |
-| A01 | S transport/events | bounded fragmented I/O, integral millisecond events, no mixed-world advance | **Verified at S `5ba0a96`; focused 3/3 and full suite 85/85 (0 skipped)** |
-| A02.0 | D + ftc-main protocol owner | `adr-device-seam-v2.md`; protected protocol amendment gate | **Unblocked at protected pin `26f915b`; ADR record-signature pin remains the B01 gate** |
-| A02 | R/S mass seam + R regression | Java-source mass parsing, 18 kg isolated fixture, cancellation/deadband tests | **Unblocked at `26f915b`; no implementation/fixture outcome recorded** |
-| A03 | R/S e2e seam | two fixed Pymunk scenarios and JSONL traces | **Not started; no outcome recorded** |
-| A04 | R analysis + D evidence | extension of predecessor gamepad/request evidence with archive file:line handoff | **Handoff received; archive facts appended below; no test outcome** |
-| A05 | R + D checkpoint | registry/order fixtures, A-drive/A-cancel gate, chapter manifest/tag only after approval | **Not started; no tag** |
+| A01 | S transport/events | bounded fragmented I/O, integral millisecond events, no mixed-world advance | **Accepted at S `5ba0a96`; final compatible S pin is `4cc1201`** |
+| A02.0 | D + ftc-main protocol owner | `adr-device-seam-v2.md`; protected protocol amendment gate | **Unblocked at `26f915b`; record-signature protocol gate satisfied at `7447546`; B eligibility waits for this evidence commit/tag** |
+| A02 | R/S mass seam + R regression | Java-source mass parsing, 18 kg isolated fixture, cancellation/deadband tests | **Accepted at R `97995ca` / S `4cc1201` after the mass escalation fix** |
+| A03 | R/S e2e seam | two fixed Pymunk scenarios and JSONL traces | **Accepted on the final post-A02 rerun at R `72d3ac9` / S `4cc1201`; trace gates below** |
+| A04 | R analysis + D evidence | extension of predecessor gamepad/request evidence with archive file:line handoff | **Accepted as archive-derived handoff at OLD `d7711d0`; no runtime test is implied** |
+| A05 | R + D checkpoint | registry/order fixtures, A-drive/A-cancel gate, chapter manifest/tag only after approval | **Accepted at R `72d3ac9` / S `4cc1201`; manifest and tag below** |
 
 ## A00/A02 documentation record
 
 - `00-common.md` now retains the English-content rule but no fixed message prefix.
 - `adr-device-seam-v2.md` distinguishes current proto1 zero-fill from proposed
   proto2 positional-servo hold, keeps DC/CR omission at zero, lists paired devices,
-  units, ownership and validation, and records the exact B01 signatures pending the
-  protected protocol pin. A02 is unblocked at amendment `26f915b`; B01 remains blocked.
+  units, ownership and validation, and records the exact B01 signatures now bound by
+  ftc-main at `7447546`. A02 is unblocked at amendment `26f915b`; B eligibility waits
+  for verification of this A05 evidence commit and tag.
   The amendment fixes optional `reset.proto` absent=`1` versus `ready.proto`,
   pre-output failure on mismatch, exactly two `RobotAction` maps (`motors` for DC+CR
   power and `servos` for positional hold), declared initial positions for never-commanded
@@ -57,7 +60,8 @@ not a test result; later entries must name the exact command and artifact.
   accepted on top of S `5ba0a96`, then publish A02. No A03 acceptance is valid
   until a post-A02 rerun. A05 pins only final post-A02 R/S hashes.
 - This is ordering metadata, not an A03 result. A02 documentation propagation
-  continues; B01 remains blocked pending the ADR signature pin.
+  continues; the protocol gate is now satisfied at `7447546`, while B eligibility
+  waits for verification of this A05 evidence commit and tag.
 
 ## ESCALATION to ftc-main
 
@@ -67,8 +71,8 @@ not a test result; later entries must name the exact command and artifact.
 - Review provenance remains R `97995ca`, S `5849e58`, and provisional A03 WIP
   `635741d`; the earlier A01 S pin `5ba0a96` and the forward-only ordering note
   remain unchanged.
-- The new S hash and its tests have not arrived. A02 is therefore not complete,
-  and no completion or A03 acceptance is claimed here.
+- Resolution: S `4cc1201` applies the authorized narrow backend-agnostic
+  `ROBOT_MASS_KG` fix, with the final A02 tests recorded in the A05 manifest below.
 
 ## Commands and outcomes
 
@@ -76,7 +80,7 @@ not a test result; later entries must name the exact command and artifact.
 |---|---|---|
 | Documentation diff | `git diff --check` | **Passed for this evidence increment** (no output) |
 | Mass parser | named A02 isolated fixture | Not run; no implementation dispatched |
-| Protocol fixture | proto1/proto2 paired golden frames | Not run; amendment `26f915b` is published; B01 remains blocked pending the ADR signature pin and paired-fixture evidence |
+| Protocol fixture | proto1/proto2 paired golden frames | Not run; amendment `26f915b` and record-signature gate `7447546` are published; B eligibility still waits for this A05 evidence/tag and paired-fixture evidence |
 | Chapter A e2e | A03 runner and two Pymunk scenarios | Not run; A03 not started |
 
 Prior robot/simulator reports remain provenance references, not new Chapter A
@@ -187,10 +191,56 @@ These vectors define what a later A04/B01 fixture should compare; they do not cl
 that the current Java core, adapter, plant or physical robot already produces them.
 No `legacy-behavior-matrix.md` is created.
 
+## A05 baseline manifest — p11a-baseline-v1
+
+This is the sole Chapter A baseline manifest. The annotated D tag identifies the
+docs commit containing this section; the compatible R/S source pins are immutable.
+The record-signature protocol gate is satisfied at ftc-main pin `7447546`. The tag
+does not authorize source or protocol edits; Chapter B becomes eligible only after
+this A05 evidence commit and `p11a-baseline-v1` tag are verified.
+
+| Slot | Accepted pin(s) | Accepted outcome |
+|---|---|---|
+| A01 | S `5ba0a9671eeedc84f2a628ff970133c1e86f656f` (contained by final S `4cc1201f6ba4861815f37625cc03ea973a84755f`) | Fragmented I/O, reset/step barrier, and integral event validation accepted; the A01 focused three-test check and prior full 85/85 suite were green with no skipped tests. |
+| A02 | R `97995cafe65db9114dd1bdde9a251cdb9aa1bd47`; S `5849e58fc74e7e294bf61a48d1ca7a2cdcf98b03` plus final `4cc1201f6ba4861815f37625cc03ea973a84755f` | The cross-review escalation found the PyBullet 12 kg literal at `sim/physics/pybullet_backend.py:185-201`; ftc-main authorized the narrow backend-agnostic `ROBOT_MASS_KG` fix. Final S binds both rigid-body backends to parsed mass and its 18 kg fixture/inertia checks pass; R cancellation/deadband regressions are in the accepted lineage. |
+| A03 | Final R `72d3ac9fa81209f5bf31fd88eb1b99927bfdcaee`; final S `4cc1201f6ba4861815f37625cc03ea973a84755f` | The R-owned runner exited `0`: six A-drive runs at 1000 ticks each (direct/cplx1, seed-1 repeat and seed-42 coverage) and two A-cancel runs at 101 ticks each. The earlier S `635741dbb7fd5c9ef1fe0c3190ddfe6cd7883cf4` remains WIP history, not an acceptance pin; this acceptance is post-A02. |
+| A04 | OLD `d7711d043280034ab5c75ae26a253629fd2d4a7b` and the source-grounded handoff | Preserve/correct/defer archive behavior and actuator traces are recorded with file-line sources; this is provenance analysis, not a physical-robot result. |
+| A05 | R `72d3ac9fa81209f5bf31fd88eb1b99927bfdcaee`; S `4cc1201f6ba4861815f37625cc03ea973a84755f`; D = this docs commit | Stable registry selects direct `0`, cplx1 `1`, and alias `cplx_engine_1` without renumbering. Registry/switch regressions, the baseline runner, and the binding build command are green; the requested annotated tag points to this D commit. |
+
+### A05 verification commands and gates
+
+- R binding command, run at final R: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk
+  ./gradlew :core:test :sim:test :sim:installDist` — **BUILD SUCCESSFUL**;
+  XML totals are **127 core tests + 11 sim tests, 0 failures/errors/skips**.
+- S focused command: `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh
+  -k acceptance_scenarios` — **2 passed, 0 skipped**. S full command:
+  `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh` — **93 passed, 0 skipped**.
+- Runner traces satisfy the required schema and finite-value checks at 20 ms
+  cadence. Every A-drive run ended with one `DONE` status within the .5 in/1°
+  target gate; A-cancel ended non-`DONE`, carried switch IDs 60/80, and held all
+  wheel outputs at zero from cancellation onward. Seed-1 repeats are byte-identical
+  per engine; all eight owned server ports were free after cleanup; the 30 s Java
+  timeout-bound test passed.
+
+### Limitations retained at the checkpoint
+
+- A03 is the Pymunk host acceptance only. It does not validate PyBullet/kinematic
+  parity, a Control Hub, physical Pinpoint/mechanisms, or real-hardware cadence;
+  shooter, intake, and turret production actuators remain outside this baseline.
+- An extra non-binding `:TeamCode:assembleDebug` attempt hit
+  `java.lang.OutOfMemoryError: Java heap space` in Android `ApkFlinger`/zipflinger.
+  This is an environment limitation, not a product failure; no build configuration
+  or source was changed, and it does not block the binding core/sim/installDist gate.
+- A04 outcomes are archive-derived behavior and source citations, not current
+  hardware measurements. No training, reviewer, ball, phase transition, or protocol
+  edit is included in this checkpoint.
+
 ## Safety and publication boundary
 
-No code, protocol, tag, reviewer, ball, training or phase change is authorized by
-this ledger. The proto2 decision, paired fixtures, and A02 mass proof remain review
-gates. Future evidence must separate `unit-tested`, `sim-integrated`,
+Only this requested docs commit and the `p11a-baseline-v1` checkpoint tag are
+authorized by this ledger; no source, protocol, reviewer, ball, training or phase
+change is included. The protocol gate is satisfied at `7447546`; Chapter B becomes
+eligible only after this evidence commit and tag are verified. Future evidence must
+separate `unit-tested`, `sim-integrated`,
 `Android-built`, `archive-derived`, and `hardware-validated`; the last label remains
 absent until a physical robot is available.

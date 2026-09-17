@@ -233,9 +233,10 @@
   fails before output; `RobotAction` has exactly two maps (`motors` for DC+CR power,
   `servos` for positional hold); reset clears positional holds and proto1 retains
   full-map/zero-fill behavior.
-- A02 is unblocked at `26f915b`. B01 remains blocked pending ftc-main's protected pin
-  of the exact record signatures now recorded in `adr-device-seam-v2.md`; fixtures 1–6
-  are binding, with no new test outcome claimed here.
+- A02 is unblocked at `26f915b`. At this dated entry B01 awaited ftc-main's protected
+  pin of the exact record signatures now recorded in `adr-device-seam-v2.md`; that
+  gate was later satisfied at `7447546` (see the A05 manifest), with fixtures 1–6
+  binding and no new test outcome claimed here.
 - Release metadata remains: Chapter A released; B approved/gated; C and the far
   roadmap unreleased; training, ftc-reviewer, and ftc-ball forbidden. No code or
   protocol file was edited.
@@ -248,8 +249,41 @@
 - S must publish only `tests/test_acceptance_scenarios.py` as A03 WIP/not accepted
   on top of `5ba0a96`, then publish A02. No A03 acceptance is valid before a
   post-A02 rerun.
-- A05 pins only final post-A02 hashes. A02 documentation propagation continues;
-  B01 remains blocked. This note records ordering, not test outcomes.
+- A05 pins only final post-A02 hashes. A02 documentation propagation continues; this
+  dated ordering note predates the `7447546` protocol resolution and the A05
+  evidence/tag eligibility check. It records ordering, not test outcomes.
+
+## A05 baseline manifest — p11a-baseline-v1
+
+- This is the sole Chapter A baseline manifest. The annotated D tag identifies the
+  docs commit containing this section; compatible source pins are R
+  `72d3ac9fa81209f5bf31fd88eb1b99927bfdcaee` and S
+  `4cc1201f6ba4861815f37625cc03ea973a84755f`.
+- The record-signature protocol gate is satisfied at ftc-main pin `7447546`.
+  Chapter B becomes eligible only after this A05 evidence commit and
+  `p11a-baseline-v1` tag are verified.
+- Accepted slots: A01 at S `5ba0a967` (bounded transport/events); A02 at R
+  `97995ca` plus S `5849e58` and final `4cc1201` (mass seam, cancellation and
+  deadband); A03 at the final R/S pins after the post-A02 rerun; A04 at OLD
+  `d7711d0` (archive-derived preserve/correct/defer handoff); A05 at the final
+  R/S pins (stable registry and checkpoint publication).
+- A02's escalation found the S PyBullet 12 kg literal at
+  `sim/physics/pybullet_backend.py:185-201`. ftc-main authorized the narrow,
+  backend-agnostic `ROBOT_MASS_KG` fix; S `4cc1201` and its mass/inertia tests
+  are the final accepted result.
+- The R runner exited `0` with six 1000-tick A-drive traces and two 101-tick
+  A-cancel traces. Schema, status, switch, zero-output, seed-repeat determinism,
+  cleanup, and 30 s timeout-bound gates all passed. S acceptance coverage was
+  focused `2 passed, 0 skipped` and full `93 passed, 0 skipped`.
+- Binding R command `JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew
+  :core:test :sim:test :sim:installDist` was **BUILD SUCCESSFUL** with 127 core
+  and 11 sim tests, zero failures/errors/skips.
+- A non-binding `:TeamCode:assembleDebug` attempt hit Java heap exhaustion in
+  Android `ApkFlinger`/zipflinger; this is an environment limitation, not a
+  product failure, and no source/build configuration change was made. A03 remains
+  host-Pymunk evidence only; no physical robot, Control Hub, or mechanism
+  validation is claimed. Chapter B becomes eligible only after this A05 evidence
+  commit and `p11a-baseline-v1` tag are verified.
 
 ## ESCALATION to ftc-main
 
@@ -258,5 +292,6 @@
   backend-agnostic and authorized the narrow PyBullet fix only.
 - Review provenance remains R `97995ca`, S `5849e58`, and provisional A03 WIP
   `635741d`; the forward-only ordering note remains in force.
-- The new S hash and tests are pending. Do not mark A02 complete or infer A03
-  acceptance until that evidence arrives.
+- Resolution: S `4cc1201` applies the authorized narrow backend-agnostic
+  `ROBOT_MASS_KG` fix, with final A02 tests and A03 acceptance recorded in the
+  A05 manifest above.
