@@ -1,5 +1,10 @@
 # D — one turret Limelight, a simple world model and cplx3
 
+> Superseded in parts by [review 2026-09-17](../review-ftc-main-specs-2026-09-17.md);
+> known issues, revise after B09. Body retained, NOT a current work order.
+> Read [v2 index](README.md) and [hardware-profile-v0](../hardware-profile-v0.md).
+> Vision-A/cplx3 is AprilTag + simple detection and screen-offset/size PID, NO world model. The retained D03/D04 content belongs to later Vision-B/cplx4; target-load beliefs wait for target mechanics. Section4's wire/HAL/rate/RNG findings remain open for that later revision.
+
 Status: DRAFT, not dispatched. Entry: C05; [common gates](00-common.md) apply.
 No image renderer, detector training, SLAM framework or autonomous ball pursuit.
 

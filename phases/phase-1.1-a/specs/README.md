@@ -1,89 +1,88 @@
-# Phase 1.1-a — detailed plan for Tuna's review
+# Phase 1.1-a spec pack v2 — review before implementation
 
-Status: **DRAFT — NOT AUTHORIZED FOR IMPLEMENTATION OR WORKER DISPATCH.**
-Prepared 2026-09-17 by ftc-main-cx. No training is authorized, including imitation
-learning. The sole worker follow-up during this draft is Tuna's separate request
-to preserve agent-organization notes for the eventual control document.
+Status: **DRAFT v2, 2026-09-17. No implementation dispatch or training authorized.**
+Authority: [Tuna's decisions and reviews](../review-ftc-main-specs-2026-09-17.md).
+Every chapter uses [hardware-profile-v0](../hardware-profile-v0.md).
+Starting commits: R `d5bda62`, S `5dd6daa`; remain on `dev-phase-1.1-a`.
 
-This pack expands [roadmap v1](../roadmap-v1.md). Where they differ, this pack is the
-new proposal, not an already-approved change. Read [Tuna's intent](../tuna-intent-2026-09-17.md)
-after compaction. Remain on `dev-phase-1.1-a`; do not rewrite historical contracts.
+## Binding decisions
 
-## The governing design
+1. Preserve `contract / hal / subsystem / logic / controller` and shared Java core.
+   Keep R's `sim` as a thin adapter, not a second robot implementation.
+2. ONE intake motor, ONE feeder motor, ONE single-flywheel shooter, ONE hood servo,
+   ONE turret CR servo; POLLEN only. Archive is a behavior/calibration/name reference,
+   NOT a mandate to reproduce its multi-actuator hardware.
+3. RealHal keeps archived HardwareMap names, including drive names, `shooterRight`,
+   encoder-only `shooterLeft`, `turret_servo`, `hood_left`, `intake_dist`. No device
+   renaming/reconfiguration required. Mechanical compatibility still needs bench proof.
+4. Gall's law: preserve the previous useful engine; add one composed module, not a
+   copied engine. Each release must support a complete useful operator workflow.
+5. Commit/push working increments. Tags/manifests ONLY at A05 baseline and engine
+   checkpoints. Evidence per chapter; cross-review ONLY R/S seam changes.
+6. Acceptance is a few Java-on-Pymunk scenarios, not test counts. Focused unit tests
+   support the demos. Software acceptance does not claim hardware validation.
 
-Build a small working robot, then extend it. Preserve `contract / hal / subsystem /
-logic / controller`, shared Java control code, and selectable simpler engines.
-RL is the north star: eventually an onboard controller drives during teleop while
-the same tested engines operate mechanisms. RL is not a dependency of a useful robot.
+## Detail near, sketch far
 
-Our robot collects **POLLEN only**. Do not build a nectar-intake path, nectar shooter
-calibration, dual-size inventory, or a nectar collection policy. Nectar remains an
-external game object: it can obstruct, appear in observations, and affect the score
-and field mechanisms. Detecting pollen must not mean treating every round object as
-collectable pollen. Actual physical rejection is a mechanical assumption to verify.
+| Spec | Status / purpose |
+|---|---|
+| [00 Common](00-common.md) | Actual contracts, composition and lean acceptance |
+| [01 Baseline](01-baseline.md) | A01–A05 worker detail: files, tests, seeds, thresholds |
+| [02 Devices/intake/feeder](02-intake-feeder.md) | B01–B04 worker detail; owned protocol migration |
+| [03 Mechanisms/cplx1](03-mechanisms-cplx1.md) | B05–B09 worker detail; single devices, three e2e gates |
+| [04 Shooting](04-shooting-cplx2.md) | Historical detail preserved; C outline below governs until refined |
+| [05 Vision](05-vision-cplx3.md) | Split into Vision-A/B below; refine after B09 |
+| [06 Range](06-range-cplx4.md), [07 Game](07-game.md) | Roadmap only; preserve bodies, revise after B09 |
+| [08 Environment](08-environment.md), [09 Learning preparation](09-learning-preparation.md) | Roadmap only; no training or early implementation |
+| [10 Research](10-research.md) | Reference; corrected topology, remaining issues deferred |
 
-Every microstep leaves the last accepted engine runnable. Publish a NEW engine only
-when it supports a complete operator workflow, has no required mechanism stubs,
-passes fault tests, and preserves manual recovery. An engine is not a name for every
-commit. With no robot available, releases are **competition-oriented software
-candidates**, not hardware-validated or inspection-certified robots.
+Only A/B are near-term worker-ready proposals. Far-draft details are NOT frozen
+contracts or work orders. Read hardware profile + 00 + assigned section, not 42 tasks.
 
-## Read order and executable work units
+## Composed engine ladder (future indices reserved, not implemented)
 
-Each numbered task below is a bounded future assignment. Its entry conditions,
-implementation, tests, exclusions and exit are in the linked file; the common gate
-is mandatory in addition to its local gate. Do not hand an entire chapter to a worker
-as an unbounded goal. Fill execution hashes from the previous accepted manifest.
+| Index/name | One addition | Useful behavior |
+|---|---|---|
+| 0 `direct` | Separate guarded diagnostic baseline | Mechanism exercise/recovery |
+| 1 `cplx1` | Shared base coordinator | Drive, intake/reverse, fixed-preset aim/feed |
+| 2 `cplx2` | ShotSolutionModule | Stationary distance solution, preset fallback |
+| 3 `cplx3` / Vision-A | ImageAimModule | AprilTag/simple detector input; screen-offset/size PID aim/approach; no map |
+| 4 `cplx4` / Vision-B | WorldModule | Spatial/3D interpretation, ball distance/tracking, sector scan |
+| 5 `cplx5` / range | RangeAssistModule | Range-only reflex, then justified fusion |
 
-| Order | Spec | Small tasks | Result available at this checkpoint |
-|---|---|---|---|
-| 0 | [Common contract and release gates](00-common.md) | All tasks | Consistent ownership, evidence and fallback rules |
-| 1 | [Baseline and last-season behavior](01-baseline.md) | A01–A05 | Trustworthy current chassis; traced old controls |
-| 2 | [Device seam, intake and feeder](02-intake-feeder.md) | B01–B04 | Real actuator paths; pollen-only capture and feeding |
-| 3 | [Shooter, hood, turret, cplx1](03-mechanisms-cplx1.md) | B05–B09 | Complete low-complexity fixed-preset teleop robot |
-| 4 | [Shot calculation and flight, cplx2](04-shooting-cplx2.md) | C01–C05 | Calibrated stationary distance-based shooting |
-| 5 | [Limelight, tracking, scanning, cplx3](05-vision-cplx3.md) | D01–D05 | Vision-only world model and useful scan/shot scheduling |
-| 6 | [Chassis range and fusion, cplx4](06-range-cplx4.md) | E01–E04 | Conservative obstacle response and bounded fusion |
-| 7 | [Faithful game and full-match integration](07-game.md) | F01–F04 | Scoring, tipping, match clocks and multi-robot fixtures |
-| 8 | [Gymnasium and controller seam](08-environment.md) | G01–G05 | Auditable RL-ready environment, no learner |
-| 9 | [Model/reward/data/deployment preparation](09-learning-preparation.md) | H01–H05 | Inert learning configs, dataset schema, inference feasibility |
-| Reference | [Research and decision record](10-research.md) | No work order | Sources, choices, alternatives and unresolved evidence |
+Keep existing indices0/1 and `cplx_engine_1` alias. This supersedes v1's world/range
+numbering; no released third engine exists to renumber. Vision-A works without B;
+its bounded approach is operator-enabled and stops on stale detection. Vision-B
+load beliefs wait for actual modeled target mechanics, not imaginary Hive truth.
 
-The order is deliberate. C01 reads only enough field geometry for honest shot tests;
-complete game physics stays in F. There is no hidden requirement to build F before
-using cplx1–4. Controller/environment work must not introduce an RL dependency into
-the robot's normal build.
+## C — medium-depth outline
 
-## Engine ladder — what the driver can actually use
+- C01: primary archive source is `config/logic/AdvancedLogicConstants.java`,
+  `Solvers.Ronaldo.lookupTable` (distance/hood/minRPM/maxRPM). The four hood=38 video
+  fits are NOT a distance table. Quarantine Ronaldo LINEAR/POLY TODO coefficients
+  and unsupported R² claim. B08 owns replacing real-mechanism use of the current
+  `ShooterCalibration` 300+distance/zero-hood placeholders with a fixed preset.
+- C02: proposed `logic/shot/ShotSolver.java`: group table rows by distance; choose
+  the hood row closest to the cplx1 45° preset (lower hood breaks ties), then RPM =
+  minRPM + .55*(maxRPM-minRPM). Interpolate resulting hood/RPM pairs; reject outside
+  [43.3,90.7] in or unsupported height (an intentionally conservative subset: the
+  actual table also contains longer distances). This is a documented NEW simplification,
+  not the archived placeholder LINEAR algorithm. Pollen/single-flywheel calibration
+  remains unverified; old multi-actuator data cannot prove the new launch mapping.
+- C03: upgrade B08 planar release to height-aware flight/contact including barrel
+  world velocity from chassis/turret motion. No RK4 program. Target dimensions go
+  into RobotConstants and the S parser, not pixel measurements of field artwork.
+- C04/C05: solver field azimuth is radians CCW from +x; B07 maps it through bounded
+  relative-angle API. ShotSolutionModule supplies shared TurretLogic/ShooterLogic.
+  Gate: pickup-drive-stop-shoot at two ranges plus invalid-range preset fallback.
 
-| Release | Complete behavior | Added dependency | Loss-of-capability response |
-|---|---|---|---|
-| `cplx1` | Drive, pollen intake/reverse, flywheel, hood, bounded turret, fixed-preset shots, abort/recovery | Mechanism feedback and inherited profile | Fault affected mechanism; drive/recovery remain available |
-| `cplx2` | All cplx1 functions plus stationary distance-based solutions | Valid pose/target and shot table | Fixed preset/manual aim; no blind auto-feed |
-| `cplx3` | All cplx2 functions plus sector scan, tracks and target-load estimates | Single turret Limelight | cplx2 behavior; uncertain world state is shown as uncertain |
-| `cplx4` | All cplx3 functions plus range braking and conservative fusion | Configured range devices | Explicit degraded/manual mode; no fabricated free space |
-| Policy controller, later | AI chooses driving actions during teleop through one of these engines | Approved onboard model and authority switch | Immediate human takeover or zero drive on policy fault |
+## Far roadmap only
 
-`direct` remains a guarded diagnostic/recovery mode, not a claim of autonomous
-competition completeness. The present stub-based cplx1 is the starting scaffold;
-B09 is its first mechanism-complete candidate. We do not create `cplx5` merely to
-change the driver from human to policy.
+Vision-A then Vision-B; range reflex before fusion; full game/tipping/clock/scorer;
+deterministic controller environment; inert model/reward/data/inference preparation.
+Nectar remains in the game, never our inventory. After B09, consider inexpensive
+controller/inference/xRC feasibility spikes independently of full-game fidelity;
+do not assume they must wait behind all F. No learning runs of any kind.
 
-## Decisions proposed for discussion
-
-1. Restore last season's match-used button semantics as a named `legacy-match`
-   profile, retaining the present map as `diagnostic`. Do not silently replace it.
-2. Use the archived dual-flywheel, paired-hood, dual-CR-servo limited turret as a
-   provisional hardware profile. Its calibration is not automatically pollen-valid.
-3. Shoot while stationary first. Keep empirical calibration primary; use elementary
-   projectile calculations as checks/initial estimates, not an RK4 project.
-4. First learned controller controls three driving demands only. Driver/engine
-   handles shooting and intake initially; full automated strategy is a later action
-   schema, not a prerequisite for AI-driven teleop.
-5. Keep Pymunk; add only height-aware ball flight and a small one-axis Hive model.
-6. Choose simple classical tracking first. A learned world model is a separately
-   gated experiment, never a dependency of cplx3/cplx4 or the first environment.
-
-Unknown physical wiring/calibration is recorded, not guessed into a production
-profile. Serious evidence may change the plan through a short decision record.
-The next action after this deliverable is Tuna's discussion, not execution.
+[Review disposition](../spec-v2-review-disposition.md) maps findings to revisions.
+Next: Tuna reviews v2. Only documentation publication is delegated now.

@@ -7,6 +7,14 @@ Both are proposals, not execution orders.
 
 ## Latest instruction: plan first
 
+V2 authority: read [Tuna's binding review decisions](review-ftc-main-specs-2026-09-17.md)
+and [hardware-profile-v0](hardware-profile-v0.md). They supersede older assumptions:
+ONE flywheel, ONE hood servo, ONE turret CR servo, ONE intake (plus feeder), archive
+device names retained; full detail A/B only, C medium, far chapters preserved/deferred;
+baseline/engine tags only, chapter evidence, seam-only cross-review; composed engines;
+few e2e gates; Vision-A before Vision-B. Today's authorization is revision/publication
+of specs v2 ONLY, not implementation. Docs worker commits review and revised docs.
+
 Before distributing the expanded requirements to workers, ftc-main-cx must personally
 prepare a detailed roadmap: implementation steps, framework choices, dependencies,
 verification and tradeoffs. Show it to Tuna and discuss it together. Do not start
@@ -103,8 +111,8 @@ a fallback to earlier working behavior. Fixes do not require a new engine per co
 - Keep ftc-main-cx's token/workload low; use Luna/max workers with detailed task files
   and bounded persistent `/goal` assignments after the roadmap discussion.
 - Commit and push every tested working increment; report hashes.
-- Add a tag after each accepted meaningful step and engine checkpoint. This replaces
-  the earlier no-tags restriction; do not tag unreviewed or unfinished work.
-- Cross-review robot and simulator work; do not launch ftc-reviewer unless Tuna says so.
+- Latest v2 decision: tags/manifests only at A05 baseline and accepted engine
+  checkpoints, not every task. Evidence per chapter. This supersedes per-step tags.
+- Cross-review only two-repository seam work; do not launch ftc-reviewer unless Tuna says so.
 - Do not give ball-auto-istic/ftc-ball tasks.
 - Preserve these instructions and the roadmap in Markdown for future sessions.

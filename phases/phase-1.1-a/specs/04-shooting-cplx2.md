@@ -1,5 +1,10 @@
 # C — practical pollen shooting and cplx2
 
+> Superseded in parts by [review 2026-09-17](../review-ftc-main-specs-2026-09-17.md);
+> known issues, revise after B09. Body retained, NOT a current work order.
+> Read [v2 index](README.md) and [hardware-profile-v0](../hardware-profile-v0.md).
+> Use README's corrected medium-depth C outline (real lookup table, grouped-row reduction, placeholder quarantine). C03 upgrades B08's planar outlet release to flight; it does not create the first ball-release path. Section4 B3–B6/M7/M8 remain the detailed rewrite checklist.
+
 Status: DRAFT, not dispatched. Entry: B09 software candidate. Apply [common gates](00-common.md).
 Stationary shots first; no RK4, aerodynamic research program or shoot-on-the-move.
 

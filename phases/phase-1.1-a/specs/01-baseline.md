@@ -1,108 +1,133 @@
-# A — prove the baseline and recover last-season behavior
+# A v2 — baseline first, extend existing archive analysis
 
-Status: DRAFT, not dispatched. All tasks also require [common gates](00-common.md).
+Status: DRAFT, not dispatched. Read [00](00-common.md) and
+[hardware-profile-v0](../hardware-profile-v0.md); path aliases are defined in 00.
+R d5bda62 / S 5dd6daa are the planning pins, not new verification claims.
+Evidence: ONE `D/phases/phase-1.1-a/evidence-A.md`. A05 is the only chapter tag.
 
-Planning snapshot: R `d5bda622d5bba6dfef6c4bfefed69e0cc20d7e67`,
-S `5dd6daacedbd629deb0827b36240f3064a808f3b`. Reported evidence: 122 core and
-10 Java sim tests, Android build, 83 Python tests, six autos plus test-line with
-both engines. These are worker reports, not a fresh audit performed by this plan.
-Freeze current hashes again at execution; retain baseline evidence for comparison.
+## A01 — bounded transport and integral event timestamps
 
-## A01 — bounded transport and truthful event validation
+Owner S. Files: `S/sim/server.py`, existing `S/tests/test_server_io_timeout.py`,
+`test_multi_robot.py`, `test_events.py`, `test_protocol_validation.py`,
+`test_process_network.py`. No wire-format expansion in this task.
 
-Entry: current socket/multi-robot reports and pinned commits.
-Owner: S; R reviews wire effects. Inspect `sim/server.py`, protocol validation,
-`tests/test_server_io_timeout.py`, `test_multi_robot.py`, `test_process_network.py`.
+1. Existing single-client per-recv timeout is insufficient for a multi-client partial
+   frame. Apply one monotonic operation deadline across fragmented reads/writes and
+   multi-robot reset/step barriers; do not restart the budget for each byte. Preserve
+   the accepted staggered-start barrier. A failed synchronized step must not advance
+   with one missing robot; follow documented session failure/zero-output cleanup.
+2. `_parse_events` already rejects bool; retain that test. Fix `int(t_raw)` silently
+   truncating fractional t_ms: accept only finite, nonnegative integral numeric values
+   within signed-long range; reject1.5, NaN, infinity and bool. Decide1.0 as accepted
+   numeric integer in fixture; canonical outgoing form is integer. Unit remains ms.
+3. Tests: `test_multi_robot.py::test_partial_frame_deadline`,
+   `::test_slow_peer_does_not_advance_world`,
+   `test_events.py::test_fractional_timestamp_rejected`; use reset seed42,
+   test deadline500 ms with wall-time completion bound2 s on failure path. No long sleeps.
 
-1. Audit all accept/read/write/reset barriers, including partial frames and one
-   slow peer while other robots are ready. Use monotonic deadlines across the whole
-   operation, not a fresh timeout for each received byte. Keep startup barrier fix.
-2. Define one deterministic session-fault result; zero affected outputs, unblock
-   healthy sessions or close the synchronized episode according to existing policy.
-   Do not continue a supposedly synchronized world with a missing robot tick.
-3. Reject fractional event timestamps rather than silently truncating them. Preserve
-   the established integer unit and reject booleans masquerading as integers.
-4. Add hung/fragmented client, disconnect-mid-frame, slow-send, reset race and invalid
-   timestamp regressions. Assert bounded completion without long sleeps/flaky timing.
+Exit: fragmented/hung/disconnected peer terminates boundedly with no advanced mixed
+world; timestamps cannot be truncated. Focused tests + A03 A-drive smoke when runner
+lands. Single-repo fix: no new cross-review ceremony. No unrelated physics rewrite.
 
-Exit: all existing socket/process tests pass plus new cases; two independent runs
-of a two-robot script give the same complete transcript. No unrelated physics edits.
+## A02 — actual mass source, cancellation coverage, deadband
 
-## A02 — configuration truth and cancellation coverage
+Owners S parser/backend and R regression; cross-review mass seam only.
+Read J/hal/RobotConstants.java (already ROBOT_MASS_KG=12), S/sim/mechanism.py,
+S/sim/physics/pymunk_backend.py (still hard-coded12), J/subsystem/stub/StubTurret.java,
+J/controller/teleop/TeleopMap.java. Constants are parsed from Java, NOT transmitted.
 
-Owners: R/S paired, one seam fixture first.
+A02.0: initiate the chapter ADR from00; protocol owner adds ROBOT_MASS_KG to the
+binding scalar list BEFORE S consumes it. Do not change12 kg to archive13.8 here.
+Then extend `Mechanism.Physics`/`PhysicsConfig` and parser as needed; Pymunk body uses
+parsed mass. Test fixture copies RobotConstants into an isolated temporary file and
+sets mass18; assert actual body mass/inertia derivation changes. Do not demand changed
+free-space velocity if the existing drive law scales force with mass.
 
-1. Trace `RobotConstants -> Mechanism -> wire -> Python backend`. Verify which mass
-   and dimensions are actually consumed; remove the duplicate hard-coded chassis
-   mass only after a fixture proves the transmitted value is used.
-2. A fixture changes mass and proves the relevant dynamic response changes where
-   the backend models mass. If motion is kinematic, document that limitation instead
-   of claiming mass fidelity. Do not redesign the chassis plant to satisfy a label.
-3. Extend turret hold/cancel regression to pending scan events as well as active aim.
-   Assert one terminal result, no delayed scan emission, zero orphan ownership.
-4. Inspect manualDrive's raw-stick/nonzero test versus its deadband. Add a fixture
-   specifying that sub-deadband noise must not cancel a trajectory; propose the small
-   correction explicitly if current behavior violates it.
+Tests: extend JT/hal/MechanismTest.java and S/tests/test_mechanism.py with mass/source
+validation; S/tests/test_pymunk_backend.py::test_body_uses_configured_mass. Invalid/
+missing mass fails clearly. Extend JT/subsystem/stub/StubTurretTest.java with
+`holdClearsPendingScanEvent`; no deferred scan emission after hold. Extend
+JT/controller/teleop/TeleopControllerTest.java with `subDeadbandStickDoesNotCancelPath`;
+manualDrive uses the same .05 deadband as output, not raw nonzero input. Preserve
+normal intentional manual takeover. Exit: baseline A-drive unaffected; no fake
+claim that mass now validates the entire dynamic model.
 
-Exit: tests demonstrate actual consumed constants and cancellation behavior; current
-engine paths still pass. Report any unmodeled physical effect explicitly.
+## A03 — NEW small e2e runner, not an existing acceptance script
 
-## A03 — reproducible Java-on-Pymunk acceptance harness
+Owners R runner/Java scenario, S process/physics integration seam.
+Create `R/tools/acceptance.py`, `R/tools/fixtures/phase11a-A.json`,
+`SJ/AcceptanceMain.java`, `SJT/AcceptanceMainTest.java`, and
+`S/tests/test_acceptance_scenarios.py`. Reuse SimHal/RobotFactory/AutoRegistry and
+existing process-test helpers; do not duplicate transport or add a test framework.
+Runner discovers sibling S and installed Java distribution, accepts explicit paths,
+starts owned headless Pymunk processes, chooses free ports and closes only its own
+children. It does not submit tests through the lossy debug SocketController.
 
-Owners: S harness, R target/error review. Preserve existing successful scripts.
+Proposed command after implementation:
+`python tools/acceptance.py --chapter A --physics pymunk --seeds 1,42` (from R).
+A `--viewer` rerun is optional for Tuna, using identical scenario input.
 
-Run all six autos and test-line under direct/cplx1 at fixed seed, then rerun in a
-fresh process. Store distinct metrics: truth-to-command target error, sensor-to-truth
-error, baseline-to-new trajectory error, request terminal status and timeout count.
-Do not substitute one metric for another. Use current acceptance limits (3 in / 5°
-auto target; prior 0.15 in / 0.3° regression envelope where applicable) without
-loosening them. Record maxima AND final errors; never accept an incomplete request
-because it briefly crossed the target. Preserve detailed existing task semantics.
+Only TWO scenarios gate baseline:
 
-Add a deterministic controller-recording fixture: neutral, drive, stop, reverse,
-rotate, cancel, engine switch, reset. Save actual motor traces and a short viewer
-demo; compare entire repeat transcripts in the pinned runtime. Exit: a single
-documented command reproduces the matrix, failures return nonzero, no hidden truth
-is injected into controller state. This becomes every later release's smoke suite.
+- **A-drive**: reset(72,72,0), test-line ->(120,72,0), then neutral hold; 1000 ticks,
+  20 ms, both direct/cplx1, seed1 repeated fresh-process; seed42 once. Require
+  request DONE, final truth within .5 in/1° target and no stuck active request.
+  These are NEW v2 acceptance targets based on existing much smaller observed errors,
+  not an invented inherited3 in/5° rule. Report sensor-to-truth separately.
+- **A-cancel**: reset(72,72,0); begin test-line, manual takeover at tick20; cancel-all
+  at tick40; engine0/1 switch at ticks60/80; neutral until tick100. Wheels zero on
+  cancel/switch tick, no stale resumed path, one terminal per old request; pose stays
+  finite and unchanged by switch itself. Seed42; rerun1 for smoke.
 
-## A04 — match-used legacy behavior and parameter provenance
+Output to stdout plus ONE JSONL trace per scenario under caller-chosen output dir:
+`scenario,seed,t_ms,engine,request_statuses,commanded_target,truth,sensed_pose,motors,
+servos,events`. Summary in evidence-A has request outcome, target error, sensor error,
+wall-time and hashes. Fresh-process seed1 transcript matches exactly in pinned runtime;
+ignore only wall-time diagnostic fields. Wall timeout30 s per scenario, fail nonzero.
 
-Owner: R analysis, S independently reviews executable fixtures; D publishes table.
-Archive root: `/home/shared/projects/archive/ftc/de-cock/robot-code/TeamCode/src/main/java/org/firstinspires/ftc/teamcode`.
-Read match entrypoints/call chains, not every abandoned subsystem variant:
+Historical reference: D/phases/phase-1.1/acceptance-sim-cx-19.md §notes reports
+.15 in/.3° thresholds for SENSOR-to-truth error, not old/new trajectory drift. Preserve
+that diagnostic interpretation, not the erroneous v1 regression label. R/robot-cx-22-report.md
+is the current target-error evidence. Six old autos remain existing regression
+coverage, not six mandatory new gate demos. Test counts are not the release result.
 
-- `contingency/lvbelc5/teleop` and its Shooting/Aiming/Recovery controllers.
-- `hardware/subsystems/{intake,feeder,shooter,hood,turret}` implementations used there.
-- `config/HardwareConstants.java`, shooter storage and `RonaldoShEngine` coefficients.
+## A04 — extend predecessor evidence, do not re-inventory from scratch
 
-Produce `legacy-behavior-matrix.md`: button edge/hold/release, input priority,
-mechanism request, actuator direction/power/position, sensor dependence, timing,
-normal release, explicit cancel, STOP, source path and preserve/correct/unknown.
-Produce a separate parameter table: name/unit/value/source, active caller, confidence,
-applies-to-old-ball versus pollen-unverified, and physical remeasurement required.
+Owner R analysis; D appends concise findings to evidence-A. Read first:
+D/phases/phase-1.1/{gamepad-map-analysis.md,teleop-map.md,request-catalog.md}.
+Keep historical files intact; append only corrections/new-topology column in evidence-A.
+Source: OLD/contingency/lvbelc5/teleop/{BlueTeleop,RedTeleop}.java and
+OLD/contingency/lvbelc5/controllers/{ShootingController,AimingController,RecoveryController}.java;
+OLD/config/HardwareConstants.java and active subsystem implementations. Controllers
+are in controllers/, not teleop/. Exclude disabled experiments/GP2 tuning UI from port.
 
-Mandatory findings to resolve: feeder 350 ms pulse and request coalescing; shooter
-power PIDF and readiness dwell; mirrored hood mapping; limited dual-CR turret;
-turret incremental encoder sharing the `shooterLeft` hardware port name; independent
-encoder polarity; analog startup behavior; joystick and recovery priorities.
-Do not assume that the turret encoder port also measures flywheel speed.
+Confirmed facts to record: RT>.5 auto-shoot/warmup; RB follows AUTO_SHOOT because
+burst branch is disabled; LB intake+feeder reverse; Y without START toggles shooter/
+feeder sign every500 ms; LT>.1 intake in idle; D-pad offsets; B held park/release
+cancel; BACK2 s recovery toggle (4000 RPM,45° hood,0° turret); START+Y2 s reset.
+Differences from today's diagnostic map are explicit, not silent replacements.
 
-Extract small golden calculations/traces, not a second complete legacy runtime.
-Expected output must come from the traced archive/reference calculation, not the new
-class under test. Account for Android wall clock replacement with HAL monotonic time.
-Exit: each driver-visible behavior has evidence or an explicit unresolved row.
+Shooter speed uses RIGHT/shooterRight; turret encoder uses shooterLeft, no shared
+measurement ambiguity. Flag actual28-tick/1.6-ratio versus stale8192/1:1 comments.
+intake_dist exists only as an unused declaration in active intake; capacity3 is real
+archive configuration. Keep350 ms pulse, default500 ms gap and match-requested100 ms
+separate. Single actuator/name choices come from hardware-profile-v0, not archive count.
 
-## A05 — control profiles and first release manifest
+Exit: existing analysis annotated preserve/correct/defer per relevant gesture, exact
+constants/source fields, and a short golden actuator trace table. No redundant
+legacy-behavior-matrix.md. Focused later tests compare these calculations, not new
+code against itself. No implementation of future mechanisms in this analysis task.
 
-Entry: A01–A04 accepted. Owner: R map/fixtures, D human-readable control sheet.
-Proposal requiring Tuna discussion: named legacy-match map for familiar gestures,
-current diagnostic map retained. Bind intake forward/reverse, shooting hold/release,
-jam clearing, aim/manual turret, engine select, heading reset and hard abort without
-conflicting chords. Verify exact archive bindings before assigning button names.
+## A05 — stable engine registry and baseline checkpoint
 
-Test every binding, simultaneous buttons, held buttons across reset/engine switch,
-deadband, duplicate edges and gamepad disconnect. Replay demonstrates same direction
-and sequencing as archive for preserved behavior (timing within one control tick).
-Do not claim mechanism parity until B adds actual mechanisms; stubs are labeled.
-Exit: baseline manifest, approved proposed control map, documented unknowns and
-reproducible proof. Tag A tasks only after cross-review. B starts from this manifest.
+Owner R: J/logic/EngineRegistry.java, J/RobotFactory.java, J/RobotLoop.java;
+JT/RobotFactoryTest.java, JT/RobotLoopSwitchTest.java, JT/controller/teleop/TeleopControllerTest.java.
+Pin direct0/cplx1=1 and cplx_engine_1 alias; unknown/reserved index rejects, old replay
+indices still select same engine. Explicitly name selector constants, not magic
+list positions. Keep today's diagnostic map runnable. A04 specifies legacy-match;
+its actual mechanism commands/requests are owned by B08, not emitted before APIs exist.
+
+Gate: A-drive and A-cancel pass with concise trace/demo, existing relevant regressions
+pass, mass amendment recorded. D publishes baseline manifest section in evidence-A
+and tag p11a-baseline-v1 at compatible R/S/D commits. No per-A-task tags/manifests.
+Stop at checkpoint; B implementation waits for its own authorization.

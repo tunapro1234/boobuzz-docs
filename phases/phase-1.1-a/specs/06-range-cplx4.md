@@ -1,5 +1,10 @@
 # E — chassis distance sensors and conservative fusion
 
+> Superseded in parts by [review 2026-09-17](../review-ftc-main-specs-2026-09-17.md);
+> known issues, revise after B09. Body retained, NOT a current work order.
+> Read [v2 index](README.md) and [hardware-profile-v0](../hardware-profile-v0.md).
+> Range is now reserved as cplx5 after Vision-B; no released engine is renumbered. Section4's range dependency, association, uncertainty and fixture findings are known issues, not approved design choices.
+
 Status: DRAFT, not dispatched. Entry: D05; [common gates](00-common.md) apply.
 Do not decide unknown sensor count/model/placement by inventing final robot hardware.
 

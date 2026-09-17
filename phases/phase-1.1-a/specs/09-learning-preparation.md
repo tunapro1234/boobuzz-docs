@@ -1,5 +1,10 @@
 # H — model, rewards, demonstrations and deployment preparation
 
+> Superseded in parts by [review 2026-09-17](../review-ftc-main-specs-2026-09-17.md);
+> known issues, revise after B09. Body retained, NOT a current work order.
+> Read [v2 index](README.md) and [hardware-profile-v0](../hardware-profile-v0.md).
+> Section5's ownership, dependency/runtime compatibility and no-optimizer findings are known issues. No training, SB3 algorithm construction or optimizer execution is authorized. Feasibility-spike timing will be reconsidered after B09.
+
 Status: DRAFT, not dispatched. Entry: G05. **No training, including BC/DAgger, no
 optimizer steps, no weight fitting, no background jobs.** These tasks prepare inert
 configuration and tests only. Apply [common gates](00-common.md).

@@ -1,115 +1,164 @@
-# B01–B04 — device seam, pollen intake and feeder
+# B01–B04 v2 — smallest device seam, pollen intake and feeder
 
-Status: DRAFT, not dispatched. Requires A gate and [common gates](00-common.md).
-These are incremental mechanism steps, not new public engines.
+Status: DRAFT, not dispatched. Entry A05. Read [00](00-common.md) and
+[hardware-profile-v0](../hardware-profile-v0.md). Exact path aliases are in00.
+ONE evidence-B.md, no per-task releases. R/S seam changes get a concise cross-review.
 
-## B01 — typed actuator/sensor seam, minimum necessary extension
+## B01 — explicit contract migration and archive-name HAL
 
-Owners: R contract/RealHal/SimHal; S decoder/plant registration. Start with a shared
-golden wire fixture and capability table before parallel implementation.
+Owners R (Java/FTC), S (parser/server), D/protocol owner (ADR before code).
+Read J/hal/{RobotConstants,Mechanism,IHal}.java; J/contract/{RobotAction,RobotState}.java;
+H/{Hardware,RealHal}.java; SJ/{SimHal,Json}.java; S/sim/{mechanism,server}.py;
+S/sim/physics/{motor,pymunk_backend,multi}.py. Do not add a device framework.
 
-Current `RobotAction` distinguishes motor/position-servo maps, but archived turret
-requires CR servos and independent encoder/analog channels. Extend records without
-collapsing these devices into indistinguishable floats. Proposed channel semantics:
+### B01.0 — approve the paired seam before implementing it
 
-| Channel | Command/readout | Validity and safe behavior |
-|---|---|---|
-| DC output | finite normalized power [-1,1] | zero power on STOP; configured brake/coast |
-| CR servo output | finite normalized power [-1,1] | zero power on STOP; separate from angle |
-| Position servo | finite normalized position [0,1] | configured hold/stow; no implicit zero |
-| Incremental encoder | ticks + ticks/sec + sample time | separately named input; no assumed motor owner |
-| Analog | volts + sample time | configured valid range, invalid/stale flag |
-| Digital | boolean + sample time | optional; missing is not false |
+Append explicit amendment to chapter ADR from A02; protocol owner updates
+D/protokol.md BEFORE either worker codes proto2. No protocol changes during this
+planning revision. Migration contract:
 
-Preserve existing device-name maps where sufficient; introduce small typed additions,
-not a generic device graph. Configuration stores role, polarity, ratio, ticks/rev,
-safe state and provenance. Only `wheel` devices participate in chassis forces.
-Motor hardware direction and encoder software sign are separate transformations,
-each applied once. Servo mechanical angle conversion stays in its subsystem.
+| Item | Proto2 behavior / exact owner |
+|---|---|
+| ready | proto=2; motors, servos, crservos, encoders exact declared name lists; initial state t_ms=0 |
+| step.motors | normalized DC power; missing declared key=0 |
+| step.crservos | normalized CR power; missing declared key=0 |
+| step.servos | positional0..1; ABSENT=HOLD/no new write, explicit0=position0 |
+| state.enc / vel | union of output-motor encoder channels and independent shooterLeft input; ticks/ticks-sec, missing required channel invalid |
+| state | existing t_ms/pose/voltage/gamepad behavior; truth remains outside core |
+| events | diagnostic only; remove old contradictory prose implying events establish physical ball launch; physical transfer comes from plant/actuation |
 
-R extends `Hardware`/`RealHal`, immutable input/output records and serialization.
-S parses exactly the same capability/version and units. Named profile validation
-rejects duplicate output ownership, unknown required devices and missing feedback.
-No fake healthy encoder for absent devices. Old chassis profile still runs.
+Proto1 peers fail with clear version mismatch; preserve old source tag for old clients,
+not an untested compatibility layer. Add paired fixtures
+R/sim/src/test/resources/protocol-v2/{ready,step-hold,step-explicit-zero,state}.json
+and S/tests/fixtures/protocol-v2 equivalents, byte-compared in integration check.
+Tests: SJT/SimHalTest.java `rejectsProto1ForMechanismProfile` / `omittedServoIsNotZeroFilled`;
+JT/contract/RobotActionServoHoldTest.java; S/tests/test_protocol_validation.py
+`test_servo_omitted_holds` / `test_servo_explicit_zero_moves`.
 
-Tests: each valid endpoint and out-of-range/NaN; encoder sign/ratio round trip;
-wrong actuator type; missing optional/required sensor; no partial hardware write
-after frame validation fails; STOP; disconnect; paired JSON fixtures; a shooter
-command cannot move the chassis. Android assembly required. Exit: a synthetic
-all-device rig runs the shared core with equivalent RealHal contract fakes and SimHal.
+### B01.1 — one-line Java constants and matching parser
 
-## B02 — intake power and pollen-only physical capture
+RobotConstants.java is the only source of names/parameters. Add one-line
+`public static final String NAME = literal;` name block from hardware-profile-v0;
+keep scalar doubles, String arrays and each `new Motor(...)` on ONE line. Existing
+parser only recognizes literal doubles/strings, SERVOS and one-line Motor rows.
+Extend S/sim/mechanism.py with explicit CR_SERVOS / ENCODERS array parsing and
+resolution of declared String identifiers in arrays/Motor's name argument. Reject
+unknown identifiers/arbitrary expressions. Never add YAML or Python-only aliases.
 
-Owners: R `subsystem` intake implementation, S intake plant and floor fixture.
-Port archive signed power/brake semantics; state vocabulary OFF, INTAKE, REVERSE,
-FAULT is sufficient. Controller requests intent; only subsystem sets output. Reverse
-is explicit recovery, not a hidden oscillating jam algorithm. No automatic vision
-selection yet.
+Output names/order: leftFront,rightFront,leftBack,rightBack,intake,feeder,shooterRight.
+Servo list=[hood_left]; CR list=[turret_servo]; independent encoder=[shooterLeft].
+RobotConstants.buildMechanism currently hardcodes four motorNames: replace with ALL
+MOTORS; wheelMotorNames still filters exactly four. Pedro name mapping remains by
+wheel geometry, no shooter chassis force. Preserve efficiencies by wheel ROLE when
+renaming fl/fr/bl/br; update stale literal-name test/tool fixtures deliberately.
+Include mass and new machine-readable declarations in constantsHash.
 
-S models motor spin-up and a capture mouth attached to the robot. A free pollen
-ball can enter only when it intersects the mouth, relative motion/contact permits
-entry, roller direction is inward, and storage has space. Use a conservative swept
-mouth/contact test to avoid teleport capture at high speed. Internal inventory
-owns the object after capture; remove its free-world body exactly once. Reverse
-releases at the mouth with bounded outward velocity. A full intake pushes/jams
-according to the fixture, never deletes the object.
+Represent direction as declared strings FORWARD/REVERSE (existing scalar parser does
+not read booleans); store numeric gear/ticks/free-speed separately. Free-speed plant
+values without evidence are named fixture values, not hardware specs: intake/feeder
+6000 motor RPM, shooter6000 motor RPM with wheel ratio1.6; common tau.1 s initially.
+Pollen diameter2.8, nectar3.6, capacity3 and labeled mouth geometry also land here
+BEFORE B02 (the early F00 dimension slice). GOAL_X48/RED_GOAL_X96/GOAL_Y96 remain
+legacy placeholders, not authoritative BIOBUZZ targets. C owns real target geometry.
 
-Nectar never becomes our inventory. Its collision body can block the mouth; model
-physical exclusion from provisional mouth/ball geometry, not only a perfect
-semantic classifier. If final dimensions cannot reject it, report a mechanical
-dependency; software cannot guarantee a physically selective intake by naming it.
-Fixture capacity is explicit (e.g. three for a test), not an asserted robot capacity.
+Tests: JT/hal/MechanismTest.java and new JT/hal/HardwareProfileTest.java;
+S/tests/test_mechanism.py tests name resolution, exact lists, unknown identifier,
+wheel-only force contribution, and constantsHash change. Seed1. Hardware profile
+keeps old names, not active old secondary devices. No camera/range/digital channels.
 
-Tests: forward/hold/off/reverse/STOP actuator traces; capture one pollen once;
-stationary-off and reverse cannot capture; full inventory; two simultaneous balls;
-nectar-only and mixed clutter; side/rear contact; high-speed pass; disconnect during
-capture; conservation before/after release/reset. At fixed seed identical events.
-Exit: driver can collect and reverse pollen in Pymunk with real Java intake code.
-No global ball identity or true internal count is exposed as a nonexistent sensor.
+### B01.2 — real/sim writes, inputs and safe omission
 
-## B03 — feeder timing with one owner
+J/contract/RobotAction adds separate CR map + compatible old constructors;
+J/hal/Mechanism adds typed name lists. Keep IHal methods unchanged. Hardware binds
+DcMotorEx output motors plus encoder-only shooterLeft, ONE CRServo, ONE Servo.
+Set encoder-only motor power0 without changing direction/resetting someone else's
+measurement. Read enc/vel from declared input union; do not substitute missing0.
+Handshake name mismatch is fatal. A runtime absent reading from a declared channel
+remains absent in RobotState, so the affected subsystem faults safely while drive
+can remain usable; it is not replaced with0 or confused with malformed JSON/schema.
 
-Owner R: small `PulseFeeder` within subsystem layer; introduce `IFeeder` only if
-needed for engine/test consumers. S: feeder motor and transfer timing/geometry.
-Do not leave pulse state split between shooter stub and engine timers.
+Add J/contract/ActionValidator.java: validate whole frame names/finiteness/type/range
+before writes. On invalid frame, adapters apply DC/CR zero + hood hold and fail
+explicitly, not partially write a valid prefix then discover NaN. RealHal writes
+position only if key present; SimHal must NOT call fill() for servo map. Motor/CR
+zero-fill stays. S/server.py lifts its current unconditional nonempty-servo rejection,
+passes sparse servo/CR maps to plants and retains last explicit servo target. Backend
+step signatures and multi-robot forwarding update together. Initial no servo command
+means no fabricated position readout or automatic startup move.
 
-States: IDLE -> PULSING -> GAP -> IDLE (or next permitted pulse); FAULT separately.
-Archive-derived initial pulse 350 ms; verify active gap/delay configuration in A04.
-Use injected monotonic time. A normal request release/clear finishes the current
-pulse but starts no new one. Explicit STOP/cancel/fault zeros output this tick and
-clears pending requests. Coalesce held requests; do not enqueue a pulse every tick.
-Bound requested shot counts and report started/completed/interrupted pulses distinctly.
+Tests: JT/contract/ActionValidatorTest.java, SJT/SimHalTest.java,
+S/tests/test_protocol_validation.py, S/tests/test_multi_robot.py. Add
+R/TeamCode/src/test/java/org/firstinspires/ftc/teamcode/hal/RealHalWriteTest.java
+using narrow fake device sinks if SDK unit instantiation is unavailable; reuse the
+production write helper, do not write another fake HAL algorithm. Verify invalid
+frame powers zero, omitted hood holds across engine switch, explicit0 differs, and
+only shooterRight spins. HAL exceptions must reach OpMode finally/STOP safe-write;
+review existing thin OpMode cleanup and add coverage if missing. Android build required.
 
-S transfers an existing stored pollen through a finite feed path when motor travel
-and direction permit. A feeder event alone does not spawn a projectile. Track
-physical ball transfer separately from software pulse completion; an empty pulse
-is possible. Reverse/jam behavior is explicit, not magical replenishment.
+Exit: A-drive/A-cancel with new names pass; one all-device fixture demonstrates
+power and positional semantics on both adapters. No engine/module redesign.
 
-Tests: single pulse, held request, release mid-pulse, explicit cancel mid-pulse,
-gap boundaries ±1 tick, irregular dt, time reset, empty storage, jam, reverse,
-engine switch and no delayed restart. Command timing equals golden archive trace
-within one tick, with exact direction and terminal-result count.
-Exit: motor trace and physical transfer agree causally; last pulse cannot leak into
-a new engine epoch. No flywheel-ready assumption is embedded in feeder mechanics.
+## B02 — one intake and a minimum physical pollen scene
 
-## B04 — inventory belief and full intake/feed integration
+R: new J/subsystem/intake/PowerIntake.java implementing IIntake; factory wiring;
+JT/subsystem/intake/PowerIntakeTest.java. Port OLD/hardware/subsystems/intake/
+IntakePowerSubsystem.java signed run/stop, default1, hardware reversal in HAL once.
+No velocity controller or automatic jam-search. S: new sim/physics/balls.py and
+sim/physics/mechanisms.py, tests/test_intake_capture.py; use Pymunk, not events.
 
-Owners: R belief/feedback; S independent truth/physical transfers. This is not yet
-the field world model. Separate `inventoryTruth` inside S from Java's estimate.
+Fixture constants in RobotConstants: 18-in chassis, mouth at forward9 in, opening
+3.2 in, capture depth2 in, capacity3. Sizes2.8/3.6 make pollen passage possible and
+nectar excluded in this PROVISIONAL geometry. Capture requires inward spinning roller,
+free object crossing mouth, space in storage, and swept contact; off/reverse cannot
+capture. Full storage blocks/pushes, never deletes. Reverse releases stored pollen
+at mouth; no nectar inventory even among mixed clutter. Do not advertise mechanical
+selectivity on the real intake without dimensions/bench evidence.
 
-If the archived robot lacks a beam break, expose an estimate with unknown/range
-and confidence, not a perfect counter. Commanded feeder pulses can lower an estimate
-but do not prove release. Later real sensor evidence can confirm transitions.
-Use minimal fields: count estimate or interval, confidence, last evidence time,
-reason. Do not invent virtual hardware inputs to make tests pass. Fixture sensors
-may exist only under an explicitly labeled test hardware profile.
+Fixture seed1: robot(36,72,0); pollen centers(48,72),(54,72),(60,72); nectar(54,78).
+Low normalized forward .15 with intake on, stop at pose(51,72,0) using public pose
+threshold then neutral; expect3 stored pollen and1 external nectar, no duplicated
+IDs and total inventory+world=4. Dedicated geometry tests move nectar
+to mouth to verify blocking rather than magical class-based disappearance. Seed42
+adds approach offset±.1 in as fixture noise; reference seed1 rerun deterministic.
+Exit: same Java intake drives the visible scene; no sensor-truth inventory leakage.
 
-Shot coordinator may stop on confirmed empty; unknown inventory follows a bounded
-operator-request policy and timeout. Never schedule infinite dry feeds. Intake and
-feeder ownership must agree on internal transfer; one ball cannot occupy two places.
+## B03 — one feeder, two documented timing presets
 
-Acceptance scenario: collect two pollen among nectar clutter, reverse one, recollect,
-feed one, interrupt next feed, reset. Assert physical conservation, expected motor
-traces, honest belief uncertainty and no stale ownership. Inject sensor faults and
-empty pulses; confidence must not increase from a command alone. Exit: B01–B04
-cross-reviewed with baseline drive suite still green; fixed-shot work can begin.
+R: J/subsystem/feeder/PulseFeeder.java; JT/subsystem/feeder/PulseFeederTest.java.
+S: sim/physics/mechanisms.py, tests/test_feeder_transfer.py. Compose feeder beneath
+IShooter adapter later; do not split timers across stub and engine.
+
+States IDLE/PULSING/GAP. Pulse350 ms at power1. `requestPulseAndDelay(gapMs)` coalesces
+held requests; default gap500 ms, legacy-match gap100 ms from active ShootingController.
+Single pulse and continuous held requests are different. clearRequest stops new
+pulses, lets current pulse finish; stop cancels pulse/gap NOW. Time from hal.now only.
+At20 ms ticks350 ms completes at360 ms; assert[350,370) ms; gap±one tick. Test100
+AND500 ms presets, release mid-pulse, cancel mid-gap, reverse/manual recovery and reset.
+
+S moves ONE existing inventory object to a feed path after enough positive feeder
+travel (fixture threshold .35 full-power seconds), never from diagnostic event count.
+Before B08, an exit object may be held in a private outlet state for transfer tests;
+B08 owns creating its planar world body. Inventory+feed-path+outlet+field is conserved.
+Tests include empty pulse/no object, jam, power0, reverse and repeated request. Pulse
+completion is not proof of a ball leaving. Exit: timing trace and transfer causality
+agree, no ghost ball or residual pulse after switch/STOP.
+
+## B04 — honest unsensed inventory feedback
+
+R: J/logic/cplx1/InventoryEstimate.java with UNKNOWN/estimated count range, confidence
+and last-evidence time; JT/logic/cplx1/InventoryEstimateTest.java. Do not add a generic
+world model. Intake.ballSensorName=intake_dist and maxBallCapacity3 are known archive
+facts; active intake never reads that sensor. Reserve its name but do NOT bind fake
+beam-break/distance values to make a perfect counter. No new wire sensor for B04.
+
+Without actual pickup/release evidence, start unknown[0,3]; motor commands alone
+cannot confirm capture or empty storage. A bounded operator-requested feed may run
+with unknown count, but no infinite dry-feeding scheduler. Keep estimated status
+separate from S private truth in trace/evidence. Existing Feedback need not grow a
+large world DTO just for this: narrow mechanism diagnostic trace is sufficient now.
+
+Tests: pulse command cannot increase certainty, reset returns unknown, no negative
+counts, finite request limit, no access to truth/IDs. Extend B02/B03 scene: reverse
+one known fixture ball, recollect, pulse, cancel. Assert physical conservation and
+honest Java unknown state side by side. B08 remains owner of actual planar release;
+B04 does not silently implement C projectile flight or a score counter.

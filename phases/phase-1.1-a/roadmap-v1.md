@@ -1,5 +1,13 @@
 # Phase 1.1-a roadmap v1 — discussion draft
 
+> Historical broad draft, superseded by [v2 index](specs/README.md),
+> [hardware-profile-v0](hardware-profile-v0.md) and Tuna's
+> [review decisions](review-ftc-main-specs-2026-09-17.md). A/B now have worker detail;
+> C is medium; later bodies remain notes, not work orders. Tags/manifests only at
+> baseline/engine gates, evidence per chapter, cross-review only on R/S seams.
+> Vision-A precedes Vision-B; range follows them. Old action/reward/far-stage
+> prescriptions are retained history and must be reconciled after B09.
+
 Expanded by the [detailed review spec pack](specs/README.md). That newer proposal
 includes pollen-only intake, executable substeps and model/reward preparation.
 This v1 remains the historical broad draft; neither document authorizes execution.
@@ -138,15 +146,16 @@ Primary sources already located in the archived DE-Cock tree:
 Concrete observations that the port must account for:
 
 - Shooter uses power-domain PID + feedforward, integral zone/clamp, optional slew,
-  two-motor scaling and a readiness dwell. Archive defaults include 100 RPM error
+  and a readiness dwell on ONE flywheel. Archive defaults include 100 RPM error
   tolerance and 150 ms stable duration; these are inherited settings, not new measurements.
 - Feeder owns pulse/delay sequencing. `clearRequest()` lets a running pulse finish;
   `stop()` cancels it immediately. The archived pulse default is 350 ms, not the
   current stub's 200 ms. Driver release and emergency cancel need distinct semantics.
-- Turret uses two CR servos, an incremental encoder and analog startup calibration;
-  historical limits are -90 to +90 degrees. Its encoder port is named `shooterLeft`:
-  separate encoder-channel ownership from motor-output ownership explicitly.
-- Hood uses two position servos with mirrored conversion and mechanical clamps.
+- New turret uses ONE CR servo (`turret_servo`), incremental encoder `shooterLeft`
+  and analog startup input `turret_analog`, with inherited -90 to +90 degree limits.
+  Shooter speed independently uses `shooterRight`; the archive resolves that selection.
+- New hood uses ONE position servo `hood_left`, its inherited LEFT-inverted mapping
+  and mechanical clamps, not a paired or mirrored-actuator arrangement.
 - Current teleop RB/LB behavior differs from the archived hold-based shooting and
   reverse controls. Proposed default: restore the match-used driver's map, keep the
   present diagnostic map as an explicitly selected alternative. Discuss this choice.
@@ -203,7 +212,7 @@ Robot inventory is a sensor-supported estimate; simulator inventory is separate 
 
 Port the archived controller math into SDK-free `FlywheelShooter`: RPM conversion,
 PIDF, clamping/anti-windup, slew, readiness dwell, target changes and spin-down.
-Preserve two-motor direction/scaling. Inspect archived feedforward units before
+Use one output/velocity source `shooterRight`; no follower motor/scaling. Inspect archived feedforward units before
 adding any voltage compensation; do not apply compensation twice.
 
 The plant models independent flywheel inertia/lag, battery limitation, sensing noise
@@ -214,7 +223,7 @@ within tolerance for a duration, never an elapsed-time substitute.
 
 ### B4. Hood and turret
 
-Port mirrored hood conversion and limits; test endpoints and intermediate positions.
+Port the ONE hood_left channel's inverted conversion and limits; test endpoints and intermediate positions.
 Give hood motion a finite simulated rate. Port turret calibration, encoder scaling,
 analog initialization/filter, angle wrap, bounded target motion and hold/manual stop.
 Start with fixed angle commands; no scanning yet. Distinguish `hold current angle`
@@ -237,7 +246,7 @@ Gate B: scripted button sequences produce expected powers/positions and sensor
 responses through real Java core + Pymunk. Replay cases include warmup, pulse,
 release, reverse/jam clear, turret target and engine fallback. Complete a visible
 drive/intake/feed/aim demo plus Android assembly. Claim software/sim validation,
-not physical tuning. Tag each accepted subsystem increment and `p11a-engine-cplx1`.
+not physical tuning. Tag only the engine checkpoint `p11a-engine-cplx1-v1`.
 
 ## 6. Work package C — shooting and practical ballistics
 
@@ -499,9 +508,9 @@ hardware exists. Simulator success cannot erase that limitation.
 1. Recommended control baseline: port last season's match-used button semantics,
    retaining today's diagnostic map under another profile. Confirm whether instead
    the current buttons should remain while only actuator behavior is ported.
-2. Recommended mechanism reference: archived twin-flywheel/feeder/dual-hood/limited
-   turret arrangement, marked provisional. It can later be changed by compile-time
-   profile without rewriting engines. Confirm major mechanical departures if known.
+2. Binding hardware: ONE single-flywheel shooter, ONE intake, ONE feeder, ONE hood
+   servo and ONE turret CR servo. Archive provides behavior/calibration/device names,
+   not topology. See hardware-profile-v0; physical tuning remains to be verified.
 3. Recommended shooting baseline: stationary calibrated shots first; no RK4 or
    moving-shot work before that gate.
 4. Recommended vision milestone: cplx3 builds observable tracks/beliefs and scans

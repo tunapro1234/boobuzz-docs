@@ -1,5 +1,10 @@
 # G — controller-level Gymnasium environment, no training
 
+> Superseded in parts by [review 2026-09-17](../review-ftc-main-specs-2026-09-17.md);
+> known issues, revise after B09. Body retained, NOT a current work order.
+> Read [v2 index](README.md) and [hardware-profile-v0](../hardware-profile-v0.md).
+> Section5's Java-clock ownership, synchronous environment transport, observation producers and ordering findings are known issues. The retained schema/gates are provisional, not frozen; no environment implementation is authorized.
+
 Status: DRAFT, not dispatched. Entry: F04 game-ready gate and stable cplx engines.
 Apply [common gates](00-common.md). This creates an environment, not a learner.
 

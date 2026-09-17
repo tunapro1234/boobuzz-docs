@@ -94,3 +94,27 @@
   per frame / 1,168 for four frames; git whitespace check passes. Code/physics test
   runs are future acceptance requirements, not tests rerun for this prose change.
 - Next action is Tuna's review/discussion, not execution. Preserve all worker changes.
+
+## 2026-09-17 — spec v2 after ftc-main/Tuna review
+
+- Read the complete review-ftc-main-specs-2026-09-17.md and checked relevant current
+  Java/Python/archive sources. Binding topology is one flywheel/hood/CR turret/intake,
+  plus feeder; hardware names retained, including archive wheel names.
+- Rewrote README/00/A/B and added hardware-profile-v0.md and the review-disposition
+  note. Owned explicit millisecond/status/servo/protocol/parser/aim/planar-release
+  corrections, concrete tests/seeds and three B09 e2e scenarios. No code implementation.
+- Reduced process to chapter evidence, seam-only cross-review, baseline/engine tags.
+  Composition uses the existing coordinator; Vision-A precedes Vision-B and range.
+- Far04–10 retain prior detail with superseded/known-issues headers. Only requested
+  hardware/encoder corrections in10 and broad roadmap topology were rewritten;
+  C's corrected medium outline is in README. Further E–H work waits until after B09.
+- Archive checks resolved shooterRight velocity vs shooterLeft turret; flagged28/1.6
+  comment mismatch; separated default500-ms gap from match-used100-ms override and
+  confirmed LEFT hood mapping. Matching names is not mechanical validation.
+- Docs worker is to publish the original review plus this v2 and report hash, then
+  hold. No implementation goals, code changes, installations, training or draft tags.
+- Local documentation checks passed: 12 spec files reference hardware-profile-v0,
+  49 relative links resolve, all14 A/B task headings are present,04–09 bodies are
+  byte-preserved after the new header, hood/RPM/feedforward fixture arithmetic is
+  consistent, git diff --check clean, protected documents unchanged. Review SHA-256:
+  117674815998fce3f99de8aa9929287472db568a2401ca49bfb8edc2763dc2b1.

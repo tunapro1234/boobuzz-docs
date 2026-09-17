@@ -1,5 +1,10 @@
 # F — a credible game world before calling the environment game-ready
 
+> Superseded in parts by [review 2026-09-17](../review-ftc-main-specs-2026-09-17.md);
+> known issues, revise after B09. Body retained, NOT a current work order.
+> Read [v2 index](README.md) and [hardware-profile-v0](../hardware-profile-v0.md).
+> Section5's match-state seam, multi-robot reuse and scoring/settlement findings are known issues. B01 now owns the early object-dimension slice needed by intake; this retained F chapter owns full game fidelity later.
+
 Status: DRAFT, not dispatched. C01's minimal target geometry happens earlier; this
 full-game work follows the useful engines. Apply [common gates](00-common.md).
 

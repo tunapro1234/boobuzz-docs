@@ -1,5 +1,10 @@
 # Research, decisions and evidence limits
 
+> Superseded in parts by [review 2026-09-17](../review-ftc-main-specs-2026-09-17.md);
+> known issues, revise after B09. Body retained, NOT a current work order.
+> Read [v2 index](README.md) and [hardware-profile-v0](../hardware-profile-v0.md).
+> Hardware/name/encoder conclusions below are corrected for v2; all other far-framework choices and section5 findings remain provisional. No further E–H work before B09.
+
 Status: DRAFT supporting the review pack, not an implementation order.
 Primary sources checked 2026-09-17. Recheck version-sensitive APIs/rules at execution.
 Choices below are engineering proposals for this repository, not claims that one
@@ -20,10 +25,13 @@ Keep Java17 core, the repo's FTC SDK12.0.0/Pedro3.0.0 and existing test framewor
 unless an actual compatibility blocker warrants a separate change. Robot's `sim`
 folder is valuable as a thin runner: shared control code should remain shared.
 
-Archive-derived behavior is unusually useful here: power-domain shooter PIDF,
-timed feeder, mirrored hood and constrained CR-servo turret have concrete existing
-semantics. Reuse those calculations and actuator traces. Do not transplant the
-archive's whole scheduler or assume its ball/wiring/calibration matches this robot.
+Archive-derived behavior is useful: power-domain shooter PIDF, timed feeder,
+LEFT-channel hood conversion and bounded turret control. The NEW profile uses ONE
+flywheel, ONE hood servo, ONE turret CR servo and ONE intake (plus feeder). Reuse
+calculations and names, not the archive's actuator count or whole scheduler.
+Shooter velocity is shooterRight/RIGHT; shooterLeft independently reads turret angle.
+Verify the actual28-tick/1.6-ratio settings against their contradictory old comments;
+do not treat the already-resolved encoder selection as an architectural blocker.
 
 ## Choices and alternatives
 
@@ -121,7 +129,7 @@ this one small actor, but requires strict parity tests and no generic ML runtime
 
 | Unknown | Needed evidence | Safe progress while unresolved |
 |---|---|---|
-| Flywheel versus turret encoder wiring | Active old configuration, wiring description, eventual port test | Separate channels in provisional sim profile; disable unverifiable real closed-loop claims |
+| Physical encoder scaling | Old code resolves shooterRight speed vs shooterLeft turret; verify28 ticks/rev and1.6 wheel ratio physically | Separate known input names; no invented encoder conflict or physical calibration claim |
 | Pollen launch calibration | Ball-identified measurements with units/uncertainty | Synthetic software fixtures and explicit uncalibrated label |
 | Final intake/hood/turret geometry | Mechanism drawing/measurement | Versioned archive-derived profile, reject unproven reachability |
 | Camera detector/pipeline | Actual configuration and representative frames | Adapter fakes/sim frames; no claim of deployed perception |
