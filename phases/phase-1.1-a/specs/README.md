@@ -1,10 +1,14 @@
-# Phase 1.1-a spec pack v2.1 — review before implementation
+# Phase 1.1-a spec pack v2.2 — review before implementation
 
-Status: **DRAFT v2.1, 2026-09-17. No implementation dispatch or training authorized.**
+Status: **DRAFT v2.2, 2026-09-17. No implementation dispatch or training authorized.**
 Authority: [Tuna's latest direct clarification](../tuna-intent-2026-09-17.md) overrides
 the single-actuator interpretation in the [original review](../review-ftc-main-specs-2026-09-17.md).
 All other accepted process/scope decisions remain. V2 conflated mechanism and actuator
 counts; this correction follows the active archived construction/control paths.
+V2.2 preserves that topology and tightens archive provenance:350-ms pulse +100-ms
+post-pulse delay (500 unused), motor zero-power behavior, live shooter tuning,
+shooting intake.8, active-but-optional archive Limelight, and Pinpoint pod-axis mapping.
+Planned declarations and intentional reset-ownership fixes are not existing code.
 Every chapter uses [hardware-profile-v0](../hardware-profile-v0.md).
 Starting commits: R `d5bda62`, S `5dd6daa`; remain on `dev-phase-1.1-a`.
 
@@ -91,4 +95,4 @@ controller/inference/xRC feasibility spikes independently of full-game fidelity;
 do not assume they must wait behind all F. No learning runs of any kind.
 
 [Review disposition](../spec-v2-review-disposition.md) maps findings to revisions.
-Next: Tuna reviews v2.1. Only documentation publication is delegated now.
+Next: Tuna reviews v2.2. Only documentation publication is delegated now.

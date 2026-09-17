@@ -19,7 +19,17 @@ ONE intake motor and ONE feeder motor also match the archive; drive has FOUR mot
 All other review decisions remain: full detail A/B only, C medium, far chapters preserved/deferred;
 baseline/engine tags only, chapter evidence, seam-only cross-review; composed engines;
 few e2e gates; Vision-A before Vision-B. Today's authorization is revision/publication
-of specs v2.1 ONLY, not implementation. Docs worker commits the corrected docs.
+of specs v2.2 ONLY, not implementation. Docs worker commits the corrected docs.
+
+V2.2 follow-up (ftc-main's archive verification, then checked locally): topology
+stands. Preserve350-ms feeder pulse +100-ms post-pulse delay (500 is unused),
+shooting intake.8, role-specific BRAKE/FLOAT and live shooter-tuning provenance.
+Recovery45° is from RecoveryController. Distinguish planned declarations from
+current code, and centralized reset ownership from the archive's competing reset.
+Archive Limelight is active but tolerates absence; B deliberately defers its port.
+Pinpoint161/0 is forward pod lateral offset / strafe pod forward offset, not spatial
+X/Y; do not swap SDK arguments or substitute unused HC -84/-168. Profile/disposition
+record precise source lines and remaining details. Publish documentation, then hold.
 
 Before distributing the expanded requirements to workers, ftc-main-cx must personally
 prepare a detailed roadmap: implementation steps, framework choices, dependencies,

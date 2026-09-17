@@ -1,4 +1,4 @@
-# B01–B04 v2.1 — smallest device seam, pollen intake and feeder
+# B01–B04 v2.2 — smallest device seam, pollen intake and feeder
 
 Status: DRAFT, not dispatched. Entry A05. Read [00](00-common.md) and
 [hardware-profile-v0](../hardware-profile-v0.md). Exact path aliases are in00.
@@ -40,13 +40,16 @@ permitted mechanism command. B01.2 validates the pair before any physical write.
 
 ### B01.1 — one-line Java constants and matching parser
 
-RobotConstants.java is the only source of names/parameters. Add one-line
+RobotConstants.java is the only source of names/compiled profile defaults. Add one-line
 `public static final String NAME = literal;` name block from hardware-profile-v0;
 keep scalar doubles, String arrays and each `new Motor(...)` on ONE line. Existing
 parser only recognizes literal doubles/strings, SERVOS and one-line Motor rows.
 Extend S/sim/mechanism.py with explicit CR_SERVOS / ENCODERS array parsing and
 resolution of declared String identifiers in arrays/Motor's name argument. Reject
 unknown identifiers/arbitrary expressions. Never add YAML or Python-only aliases.
+These declarations are PLANNED, not already present: R d5bda62 has fl/fr/bl/br and
+SERVOS={}. Static profile/plant defaults stay here; B05's recorded runtime shooter
+tuning overrides are controller inputs, not a second Python plant configuration.
 
 Output names/order: leftFront,rightFront,leftBack,rightBack,intake,feeder,shooterRight,shooterLeft.
 Servo list=[hood_left,hood_right]; CR list=[turret_servo,turret_servo2].
@@ -61,7 +64,8 @@ renaming fl/fr/bl/br; update stale literal-name test/tool fixtures deliberately.
 Include mass and new machine-readable declarations in constantsHash.
 
 Represent direction as declared strings FORWARD/REVERSE (existing scalar parser does
-not read booleans); store numeric gear/ticks/free-speed separately. Free-speed plant
+not read booleans); declare zero-power behavior per motor role too: shooter FLOAT,
+intake/feeder BRAKE; existing drive BRAKE unchanged. Store numeric gear/ticks/free-speed separately. Free-speed plant
 values without evidence are named fixture values, not hardware specs: intake/feeder
 6000 motor RPM, shooter6000 motor RPM with wheel ratio1.6; common tau.1 s initially.
 Pollen diameter2.8, nectar3.6, capacity3 and labeled mouth geometry also land here
@@ -79,11 +83,23 @@ J/contract/RobotAction adds separate CR map + compatible old constructors;
 J/hal/Mechanism adds typed name lists. Keep IHal methods unchanged. Hardware binds
 8 DcMotorEx outputs,2 CRServo and2 Servo devices, each name ONCE. shooterLeft remains
 an ACTIVE shooter output (FORWARD); shooterRight is REVERSE. BOTH RUN_WITHOUT_ENCODER,
-FLOAT, matching archive. Central initialization owns reset/configuration before enable;
+FLOAT, matching archive; intake/feeder RUN_WITHOUT_ENCODER and BRAKE, not a blanket
+motor-mode default. Archive turret ctor resets/reconfigures shooterLeft AFTER shooter
+setup (TurretPidPazarSubsystem:67–69); feeder ctor resets its port (FeederPowerSubsystem:34).
+NEW deliberate fix: central initialization owns reset/configuration before enable;
+reset each required encoder once (shooterRight, turret-input shooterLeft, feeder),
+then establish consumer baselines. Do not claim this ownership existed in archive.
 turret runtime may read shooterLeft encoder but cannot reset/configure its motor or
 write its power. No second HardwareMap lookup/competing owner for the input alias.
 Read enc/vel from declared unique inputs; do not substitute missing0 or calculate
 shooterLeft encoder ticks from its flywheel shaft in S.
+Pinpoint adapter: preserve forwardPodY=161 mm / strafePodX=0 mm,
+forward FORWARD / strafe REVERSED, goBILDA_4_BAR_POD. Existing xPodOffsetMm names
+the forward-MEASURING pod's lateral offset, not spatial X; yPodOffsetMm names the
+strafe-MEASURING pod's forward offset. Keep SDK setOffsets(161,0,MM), no blind swap
+and no unused HC.Pinpoint(-84,-168) substitution. Document this in both Pinpoint
+records and H/Hardware.java; test exact offsets/directions/pod type through the
+production init helper. No record/parser rename solely for terminology in B.
 Handshake name mismatch is fatal. A runtime absent reading from a declared channel
 remains absent in RobotState, so the affected subsystem faults safely while drive
 can remain usable; it is not replaced with0 or confused with malformed JSON/schema.
@@ -118,6 +134,13 @@ written, and hardware directions are applied ONCE. Add shared-port tests:
 `RealHalWriteTest.turretReadDoesNotReconfigureShooterOutput` and
 S/tests/test_mechanism.py `test_shooter_left_encoder_follows_turret_not_shooter`.
 B01 may use an injected turret-angle fixture; B07 repeats against its real plant.
+Add `RealHalWriteTest.initializesZeroPowerBehaviorByMotorRole`,
+`RealHalWriteTest.resetsSharedEncoderOnceBeforeEnable`,
+`RealHalWriteTest.pinpointPreservesMeasuredAxisMapping` and corresponding
+HardwareProfileTest assertions. S's zero-power plant distinguishes FLOAT coast from
+BRAKE decay using named fixture damping, not arbitrary equal immediate stops;
+Later B05 tests/test_flywheel_plant.py and B02 test_intake_capture.py cover zero-command
+decay; B01 tests the declared modes/adapter setup without requiring those later plants.
 HAL exceptions must reach OpMode finally/STOP safe-write;
 review existing thin OpMode cleanup and add coverage if missing. Android build required.
 
@@ -129,7 +152,11 @@ power and positional semantics on both adapters. No engine/module redesign.
 R: new J/subsystem/intake/PowerIntake.java implementing IIntake; factory wiring;
 JT/subsystem/intake/PowerIntakeTest.java. Port OLD/hardware/subsystems/intake/
 IntakePowerSubsystem.java signed run/stop, default1, hardware reversal in HAL once.
-No velocity controller or automatic jam-search. S: new sim/physics/balls.py and
+Preserve BRAKE and explicit run(.8) for ShootingController's shoot-intake behavior;
+B08 owns selection/precedence. HC.Intake.holdPower=.2 is an unused declaration:
+record it, but do not introduce autonomous idle holding; stop remains power0.
+Test run1/run.8/run-negative/stop and one-time hardware inversion. No velocity
+controller or automatic jam-search. S: new sim/physics/balls.py and
 sim/physics/mechanisms.py, tests/test_intake_capture.py; use Pymunk, not events.
 
 Fixture constants in RobotConstants: 18-in chassis, mouth at forward9 in, opening
@@ -148,18 +175,23 @@ to mouth to verify blocking rather than magical class-based disappearance. Seed4
 adds approach offset±.1 in as fixture noise; reference seed1 rerun deterministic.
 Exit: same Java intake drives the visible scene; no sensor-truth inventory leakage.
 
-## B03 — one feeder, two documented timing presets
+## B03 — one feeder,350-ms pulse PLUS100-ms post-pulse delay
 
 R: J/subsystem/feeder/PulseFeeder.java; JT/subsystem/feeder/PulseFeederTest.java.
 S: sim/physics/mechanisms.py, tests/test_feeder_transfer.py. Compose feeder beneath
 IShooter adapter later; do not split timers across stub and engine.
 
-States IDLE/PULSING/GAP. Pulse350 ms at power1. `requestPulseAndDelay(gapMs)` coalesces
-held requests; default gap500 ms, legacy-match gap100 ms from active ShootingController.
+States IDLE/PULSING/GAP. Pulse350 ms at power1, then100 ms stopped before the next
+legacy-match pulse. `requestPulseAndDelay(gapMs)` coalesces held requests; parameter
+is the POST-PULSE DELAY, never pulse duration. ShootingController:39 sets100 and
+:329,345 passes it. HC.Feeder.postPulseDelayMs=500 is dead (no references), NOT a
+default or second preserved preset. Do not silently revive it in the port.
 Single pulse and continuous held requests are different. clearRequest stops new
 pulses, lets current pulse finish; stop cancels pulse/gap NOW. Time from hal.now only.
-At20 ms ticks350 ms completes at360 ms; assert[350,370) ms; gap±one tick. Test100
-AND500 ms presets, release mid-pulse, cancel mid-gap, reverse/manual recovery and reset.
+At20 ms ticks350 ms completes at360 ms; assert[350,370) ms; gap100±one tick. With
+pulse starting t=0, off at360 and next pulse at460 ms in the exact fixture. Test
+phase boundaries, release mid-pulse, cancel mid-gap, reverse/manual recovery and reset;
+pin no accidental100-ms pulse or500-ms delay. Feeder zero-power behavior is BRAKE.
 
 S moves ONE existing inventory object to a feed path after enough positive feeder
 travel (fixture threshold .35 full-power seconds), never from diagnostic event count.

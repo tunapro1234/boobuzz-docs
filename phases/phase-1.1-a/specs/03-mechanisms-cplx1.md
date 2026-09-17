@@ -1,4 +1,4 @@
-# B05–B09 v2.1 — paired actuators, one controller per mechanism; useful cplx1
+# B05–B09 v2.2 — paired actuators, one controller per mechanism; useful cplx1
 
 Status: DRAFT, not dispatched. Read [00](00-common.md) and
 [hardware-profile-v0](../hardware-profile-v0.md). B05–B07 follow B01 and consume
@@ -11,13 +11,17 @@ R: `J/subsystem/shooter/FlywheelShooter.java`, `J/subsystem/IShooter.java`,
 J/RobotFactory.java; tests `JT/subsystem/shooter/FlywheelShooterTest.java`.
 S: `sim/physics/mechanisms.py`, `tests/test_flywheel_plant.py`. Archive source:
 OLD/hardware/subsystems/shooter/ShooterPidfPowerSubsystem.java and
-OLD/config/HardwareConstants.java::Shooter/ShooterPIDF; inspect storage overrides
-without importing Android timing or FTCLib's scheduler.
+OLD/config/HardwareConstants.java::Shooter/ShooterPIDF and
+OLD/settings/storage/shooter/ShooterPidfPowerStorage.java. Archive periodic PID,
+feedforward, integral limits and readiness read that dashboard-tunable storage at
+RUNTIME; HC values below are boot defaults, not necessarily match-used values.
+Do not import Android timing or FTCLib's scheduler into core.
 
 TWO DcMotorEx outputs shooterRight/shooterLeft, ONE shooter controller and ONE
 measured velocity source shooterRight (RIGHT). Preserve archive setMotorPower:
 right=p; left=p*followerScale with followerScale1.0. HAL applies right REVERSE,
-left FORWARD once. Disable/cancel zeroes BOTH. shooterLeft is simultaneously an
+left FORWARD once; BOTH zero-power FLOAT. Disable/cancel zeroes BOTH commands,
+not instantaneous physical RPM. shooterLeft is simultaneously an
 active shooter output and turret encoder INPUT, never a second shooter speed source.
 Inherited conversion: wheelRPM=velTicksPerSecond*60/28*1.6, encoderReversed=false;
 output reversal belongs in Hardware, not another software negation. At1166.6666667
@@ -33,6 +37,18 @@ Use HAL ms converted to seconds,
 clear controller/dwell on target change/disable/invalid sensor, protect abnormal dt.
 Saturation/anti-windup correction must be explicit compared with source trace.
 
+Preserve live tuning with proposed SDK-free `J/subsystem/shooter/ShooterTuning.java`
+snapshot and one injected supplier into FlywheelShooter (one read per tick). New
+FTC-only `R/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/tuning/ShooterTuningConfig.java`
+uses already-declared Dashboard0.5.1 @Config; initializes from RobotConstants defaults.
+No tuning framework/new dependency. Sim uses the same core with a fixed default
+supplier or explicit scripted snapshot changes. Record initial values and changes
+in trace; don't claim constantsHash alone identifies a live-tuned run. Invalid
+nonfinite/negative limits reject safely; accepted changes clear integral/readiness
+before recomputing (documented safety policy). `FlywheelShooterTest` must verify
+live gain/tolerance/dwell change, no mixed snapshot within a tick, invalid tuning
+and deterministic replay; no constructor-only freezing of archive-tunable gains.
+
 Facade implements existing IShooter and owns composed PulseFeeder (B03), then
 PairedHood (B06). Facade observes/updates its parts ONCE; do not also register them
 as top-level Subsystems entries. feed/isFeeding delegate to PulseFeeder; no old
@@ -41,7 +57,8 @@ per-motor PID or fabricated follower-velocity readiness requirement.
 
 S starts with ONE effective shooter-speed state driven by BOTH motor outputs:
 effective effort=(rightApplied+leftApplied)/2 after mounting polarity mapping. Use
-B01 fixture free RPM/tau and voltage. This aggregate first-order plant is a labeled
+B01 fixture free RPM/tau and voltage; zero-command FLOAT coasts, not BRAKE.
+This aggregate first-order plant is a labeled
 fixture, not proof of a shared shaft or independent wheels; source code proves motor
 commands, not mechanical gearing. Disabling one motor halves effective drive effort;
 opposed efforts cancel. Do not silently ignore the follower or double nominal RPM.
@@ -80,7 +97,9 @@ Reject incompatible target pairs; a physically stuck servo may jam the fixture,
 but without position feedback Java cannot magically detect it.
 
 On init do not move or falsely report measured44°. First explicit setpoint starts
-settling estimate. Default44°, stow25°, recovery45°. No angle sensor: status is
+settling estimate. Default44°/stow25° come from HC.Hood; recovery45° comes from
+OLD/contingency/lvbelc5/controllers/RecoveryController.java:29 DEFAULT_HOOD_ANGLE,
+not HC.Hood. No angle sensor: status is
 commanded/estimated only. Fixture mechanism rate90°/s and settling margin100 ms;
 unknown initial position budgets worst-case25° travel. Same constants consumed by
 S; actual hardware may be slower. Interrupted command recomputes travel; STOP/switch
@@ -112,7 +131,12 @@ One feedback loop/angle, two outputs; zero BOTH during init/STOP.
 shooterLeft motor power remains owned by shooter, never zeroed by turret init/stop.
 HC.Turret degrees/tick=360*1/(.715*8192),
 encoderReversed=true. Hard range[-90,+90]°. HC.TurretPidPazar PID.0171/.0401/.002,
-kS0, maxPower1. Read encoder without changing its motor direction. Startup analog
+kS0, HC.Turret.maxPower1. Keep HC:305–307 aimAssistLimitMarginDeg10,
+aimAssistTurnGain.3, aimAssistTurnMax.8 as provenance, not an automatically enabled
+chassis controller; B's5° fixture soft-margin below is a distinct proposed safety
+parameter, not the archive10° aim-assist margin. Read encoder without changing its
+motor direction or FLOAT mode. Archive ctor resets/configures this shared port;
+B01 centralization deliberately fixes that competing ownership. Startup analog
 volts0..3.3 -> shaft degrees; subtract125°, divide by.715 then normalize sensor
 angle; never wrap an actuator command through a hard stop. Retain source LPF.1,
 Kalman Q.1/R50, .75 s trust+1.25 s fade as small private calculation, no filter framework.
@@ -162,6 +186,14 @@ same ShotPreset; current ShooterCalibration300+distance/hood0 remains ONLY legac
 stub-profile behavior. Extend ShooterRpmConsistencyTest with real-profile preset
 cases; preserve legacy fixtures under explicit stub profile. Never feed a real
 flywheel using the unprovenanced300-RPM placeholder or call it calibrated.
+
+Preserve ShootingController SHOOT_INTAKE_POWER=.8 (:38): while the shot coordinator
+owns warmup/shooting, command IIntake.run(.8); intake-only uses default1. Recovery/
+cancel/fault precedence wins; releasing shot ownership restores the current manual
+intake demand or0, never stale. No automatic.2 idle hold from an unused HC field.
+`FixedShotCoordinatorTest` pins this ownership trace, feeder350-ms pulse +100-ms
+post-pulse delay, and same-tick cancel. Use one intake output owner, not a second
+ShooterLogic HAL write. B09 nominal trace includes actual intake power and pulse/gap.
 
 Extend request catalog in a phase-1.1-a addendum (historical catalog unchanged):
 SET_SHOT_PRESET[rpm,hoodDeg,turretRad], STOP_SHOOTING[](finish current pulse, no new

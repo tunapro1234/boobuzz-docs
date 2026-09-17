@@ -1,6 +1,6 @@
-# Common rules v2.1 — preserve the system, keep process small
+# Common rules v2.2 — preserve the system, keep process small
 
-Status: DRAFT v2.1, not dispatched. Read [hardware-profile-v0](../hardware-profile-v0.md)
+Status: DRAFT v2.2, not dispatched. Read [hardware-profile-v0](../hardware-profile-v0.md)
 and [latest Tuna clarification](../tuna-intent-2026-09-17.md), which overrides the
 original review's actuator-count interpretation. These rules supersede
 conflicting v1/far-draft process, topology and engine-numbering statements.
@@ -22,7 +22,10 @@ turret2 CR servos, intake1 DC, feeder1 DC, drive4 DC. One subsystem owns each pa
 do not duplicate controllers or infer the same inversion for every pair. Hood
 commands are complementary, turret logical powers equal, shooter follower scale1.
 shooterLeft motor output belongs to shooter; its encoder input belongs to turret.
-HAL binds once and configures before enable; simulation must model these roles separately.
+NEW code must bind once and centralize configuration before enable; this deliberately
+fixes the archive turret constructor's second configuration/reset of shooterLeft.
+Simulation must model these input/output roles separately. Compiled configuration
+defaults stay in RobotConstants; B05 records runtime tuning snapshots separately.
 
 ## Actual contracts
 
@@ -71,6 +74,9 @@ IHal.now/read/write stays unchanged. Async sensor data is batched inside RobotSt
 on read, not out-of-band callbacks into core. Capture metadata is ms. Later camera
 fixtures use25 Hz on20 ms ticks and independent seeded sensor streams. No camera,
 range or unused digital channels in B; analog is introduced only at B07.
+This is staged NEW-system scope, not archive history: lvbelc5 actively uses Limelight
+in LocalizerController and tolerates its absence. Vision-A owns that adapter's port;
+B is explicitly odometry-only, not full old localization parity.
 
 ## Engines compose, never four copies
 

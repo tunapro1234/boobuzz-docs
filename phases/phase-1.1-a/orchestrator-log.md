@@ -149,3 +149,33 @@
   hood fixtures and4000-RPM/feedforward arithmetic, git diff --check. Original review
   hash unchanged; far04–09/protected documents unchanged; R/S HEAD still d5bda62/
   5dd6daa. These are document checks, not a claim of newly run robot/physics tests.
+
+## 2026-09-17 — v2.2 archive-provenance follow-up
+
+- ftc-main relayed the follow-up verification and required corrections; checked
+  archive d7711d0 directly. Topology remains8 DC/2 Servo/2 CRServo. Corrected source
+  line citations for separate bindings and executable paired writes/computations.
+- Corrected active feeder timing to350-ms pulse PLUS100-ms post-pulse delay;
+  HC postPulseDelayMs500 has no references. Recovery hood45° is RecoveryController:29.
+  Shooting intake.8 is active; HC holdPower.2 is declared but not used by active path.
+- Profile and B01 now name all relevant BRAKE/FLOAT settings and planned adapter
+  tests. Archive turret DOES reset/reconfigure shooterLeft after shooter setup;
+  feeder also resets. New central reset/configuration ownership is an intentional
+  correction, not an archived guarantee.
+- Shooter PIDF/readiness reads runtime dashboard-tunable ShooterPidfPowerStorage;
+  HC values are boot defaults. B05 adds a narrow SDK-free tuning snapshot proposal,
+  with trace/replay and fixed-default fixture requirements, not a tuning framework.
+- Pinpoint preserves161/0 mm, FORWARD/REVERSED and goBILDA_4_BAR_POD. New field x/y
+  names identify measured pods, not spatial offsets; SDK argument order is correct.
+  Unused HC -84/-168 is explicitly quarantined. Planned B01 declarations/parser
+  changes are distinguished from current fl/fr/bl/br and SERVOS={}.
+- Limelight actively participates in archived LocalizerController and tolerates
+  missing hardware. B intentionally remains odometry-only; Vision-A owns the port.
+  Turret maxPower1 and aim-assist10°/.3/.8 are recorded without enabling new assist.
+- Updated profile, README/00/A/B, disposition and compaction intent. Original review,
+  protected documents and far chapters unchanged. No code edit, implementation
+  dispatch, install, training or tag. Docs worker publishes v2.2, then holds.
+- Documentation validation:9 scoped files,31 relative links in changed files,
+ 14 A/B headings, paired hood arithmetic and350+100-ms tick boundaries passed;
+  git diff --check clean. Original review SHA256 unchanged. R/S HEAD remain
+  d5bda62/5dd6daa; these are documentation/source checks, not new physics test runs.

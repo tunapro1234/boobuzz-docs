@@ -1,6 +1,6 @@
-# Spec v2.1 disposition — corrected topology, near-term plan only
+# Spec v2.2 disposition — verified topology and runtime provenance, plan only
 
-Status: DRAFT v2.1 for Tuna. The [full review](review-ftc-main-specs-2026-09-17.md)
+Status: DRAFT v2.2 for Tuna. The [full review](review-ftc-main-specs-2026-09-17.md)
 is preserved verbatim, but its single-actuator interpretation and our v2 response
 are superseded by [Tuna's direct clarification](tuna-intent-2026-09-17.md).
 Mechanism count is NOT motor count. Files below use [current index](specs/README.md) and
@@ -23,7 +23,7 @@ R d5bda62 / S 5dd6daa. Far findings are deliberately not claimed implemented/res
 | F15 | A04/A05 extend existing gamepad-map-analysis, teleop-map, request-catalog rather than duplicate inventory. |
 | F16–F17 | A01 fixes actual fractional truncation; A03 names a NEW harness and separates target vs sensor error, citing actual predecessor evidence. .5in/1° is a new stated gate, not a fabricated inherited tolerance. |
 | F18–F19 | A/B contain named paths/test classes/seeds. A05 owns registry/order/alias replay fixtures before a third engine. |
-| F20–F21 | Profile/B03/B06/B07 give exact pulse/gap/hood/turret constants. Source check additionally distinguishes default500 ms from match-used100 ms gap. |
+| F20–F21 | Profile/B03/B06/B07 give exact pulse/gap/hood/turret constants. V2.2 corrects v2.1:350-ms pulse PLUS100-ms post-pulse delay;500 field is unused, not an active default. Recovery45° is RecoveryController:29, not HC.Hood. |
 | F22–F23 | B08 owns 200-ms Pinpoint motion estimate/filter validity; A04 gives actual controllers/ source path. |
 | F24–F25 | 00 gives checkpoint-only tags, chapter evidence and seam-only cross-review; B01 omits unused digital/analog, B07 introduces consumed analog. |
 
@@ -55,10 +55,30 @@ owner table, learning/no-optimizer, game/referee and dependency findings remain
 the post-B09 checklist. README notes cheap feasibility spikes can be reconsidered
 after B09 without requiring all F first. No code, installs, model construction or training.
 
+## V2.2 follow-up verification at archive d7711d0
+
+- Counts/names/directions stay8 DC/2 Servo/2 CRServo. Corrected source citations
+  distinguish left/right bindings and executable position/power writes from signatures/comments.
+- Profile/B01 pin shooter FLOAT, intake/feeder BRAKE, shared turret encoder FLOAT;
+  existing drive BRAKE unchanged. Archive's competing turret reset and feeder reset
+  are explicit; new central ownership is an intentional fix, not a preserved fact.
+- B02/B08 preserve shooting intake.8 versus default1. HC holdPower.2 is recorded as
+  declared but unused. B05 names live ShooterPidfPowerStorage provenance and a narrow
+  runtime-tuning snapshot port, with deterministic fixed-default fixtures.
+- Profile/B01 explicitly distinguish planned declarations from today's fl/fr/bl/br,
+  SERVOS={}; parser extensions are future work, not implemented capabilities.
+- Pinpoint pod-axis mapping161/0, FORWARD/REVERSED, goBILDA_4_BAR_POD is pinned;
+  HC -84/-168 is unused. New xPodOffsetMm measures forward POD's lateral offset,
+  not Cartesian X: preserve SDK argument order, do not swap it. Adapter tests named.
+- Limelight is active in archived LocalizerController with graceful absence. B's
+  odometry-only subset is intentional staged scope; Vision-A still owns its port.
+- Turret maxPower1 and aim-assist10°/.3/.8 are documented without adding a new
+  chassis assist. No other topology/layer/process/phase or far-chapter changes.
+
 ## Documentation validation and handoff
 
 Check relative links, hardware-profile references, A01–A05/B01–B09 headings, unmodified
 review text, unchanged protected protokol/design-spec, and far-body preservation.
 Numerical fixture checks: hood25/44/45/50°,4000-RPM ticks conversion/feedforward.
 These are plan checks, not robot/physics test runs. Docs worker alone stages this
-v2.1 correction publication and reports commit/push/hash, then holds. No draft tags.
+v2.2 correction publication and reports commit/push/hash, then holds. No draft tags.

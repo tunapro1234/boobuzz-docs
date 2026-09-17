@@ -1,4 +1,4 @@
-# A v2.1 — baseline first, extend existing archive analysis
+# A v2.2 — baseline first, extend existing archive analysis
 
 Status: DRAFT, not dispatched. Read [00](00-common.md) and
 [hardware-profile-v0](../hardware-profile-v0.md); path aliases are defined in 00.
@@ -113,8 +113,18 @@ not an encoder-only device or a second turret motor. Flag actual28-tick/1.6-rati
 versus stale8192/1:1 comments. Trace active Blue/RedTeleop -> lvbelc5/Robot construction
 before choosing implementations, not just declarations or abandoned variants.
 intake_dist exists only as an unused declaration in active intake; capacity3 is real
-archive configuration. Keep350 ms pulse, default500 ms gap and match-requested100 ms
-separate. Counts, names, paired motion and directions MUST match the active archive:
+archive configuration. Active match feeder uses350 ms pulse PLUS100 ms post-pulse
+delay; HC.Feeder.postPulseDelayMs500 has no call sites, NOT an active fallback.
+Record shooting intake.8 versus default1; HC.Intake.holdPower.2 is declared, not
+used by active intake. Recovery hood45° is RecoveryController:29, not HC.Hood.
+Shooter runtime gains/readiness come from ShooterPidfPowerStorage; HC supplies boot
+defaults. Record the actual values when making reference traces, not just defaults.
+Archive turret ctor reconfigures/resets shooterLeft AFTER shooter construction;
+feeder ctor also resets its own encoder. B01 intentionally centralizes these resets.
+Record active Limelight -> LocalizerController, missing-camera fallback, and B's
+deliberate odometry-only subset. Pinpoint forwardPodY161/strafePodX0 maps to new
+xPodOffsetMm161/yPodOffsetMm0 by MEASURED pod axis; unused HC -84/-168 is not a second
+valid geometry. Counts, names, paired motion and directions MUST match the active archive:
 shooter2 motors, hood2 position servos, turret2 CR servos, intake1, feeder1, drive4.
 Golden traces include both outputs per pair and the shared-port isolation case;
 hardware-profile-v0 supplies the source locations, not permission to delete actuators.
