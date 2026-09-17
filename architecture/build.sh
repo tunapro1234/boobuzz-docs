@@ -5,10 +5,11 @@ set -euo pipefail
 # document with Pandoc and a real TeX engine.  No package or browser download
 # is performed; the caller supplies already-installed tools.
 
-ROOT=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+ROOT=${DOC_ROOT:-$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)}
 INPUT="$ROOT/architecture.md"
 OUTPUT="$ROOT/architecture.pdf"
 DIAGRAM_DIR="$ROOT/diagrams"
+IMAGE_WIDTH=${DOC_IMAGE_WIDTH:-95%}
 TMP=$(mktemp -d "${TMPDIR:-/tmp}/boobuzz-architecture.XXXXXX")
 trap 'rm -rf "$TMP"' EXIT
 
@@ -52,13 +53,13 @@ printf '{"executablePath":"%s","args":["--no-sandbox"]}\n' "$BROWSER" \
 # Markdown copy.  The checked-in architecture.md keeps every source fence.
 RENDERED_MD="$TMP/architecture-rendered.md"
 COUNT_FILE="$TMP/count"
-awk -v outdir="$TMP" -v countfile="$COUNT_FILE" '
+awk -v outdir="$TMP" -v countfile="$COUNT_FILE" -v width="$IMAGE_WIDTH" '
   BEGIN { n = 0; in_mermaid = 0; file = "" }
   /^```mermaid[[:space:]]*$/ {
     n++
     id = sprintf("%03d", n)
     file = outdir "/diagram-" id ".mmd"
-    print "![Diagram " n "](diagrams/diagram-" id ".pdf){width=95%}"
+    print "![Diagram " n "](diagrams/diagram-" id ".pdf){width=" width "}"
     in_mermaid = 1
     next
   }
@@ -118,7 +119,7 @@ for engine in xelatex pdflatex; do
       "$RENDERED_MD" | iconv -c -t ASCII//TRANSLIT > "$TMP/pdflatex.md"
     TEX_MARKDOWN="$TMP/pdflatex.md"
   fi
-  if "$PANDOC" --from='gfm+attributes' --standalone --pdf-engine="$engine" \
+  if "$PANDOC" --from='markdown+raw_tex+fenced_code_attributes' --standalone --pdf-engine="$engine" \
       --resource-path="$ROOT:$TMP" --variable=geometry:margin=1in \
       --output="$OUTPUT" "$TEX_MARKDOWN"; then
     PDF_METHOD="pandoc+$engine"
