@@ -295,3 +295,19 @@
 - Resolution: S `4cc1201` applies the authorized narrow backend-agnostic
   `ROBOT_MASS_KG` fix, with final A02 tests and A03 acceptance recorded in the
   A05 manifest above.
+
+## 2026-09-17 — Chapter B B01 evidence scaffold
+
+- B is eligible after the verified A05 docs commit/tag and protected protocol
+  record pin: D `cec382d6380ceb209700fe3abef19684556fb51a`, annotated
+  `p11a-baseline-v1` targeting that D commit, and protocol
+  `74475463add0f23afd6d84b801245650712bbb62`.
+- Created the sole `phases/phase-1.1-a/evidence-B.md` with immutable R/S entry
+  pins (`72d3ac9fa81209f5bf31fd88eb1b99927bfdcaee` /
+  `4cc1201f6ba4861815f37625cc03ea973a84755f`), B01.0/B01.1/B01.2 task slots,
+  fixtures 1–6, required tests/commands, R↔S cross-review slot, and limitations.
+- The scaffold records no B01 implementation or test outcome. A05 command and
+  runner results are explicitly entry gates only; future entries require
+  independent R/S hash, remote, worktree, command and result verification.
+- No protocol, specification, source, tag, reviewer, ball, training, or phase
+  change was made. Continue monitoring only for proven R/S B01 reports.
