@@ -48,6 +48,17 @@ not a test result; later entries must name the exact command and artifact.
   `ROBOT_MASS_KG` in kg, clear missing/invalid failure, and an isolated 18 kg body/
   inertia fixture. These are requirements for a future task, not completed tests.
 
+## Forward-only A03/A02 ordering (provisional)
+
+- The forward-only decision keeps provisional R A03 history at `c939f16..e80b8c9`.
+  R A02 uses base `e80b8c9`, or a coherent separately labeled A03 WIP commit may
+  be used; neither provisional lineage is an A03 acceptance pin.
+- S must first publish only `tests/test_acceptance_scenarios.py` as A03 WIP/not
+  accepted on top of S `5ba0a96`, then publish A02. No A03 acceptance is valid
+  until a post-A02 rerun. A05 pins only final post-A02 R/S hashes.
+- This is ordering metadata, not an A03 result. A02 documentation propagation
+  continues; B01 remains blocked pending the ADR signature pin.
+
 ## Commands and outcomes
 
 | Check | Command / artifact | Outcome |

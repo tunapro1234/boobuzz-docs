@@ -239,3 +239,14 @@
 - Release metadata remains: Chapter A released; B approved/gated; C and the far
   roadmap unreleased; training, ftc-reviewer, and ftc-ball forbidden. No code or
   protocol file was edited.
+
+## 2026-09-17 — forward-only A03/A02 ordering
+
+- The forward-only decision records provisional R A03 hashes `c939f16..e80b8c9`.
+  R A02 uses base `e80b8c9`, or a coherent separately labeled A03 WIP commit may
+  be used; neither is a final A03 evidence pin.
+- S must publish only `tests/test_acceptance_scenarios.py` as A03 WIP/not accepted
+  on top of `5ba0a96`, then publish A02. No A03 acceptance is valid before a
+  post-A02 rerun.
+- A05 pins only final post-A02 hashes. A02 documentation propagation continues;
+  B01 remains blocked. This note records ordering, not test outcomes.
