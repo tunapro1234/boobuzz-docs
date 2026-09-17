@@ -1,5 +1,9 @@
 # Phase 1.1-a roadmap v1 — discussion draft
 
+Expanded by the [detailed review spec pack](specs/README.md). That newer proposal
+includes pollen-only intake, executable substeps and model/reward preparation.
+This v1 remains the historical broad draft; neither document authorizes execution.
+
 Date: 2026-09-17. Author: ftc-main-cx. Status: **not dispatched for implementation**.
 Authority: [Tuna's latest direction](tuna-intent-2026-09-17.md).
 All work below stays on `dev-phase-1.1-a`; these are work packages, not new phases.

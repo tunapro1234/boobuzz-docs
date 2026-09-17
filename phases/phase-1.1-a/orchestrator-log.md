@@ -63,3 +63,34 @@
 - This supersedes the earlier no-tags/strict-old-spec execution assumptions.
   Historical protected documents remain unchanged. This is a documentation-only
   planning checkpoint; the roadmap itself is not approved implementation scope.
+
+## 2026-09-17 — detailed review pack, pollen-only clarification
+
+- Tuna requested executable-spec-level substeps before any dispatch, emphasized
+  Gall's law, preserving layers and useful standalone engine releases, and clarified
+  the north star as AI driving during teleop. No training, including imitation
+  learning, is authorized. The planning hold remains active.
+- Tuna clarified our intake collects small pollen only, not nectar. Specs distinguish
+  robot collection scope from full-game nectar physics, obstruction and scoring.
+- ftc-main-cx personally prepared `specs/README.md` and 00–10: 42 bounded tasks across
+  baseline, device/mechanisms, cplx1–4, field/game, Gym environment and inert learning
+  preparation. Each task includes implementation behavior and acceptance/fault cases;
+  common gates supply release, ownership, commit/push, review and tag requirements.
+- Primary-source research informed Pymunk/flight scope, Limelight integration,
+  lightweight tracking, official game/deployment constraints, Gym terminal semantics,
+  PPO/BC preparation and Android inference feasibility. Unknown physical calibration,
+  camera pipeline, xRC export and Control Hub timing are explicitly not claimed solved.
+- Only the separately requested control-document note was delegated to ftc-docs-cx.
+  BP channel q655384762 was queued behind earlier unsubmitted messages. After Tuna
+  authorized checking the screen and pressing Enter for stuck messages, the existing
+  visible messages were submitted without clearing/retyping input. Channel later
+  reported DELIVERED; recipient screen confirmed note commit `da8f7d3`, pushed and
+  returned to hold. Note path: `control-doc-notes.md`; Astra/Fable and Luna Max are
+  documented as user-named working role/model labels.
+- No implementation spec was dispatched, no goal started, no robot/sim source edited,
+  no dependency installed, no model trained and no tag created for this draft.
+- Documentation checks: 12 spec files carry draft notices, 42 unique contiguous
+  task IDs, 22 internal links resolve, observation schema arithmetic is 292 scalars
+  per frame / 1,168 for four frames; git whitespace check passes. Code/physics test
+  runs are future acceptance requirements, not tests rerun for this prose change.
+- Next action is Tuna's review/discussion, not execution. Preserve all worker changes.

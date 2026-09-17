@@ -1,8 +1,9 @@
 # Tuna's direction — 2026-09-17
 
 Status: English distillation of Tuna's messages, followed by a planning hold.
-Read this after compaction, before resuming work. The current discussion draft is
-[roadmap-v1.md](roadmap-v1.md). That roadmap is a proposal, not an execution order.
+Read this after compaction, before resuming work. The current detailed discussion
+draft is [the spec pack](specs/README.md), expanding [roadmap-v1.md](roadmap-v1.md).
+Both are proposals, not execution orders.
 
 ## Latest instruction: plan first
 
@@ -14,6 +15,30 @@ new implementation goals from this roadmap before that discussion.
 Existing workers may finish their already-running test/report/commit checkpoint;
 no new implementation, pre-chained work or `/goal` assignment is authorized during
 this planning hold. Earlier keep-workers-busy instructions do not override this hold.
+
+### Latest refinements (also binding after compaction)
+
+- Write worker-ready detail for every substep: implementation behavior, framework
+  choices, dependencies, failure cases and measurable completion. Research the
+  choices. Give the specs to Tuna first; do not dispatch them before discussion.
+- Gall's law is central: grow from a working simple system. Preserve the current
+  layer structure. Each released engine must offer a complete useful operator
+  workflow without requiring the last engine or RL. Keep earlier engines working.
+- Our planned intake takes only small POLLEN, not NECTAR. Single-target collection
+  simplifies mechanisms/detection; it does not remove nectar from field physics,
+  interference, ownership or scoring. Do not add a nectar collection workflow.
+- The RL north star is AI driving during TELEOP. Model architecture/reward weights
+  and imitation-learning data feasibility may be prepared AFTER the environment,
+  but no model training of any kind may start without a new explicit instruction.
+- Prefer simple justified methods, and adjust the plan for serious evidence/blockers
+  rather than either rigidly following a broken plan or constantly changing it.
+- Tuna separately authorized telling docs to record the working organization in the
+  future control document: user-named Astra/Fable orchestrator role over Luna Max
+  robot/sim/docs workers. This documentation-only note is the sole new delegation
+  during the planning hold, not approval to execute these specs.
+- After a BP send, check the recipient screen. Tuna explicitly permits pressing
+  Enter when a known intended message is visibly stuck unsubmitted. Do not resend
+  duplicates, clear unrelated input or infer execution approval from that permission.
 
 ## Meaning of phase-1.1-a
 
