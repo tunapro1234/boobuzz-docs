@@ -14,7 +14,8 @@ Implemented in simulator commits `78bad126e3f80836b4c8152f2beded851c14623a` and 
 
 Verification for the working change:
 
-- From `/home/shared/projects/boobuzz/re-cock-nize`: `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k process_network` — 2 passed.
+- Commit `78bad126e3f80836b4c8152f2beded851c14623a`: from `/home/shared/projects/boobuzz/re-cock-nize`, `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k process_network` — 2 passed; `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k multi_robot` — 8 passed; pinned-R8 Java smoke on port `5835` completed 1000 ticks (sensor `(119.98,71.97,6.283)`, truth `(119.94,72.01,6.283)`).
+- Commit `5dd6daacedbd629deb0827b36240f3064a808f3b`: from `/home/shared/projects/boobuzz/re-cock-nize`, `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k process_network` — 2 passed; pinned-R8 Java smoke on port `5838` completed 1000 ticks (sensor `(119.98,71.97,6.283)`, truth `(119.94,72.01,6.283)`).
 - From `/home/shared/projects/boobuzz/re-cock-nize`: `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k multi_robot` — 8 passed.
 - From `/home/shared/projects/boobuzz/re-cock-nize`: `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh` (after `5dd6daa`) — **83 passed, 0 skipped**.
 - Focused pinned-R8 Java tests: from `/tmp/sim-cx-21-r8-bWOe4v`, `JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew -q :core:test --tests boobuzz.core.controller.socket.SocketControllerTest --tests boobuzz.core.debug.DebugTapTest --tests boobuzz.core.debug.BagWriterTest` — passed.
