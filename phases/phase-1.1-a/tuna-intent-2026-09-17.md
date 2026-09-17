@@ -49,6 +49,20 @@ Pinpoint161/0 is forward pod lateral offset / strafe pod forward offset, not spa
 X/Y; do not swap SDK arguments or substitute unused HC -84/-168. Profile/disposition
 record precise source lines and remaining details. Publish documentation, then hold.
 
+## Chapter A dispatch — A00/A02 documentation increment
+
+- `ftc-watchdog` authorized a documentation-only A00 release cleanup and A02.0
+  seam ADR draft from docs `e5796b7c1b005d4c1559d5339621c99080de0903`, with robot
+  `d5bda62`, simulator `5dd6daa`, and archive `d7711d0` as planning pins.
+- English content remains required, but the former fixed message/goal prefix is
+  retired. `adr-device-seam-v2.md` is a proposal only; `ftc-main` must approve any
+  protected `protokol.md` amendment before A02/B01 seam code begins.
+- `evidence-A.md` is the sole Chapter A evidence ledger. It records task slots and
+  approved gates without inventing A01–A05 outcomes. A04 remains pending until
+  ftc-watchdog supplies a source-grounded handoff.
+- No implementation, task distribution, reviewer/ball launch, training, tag, or
+  protected historical-spec edit is authorized by this dispatch.
+
 Before distributing the expanded requirements to workers, ftc-main-cx must personally
 prepare a detailed roadmap: implementation steps, framework choices, dependencies,
 verification and tradeoffs. Show it to Tuna and discuss it together. Do not start

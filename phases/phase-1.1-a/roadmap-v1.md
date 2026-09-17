@@ -478,8 +478,9 @@ immutable hashes. ftc-reviewer and ball remain unassigned. Do not create extra
 supervisor agents by default; goals and written evidence should reduce orchestration.
 
 One worker goal covers one bounded work package/increment, not this whole roadmap.
-The `/goal` objective begins `Always write in English`, points to a detailed task
-file and names its stopping gate. Codex documents persistent goals and recommends
+The `/goal` objective points to a detailed task file and names its stopping gate.
+Coordination content remains in English; no fixed message prefix is required. Codex
+documents persistent goals and recommends
 file references for lengthy instructions: [goal command](https://learn.chatgpt.com/docs/developer-commands?surface=cli).
 No goals from this draft have been started.
 

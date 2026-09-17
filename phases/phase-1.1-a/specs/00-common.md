@@ -114,8 +114,9 @@ normal robot deployment. Names allow old configuration reuse, not mechanical pro
 ## Lean acceptance and publication
 
 R owns Java, S Python, D evidence. After approval send one bounded task with exact
-entry hashes/owned paths/exit; messages start `Always write in English`. No ball or
-reviewer launch, training or implementation during this review. Workers may stay idle.
+entry hashes/owned paths/exit. Coordination content remains in English; no fixed
+message prefix is required. No ball or reviewer launch, training or implementation
+during this review. Workers may stay idle.
 
 Commit/push each working increment, report hash. Focused tests + affected chapter
 e2e; keep existing suites green, but test counts are NOT the acceptance criterion.

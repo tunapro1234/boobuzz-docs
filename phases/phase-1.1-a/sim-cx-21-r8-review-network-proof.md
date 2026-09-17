@@ -25,4 +25,5 @@ English only; continued Phase 1.1. Read the existing design, protocol and review
 
 Use ports 5830–5849, tap port 0 except explicit tap tests. Reports live here;
 ftc-docs-cx alone commits shared docs. Send pinned review-ready hashes promptly to
-ftc-main-cx. Every worker message begins "Always write in English".
+ftc-main-cx. Coordination content remains in English; no fixed message prefix is
+required.

@@ -26,4 +26,5 @@ Only edit robot-code source. Reviews/reports may be written here; ftc-docs-cx
 alone commits shared docs. Preserve protokol.md and design-spec.md. Use isolated
 ports 5810–5819 and tap port 0 except explicit tap tests. Avoid concurrent Gradle
 builds in another worker's checkout. Return short progress and commit hashes to
-ftc-main-cx; every worker message begins "Always write in English".
+ftc-main-cx. Coordination content remains in English; no fixed message prefix is
+required.

@@ -194,3 +194,22 @@
   A02/B01/B07 changes. Do not claim the entire far roadmap is implementation-ready.
 - Intent file now pins source/spec hashes, stop time, optional11:50/12:00 buffer,
   planning hold and resume reading order. No change to protected docs or code.
+
+## 2026-09-17 — Chapter A A00/A02 documentation dispatch
+
+- ftc-watchdog authorized a documentation-only release cleanup and A02.0 ADR draft
+  from docs `e5796b7c1b005d4c1559d5339621c99080de0903`; planning pins remain robot
+  `d5bda622d5bba6dfef6c4bfefed69e0cc20d7e67`, simulator
+  `5dd6daacedbd629deb0827b36240f3064a808f3b`, archive `d7711d043280034ab5c75ae26a253629fd2d4a7b`.
+- Fixed message/goal prefix requirements were removed from the owned task/spec
+  files; the English-content rule remains. No implementation order is inferred.
+- Added `adr-device-seam-v2.md`: current proto1 versus proposed proto2 semantics,
+  paired device/type/name ownership, units, validation, servo-hold/DC-CR-zero rule,
+  Java-source `ROBOT_MASS_KG` parsing in kg, missing/invalid failure, isolated 18 kg
+  fixture, and explicit ftc-main protocol approval/migration gates. `protokol.md`
+  and `phase-1.1/design-spec.md` were not edited.
+- Added `evidence-A.md` as the sole Chapter A ledger with approved pins and A00–A05
+  slots. It records no unrun outcomes; A04 is held pending ftc-watchdog's
+  source-grounded handoff.
+- No robot/simulator source, reviewer, ball, training, tag, phase or goal action was
+  taken. This documentation increment preserves the planning hold.

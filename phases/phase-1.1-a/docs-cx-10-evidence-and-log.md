@@ -18,5 +18,6 @@ this repo had no dev-phase-1.1 ref). English only. No phase close, tag or merge.
    document/update; report hashes. Work on architecture/evidence while tests run;
    pre-chain review-disposition tracking and the next round's acceptance checklist.
 
-Source code in robot/sim is read-only. No ftc-reviewer or ball tasks. Every worker
-message begins "Always write in English". Report to ftc-main-cx, not ftc-main.
+Source code in robot/sim is read-only. No ftc-reviewer or ball tasks. All
+coordination content remains in English; no fixed message prefix is required.
+Report to ftc-main-cx, not ftc-main.
