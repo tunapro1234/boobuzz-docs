@@ -2,8 +2,9 @@
 
 **Status:** B is approved and eligible at the verified Chapter-A checkpoint. This
 file is the sole Chapter-B evidence ledger. The entry scaffold and the R/S
-completion evidence below are append-only; bounded bidirectional R↔S seam reviews
-are still required before B01 acceptance.
+completion evidence below are append-only. The bounded S→R seam review is FAIL on
+one major R-owned defect; B01 remains unaccepted pending the fix, rerun, and
+bidirectional R↔S review closure.
 
 ## Authoritative entry pins and gates
 
@@ -160,6 +161,62 @@ fixtures/zero-fill, and deterministic process behavior.
 S models declared actuator state and metadata only; no B02+ plant or real-HAL
 validation is claimed. B01 therefore remains unaccepted until bounded
 bidirectional R↔S seam reviews are completed and their pins/results are recorded.
+
+## B01 S→R seam cross-review — FAIL (bounded)
+
+The bounded read-only review pins are S
+`0ca3175b81fa499e8c169bbc005713aa4d63e3b2`, R
+`bffd71b331a7c1dfc67abe30f16df7df92165cc5`, and protected protocol D
+`74475463add0f23afd6d84b801245650712bbb62`. S and R refs matched those pins at
+review; S retained only its pre-existing untracked `.claude/` directory and R was
+clean. Overall review result: **FAIL**, with all listed wire/forwarding checks
+passing except the R-owned `constantsHash` requirement.
+
+### Paired protocol-v2 fixtures
+
+Each `cmp -s` comparison between `S/tests/fixtures/protocol-v2/` and
+`R/sim/src/test/resources/protocol-v2/` passed. The independently checked SHA-256
+pairs are:
+
+| Fixture | S and R SHA-256 |
+|---|---|
+| `ready.json` | `27a14aac3b1c1666998fca315db940c00dd95aa9968394788b2a4f36d11e92e1` |
+| `state.json` | `308850533f16d16fad014ab1e1409167ad26823ec272c0495e68f281090cd009` |
+| `step-hold.json` | `fcc17e3b10760ab0bc880808bb00ff3fbae704abf434d8d9447d46547e80cdab` |
+| `step-explicit-zero.json` | `6253f2782c11875d2142adc79c4e2988820258d042bc7f26db8d648ff1ef5fb3` |
+
+### Review findings
+
+| Seam | Review result and source anchors |
+|---|---|
+| Reset/ready negotiation and exact order | **PASS** — S `sim/server.py:130-141,976-999`; R `sim/src/main/java/boobuzz/sim/SimHal.java:109-136`, `TeamCode/core/src/main/java/boobuzz/core/hal/Mechanism.java:116-129`; real profile returned proto2, `t_ms=0`, motors `[fl,fr,bl,br,intake,feeder,shooterRight,shooterLeft,turret_servo,turret_servo2]`, servos `[hood_left,hood_right]`. |
+| Exactly two actuator maps | **PASS** — S `sim/server.py:207-211,1012-1028`; R `SimHal.java:195-208`; extra keys reject and only `motors`/`servos` plus events are forwarded. |
+| Proto1 compatibility | **PASS** — S `sim/server.py:130-141,904-913`; R `SimHal.java:132-135`; absent proto selects1 and legacy partial maps zero-fill. |
+| DC/CR zero-fill | **PASS** — S `sim/server.py:202-204,1020-1028`, `sim/physics/motor.py:184-198`; R `SimHal.java:195-207,224-232`; all ten power names and missing-power zero behavior matched. |
+| Positional hold/reset | **PASS** — S `sim/server.py:900-913,976-999`, backend apply paths; R `RealHal.java:88-99`; sparse hood hold, reset to `{hood_left:1.0,hood_right:0.0}`, and explicit zero matched. |
+| Shared `shooterLeft` roles | **PASS** — S `sim/mechanism.py:623-639,668-681`, `sim/physics/motor.py:245-262`; R `RobotConstants.java:74-81,103`, `Hardware.java:58-69`; shooterRight remains speed input and shooterLeft turret input/active output. |
+| Backend and multi-robot forwarding | **PASS** — S `kinematic_backend.py:54-112`, `pymunk_backend.py:174-206`, `pybullet_backend.py:346-371`, `multi.py:64-95`; single/two-robot sparse and hold isolation matched. |
+| `constantsHash` includes mass | **FAIL — MAJOR, R-owned** — B01 requires mass and typed declarations in spec `02-intake-feeder.md:107`; R `RobotConstants.java:113-145` hashes typed records/encoders/Pinpoint but omits `ROBOT_MASS_KG` at `:18`. A mass-only change therefore leaves the Java hash unchanged, while S `sim/mechanism.py:289-314,720-722` includes mass. |
+
+The review's read-only JShell probes reported Java hash
+`ae3d986cc522b6ed848527eda939c8330eaa7cfbcb00a31633065c2a7b9c7064` and S hash
+`79eecdb8989b72526988a23851395c194f88e207b8d2d2b369c22ebd6c641745`. These
+algorithms are separately canonicalized and `constantsHash` is not on the wire;
+cross-language equality is not asserted. The defect is specifically the missing
+Java mass contribution, not a required cross-language hash match.
+
+### Review commands and limits
+
+- S focused command: **48 tests, OK**; full `run_tests.sh`: **106 tests, OK**;
+  no skipped/failure/error cases were reported (also recorded above).
+- R `JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew -q :core:test :sim:test`
+  exited `0`; XML reports were **137 core + 17 sim**, zero failures/errors/skips.
+- No files were edited by the review; no simulator commit/tag, B02 work, or
+  protocol change was made. Java tests use `FakeSimServer`, not a live Python
+  process. B01 metadata/adapter checks do not prove B02+ physical decay or a real
+  HAL/Control Hub. The required remediation is to include `ROBOT_MASS_KG` in the
+  R hash and add a mass-change regression, followed by a fresh R/S review; this
+  ledger records the recommendation only and dispatches no source change.
 
 ## Limitations and publication boundary
 

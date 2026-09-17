@@ -345,3 +345,22 @@
 - S models declared actuator state/metadata only; no B02+ plant or real-HAL result
   is claimed. R and S evidence are both present, but B01 remains unaccepted until
   bounded bidirectional R↔S seam reviews are completed and recorded.
+
+## 2026-09-17 — B01 S→R seam cross-review (FAIL)
+
+- Bounded read-only review pins: S `0ca3175b81fa499e8c169bbc005713aa4d63e3b2`,
+  R `bffd71b331a7c1dfc67abe30f16df7df92165cc5`, protected protocol D
+  `74475463add0f23afd6d84b801245650712bbb62`. S/R refs matched; S retained only
+  `.claude/` and R was clean.
+- All wire/forwarding checks and the four paired protocol-v2 fixture comparisons
+  passed byte-for-byte (SHA pairs and source anchors are in `evidence-B.md`). The
+  one major failure is R-owned: `RobotConstants.constantsHash()` omits
+  `ROBOT_MASS_KG`, so a mass-only change cannot change the Java hash. S includes
+  mass; no cross-language hash equality is required because hashes are not on wire.
+- Review commands remained green: S focused 48 and full 106 tests; R
+  `JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew -q :core:test :sim:test`
+  exit 0 with 137 core + 17 sim and no skips/failures/errors. Review was
+  read-only and made no source/protocol/tag/B02 changes.
+- B01 remains unaccepted. Remediation recommendation is to add the Java mass
+  contribution and a regression test, then rerun the bounded bidirectional seam
+  review; no source fix is dispatched by docs.
