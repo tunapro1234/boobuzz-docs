@@ -1,6 +1,8 @@
-# Phase 1.1-a spec pack v2.2 — review before implementation
+# Phase 1.1-a spec pack v2.2 — Chapter A released; B gated
 
-Status: **DRAFT v2.2, 2026-09-17. No implementation dispatch or training authorized.**
+Status: **Tuna-approved v2.2 (2026-09-17). Chapter A is released now. B is approved
+but gated until A05/evidence/tag; C and the far roadmap remain unreleased. Training,
+ftc-reviewer, and ftc-ball remain forbidden.**
 Authority: [Tuna's latest direct clarification](../tuna-intent-2026-09-17.md) overrides
 the single-actuator interpretation in the [original review](../review-ftc-main-specs-2026-09-17.md).
 All other accepted process/scope decisions remain. V2 conflated mechanism and actuator
@@ -11,6 +13,8 @@ shooting intake.8, active-but-optional archive Limelight, and Pinpoint pod-axis 
 Planned declarations and intentional reset-ownership fixes are not existing code.
 Every chapter uses [hardware-profile-v0](../hardware-profile-v0.md).
 Starting commits: R `d5bda62`, S `5dd6daa`; remain on `dev-phase-1.1-a`.
+Protected protocol gate: ftc-main published amendment `26f915b`; docs reconciled it at
+`0973e86`. This newer approved gate state remains authoritative.
 
 ## Binding decisions
 
@@ -35,18 +39,19 @@ Starting commits: R `d5bda62`, S `5dd6daa`; remain on `dev-phase-1.1-a`.
 
 | Spec | Status / purpose |
 |---|---|
-| [00 Common](00-common.md) | Actual contracts, composition and lean acceptance |
-| [01 Baseline](01-baseline.md) | A01–A05 worker detail: files, tests, seeds, thresholds |
-| [02 Devices/intake/feeder](02-intake-feeder.md) | B01–B04 worker detail; owned protocol migration |
-| [03 Mechanisms/cplx1](03-mechanisms-cplx1.md) | B05–B09 worker detail; archive actuator pairs, three e2e gates |
-| [04 Shooting](04-shooting-cplx2.md) | Historical detail preserved; C outline below governs until refined |
-| [05 Vision](05-vision-cplx3.md) | Split into Vision-A/B below; refine after B09 |
-| [06 Range](06-range-cplx4.md), [07 Game](07-game.md) | Roadmap only; preserve bodies, revise after B09 |
-| [08 Environment](08-environment.md), [09 Learning preparation](09-learning-preparation.md) | Roadmap only; no training or early implementation |
+| [00 Common](00-common.md) | Chapter A release contracts; B seam work remains approved/gated |
+| [01 Baseline](01-baseline.md) | Released Chapter A detail; A05/evidence/tag gate for B |
+| [02 Devices/intake/feeder](02-intake-feeder.md) | B approved/gated; B01–B04 worker detail and protocol migration |
+| [03 Mechanisms/cplx1](03-mechanisms-cplx1.md) | B approved/gated; B05–B09 detail and e2e gates |
+| [04 Shooting](04-shooting-cplx2.md) | C outline; unreleased historical detail |
+| [05 Vision](05-vision-cplx3.md) | C/far outline; unreleased and refine after B09 |
+| [06 Range](06-range-cplx4.md), [07 Game](07-game.md) | Far roadmap only; unreleased |
+| [08 Environment](08-environment.md), [09 Learning preparation](09-learning-preparation.md) | Far roadmap only; no training |
 | [10 Research](10-research.md) | Reference; corrected topology, remaining issues deferred |
 
-Only A/B are near-term worker-ready proposals. Far-draft details are NOT frozen
-contracts or work orders. Read hardware profile + 00 + assigned section, not 42 tasks.
+Chapter A is released. B is approved but gated until A05/evidence/tag. C and far-draft
+details remain unreleased and are NOT frozen contracts or work orders. Read hardware
+profile + 00 + assigned section, not 42 tasks.
 
 ## Composed engine ladder (future indices reserved, not implemented)
 
@@ -95,4 +100,5 @@ controller/inference/xRC feasibility spikes independently of full-game fidelity;
 do not assume they must wait behind all F. No learning runs of any kind.
 
 [Review disposition](../spec-v2-review-disposition.md) maps findings to revisions.
-Next: Tuna reviews v2.2. Only documentation publication is delegated now.
+Current status is the Tuna-approved v2.2 release above; no implementation dispatch is
+implied by this status publication.

@@ -7,6 +7,10 @@
 > baseline/engine gates, evidence per chapter, cross-review only on R/S seams.
 > Vision-A precedes Vision-B; range follows them. Old action/reward/far-stage
 > prescriptions are retained history and must be reconciled after B09.
+>
+> Current release status (2026-09-17): Tuna approved v2.2. Chapter A is released now.
+> B is approved but gated until A05/evidence/tag. C and the far roadmap remain
+> unreleased. Training, ftc-reviewer, and ftc-ball remain forbidden.
 
 Expanded by the [detailed review spec pack](specs/README.md). That newer proposal
 includes pollen-only intake, executable substeps and model/reward preparation.
@@ -15,6 +19,8 @@ This v1 remains the historical broad draft; neither document authorizes executio
 Date: 2026-09-17. Author: ftc-main-cx. Status: **not dispatched for implementation**.
 Authority: [Tuna's latest direction](tuna-intent-2026-09-17.md).
 All work below stays on `dev-phase-1.1-a`; these are work packages, not new phases.
+The protected protocol gate is already approved: ftc-main amendment `26f915b`,
+reconciled in docs at `0973e86`.
 
 ## 1. Starting point and what needs to change
 
@@ -474,7 +480,7 @@ on-device latency measurements and a classical fallback.
 
 Use the three existing Luna/max workers. Robot owns Java/FTC, sim owns Python plants
 and physics, docs owns task/evidence documentation. Robot and sim cross-review at
-immutable hashes. ftc-reviewer and ball remain unassigned. Do not create extra
+immutable hashes. ftc-reviewer and ftc-ball remain forbidden. Do not create extra
 supervisor agents by default; goals and written evidence should reduce orchestration.
 
 One worker goal covers one bounded work package/increment, not this whole roadmap.

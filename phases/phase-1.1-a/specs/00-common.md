@@ -1,9 +1,13 @@
 # Common rules v2.2 — preserve the system, keep process small
 
-Status: DRAFT v2.2, not dispatched. Read [hardware-profile-v0](../hardware-profile-v0.md)
+Status: **Tuna-approved v2.2 (2026-09-17). Chapter A is released now. B is approved
+but gated until A05/evidence/tag; C and the far roadmap remain unreleased. Training,
+ftc-reviewer, and ftc-ball remain forbidden.** Read [hardware-profile-v0](../hardware-profile-v0.md)
 and [latest Tuna clarification](../tuna-intent-2026-09-17.md), which overrides the
 original review's actuator-count interpretation. These rules supersede
 conflicting v1/far-draft process, topology and engine-numbering statements.
+The protected protocol gate is already approved: ftc-main published amendment
+`26f915b`, and docs reconciled it at `0973e86`; preserve that newer gate state.
 
 ## Exact path shorthand
 
@@ -115,8 +119,9 @@ normal robot deployment. Names allow old configuration reuse, not mechanical pro
 
 R owns Java, S Python, D evidence. After approval send one bounded task with exact
 entry hashes/owned paths/exit. Coordination content remains in English; no fixed
-message prefix is required. No ball or reviewer launch, training or implementation
-during this review. Workers may stay idle.
+message prefix is required. No training, ftc-reviewer, or ftc-ball is permitted.
+B remains gated until A05/evidence/tag; this status does not authorize work outside
+that gate. Workers may stay idle.
 
 Commit/push each working increment, report hash. Focused tests + affected chapter
 e2e; keep existing suites green, but test counts are NOT the acceptance criterion.

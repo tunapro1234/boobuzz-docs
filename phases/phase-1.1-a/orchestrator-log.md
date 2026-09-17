@@ -213,3 +213,15 @@
   source-grounded handoff.
 - No robot/simulator source, reviewer, ball, training, tag, phase or goal action was
   taken. This documentation increment preserves the planning hold.
+
+## 2026-09-17 — Chapter A release/status reconciliation
+
+- Tuna approved v2.2 on 2026-09-17. Chapter A is released now.
+- B is approved but gated until A05/evidence/tag. C and the far roadmap remain
+  unreleased; do not reinterpret their retained draft bodies as released work.
+- Training, ftc-reviewer, and ftc-ball remain forbidden.
+- ftc-main already published the protected `protokol.md` amendment `26f915b`, and
+  docs reconciled it at `0973e86`; this newer approved gate state is preserved.
+- The pre-compaction current handoff is superseded by this release status. Its dated
+  planning-hold entries remain historical; no protected document or source file was
+  edited by this consistency update.

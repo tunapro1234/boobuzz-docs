@@ -1,9 +1,13 @@
 # A v2.2 — baseline first, extend existing archive analysis
 
-Status: DRAFT, not dispatched. Read [00](00-common.md) and
+Status: **Chapter A is released now under Tuna-approved v2.2 (2026-09-17).**
+Evidence-A remains authoritative for per-task outcomes. B is approved but gated until
+A05/evidence/tag; C and the far roadmap remain unreleased. Training, ftc-reviewer, and
+ftc-ball remain forbidden. Read [00](00-common.md) and
 [hardware-profile-v0](../hardware-profile-v0.md); path aliases are defined in 00.
 R d5bda62 / S 5dd6daa are the planning pins, not new verification claims.
 Evidence: ONE `D/phases/phase-1.1-a/evidence-A.md`. A05 is the only chapter tag.
+Protected protocol gate: ftc-main amendment `26f915b`, reconciled in docs at `0973e86`.
 
 ## A01 — bounded transport and integral event timestamps
 
@@ -146,4 +150,4 @@ its actual mechanism commands/requests are owned by B08, not emitted before APIs
 Gate: A-drive and A-cancel pass with concise trace/demo, existing relevant regressions
 pass, mass amendment recorded. D publishes baseline manifest section in evidence-A
 and tag p11a-baseline-v1 at compatible R/S/D commits. No per-A-task tags/manifests.
-Stop at checkpoint; B implementation waits for its own authorization.
+Stop at checkpoint; B remains gated until A05/evidence/tag.

@@ -1,6 +1,9 @@
 # Hardware profile v0 — archive mechanism AND actuator counts
 
-Status: DRAFT v2.2 reference, 2026-09-17. No code/hardware changes authorized.
+Status: **Tuna-approved v2.2 reference, 2026-09-17. Chapter A is released now; B is
+approved but gated until A05/evidence/tag; C and the far roadmap remain unreleased.
+Training, ftc-reviewer, and ftc-ball remain forbidden.** No code/hardware changes are
+authorized by this profile before the B gate.
 Authority: Tuna's direct clarification supersedes the review's single-actuator
 interpretation. ONE mechanism does NOT mean one motor/servo. Preserve both counts.
 Every spec uses this page. RobotConstants.java is the source of PLANNED compiled
@@ -8,6 +11,8 @@ profile defaults; Python sim/mechanism.py reads that same file. Runtime shooter
 tuning is a separate, recorded controller override, not Python plant configuration.
 No mechanism.yaml. OLD = archive DE-Cock
 TeamCode/src/main/java/org/firstinspires/ftc/teamcode; HC = OLD/config/HardwareConstants.java.
+Protected protocol gate: ftc-main published amendment `26f915b`; docs reconciled it at
+`0973e86`. Preserve this approved gate state.
 
 | Function | HardwareMap name / type | Source/setting |
 |---|---|---|

@@ -1,10 +1,14 @@
-# Spec v2.2 disposition — verified topology and runtime provenance, plan only
+# Spec v2.2 disposition — Chapter A released; B gated
 
-Status: DRAFT v2.2 for Tuna. The [full review](review-ftc-main-specs-2026-09-17.md)
+Status: **Tuna-approved v2.2 (2026-09-17). Chapter A is released now. B is approved
+but gated until A05/evidence/tag; C and the far roadmap remain unreleased. Training,
+ftc-reviewer, and ftc-ball remain forbidden.** The [full review](review-ftc-main-specs-2026-09-17.md)
 is preserved verbatim, but its single-actuator interpretation and our v2 response
 are superseded by [Tuna's direct clarification](tuna-intent-2026-09-17.md).
 Mechanism count is NOT motor count. Files below use [current index](specs/README.md) and
-[hardware-profile-v0](hardware-profile-v0.md). No implementation was dispatched.
+[hardware-profile-v0](hardware-profile-v0.md). This disposition does not dispatch B
+implementation. The protected protocol gate is already approved: ftc-main published
+amendment `26f915b`, and docs reconciled it at `0973e86`.
 "Addressed" means the specification names the behavior/owner/test; code remains at
 R d5bda62 / S 5dd6daa. Far findings are deliberately not claimed implemented/resolved.
 
@@ -80,5 +84,5 @@ after B09 without requiring all F first. No code, installs, model construction o
 Check relative links, hardware-profile references, A01–A05/B01–B09 headings, unmodified
 review text, unchanged protected protokol/design-spec, and far-body preservation.
 Numerical fixture checks: hood25/44/45/50°,4000-RPM ticks conversion/feedforward.
-These are plan checks, not robot/physics test runs. Docs worker alone stages this
-v2.2 correction publication and reports commit/push/hash, then holds. No draft tags.
+These are plan checks, not robot/physics test runs. Chapter A release is recorded here;
+B remains gated until A05/evidence/tag. No draft tags.

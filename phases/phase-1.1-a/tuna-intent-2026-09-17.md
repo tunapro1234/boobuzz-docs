@@ -1,11 +1,19 @@
 # Tuna's direction — 2026-09-17
 
-Status: English distillation of Tuna's messages, followed by a planning hold.
+Status: Historical English distillation; the pre-compaction handoff below is superseded
+by the Chapter A release status.
 Read this after compaction, before resuming work. The current detailed discussion
 draft is [the spec pack](specs/README.md), expanding [roadmap-v1.md](roadmap-v1.md).
 Both are proposals, not execution orders.
 
-## Current handoff — 2026-09-17, before compaction
+## Current handoff — 2026-09-17, before compaction (superseded by Chapter A release)
+
+> **Current release status (2026-09-17):** Tuna approved v2.2. Chapter A is released
+> now. B is approved but gated until A05/evidence/tag; C and the far roadmap remain
+> unreleased. Training, ftc-reviewer, and ftc-ball remain forbidden. The protected
+> protocol gate is ftc-main amendment `26f915b`, reconciled in docs at `0973e86`.
+> The dated hold bullets below are retained as history; this release supersedes their
+> current-handoff status.
 
 - Latest request: save final records, then compact. Do NOT start implementation.
 - Published spec pack v2.2: docs `7423ed639020d033f4f3e55f27b223345fd7a1e0`.
