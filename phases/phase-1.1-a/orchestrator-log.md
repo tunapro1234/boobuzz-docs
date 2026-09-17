@@ -250,3 +250,13 @@
   post-A02 rerun.
 - A05 pins only final post-A02 hashes. A02 documentation propagation continues;
   B01 remains blocked. This note records ordering, not test outcomes.
+
+## ESCALATION to ftc-main
+
+- The A02 cross-review found `re-cock-nize/sim/physics/pybullet_backend.py:185-201`
+  hardcoding a 12 kg mass. ftc-main resolved that `ROBOT_MASS_KG` binding is
+  backend-agnostic and authorized the narrow PyBullet fix only.
+- Review provenance remains R `97995ca`, S `5849e58`, and provisional A03 WIP
+  `635741d`; the forward-only ordering note remains in force.
+- The new S hash and tests are pending. Do not mark A02 complete or infer A03
+  acceptance until that evidence arrives.

@@ -59,6 +59,17 @@ not a test result; later entries must name the exact command and artifact.
 - This is ordering metadata, not an A03 result. A02 documentation propagation
   continues; B01 remains blocked pending the ADR signature pin.
 
+## ESCALATION to ftc-main
+
+- The A02 cross-review found `re-cock-nize/sim/physics/pybullet_backend.py:185-201`
+  hardcoding a 12 kg mass. ftc-main resolved that `ROBOT_MASS_KG` binding is
+  backend-agnostic and authorized the narrow PyBullet fix only.
+- Review provenance remains R `97995ca`, S `5849e58`, and provisional A03 WIP
+  `635741d`; the earlier A01 S pin `5ba0a96` and the forward-only ordering note
+  remain unchanged.
+- The new S hash and its tests have not arrived. A02 is therefore not complete,
+  and no completion or A03 acceptance is claimed here.
+
 ## Commands and outcomes
 
 | Check | Command / artifact | Outcome |
