@@ -113,9 +113,25 @@ devreye girer; A02 kütle kuralından bağımsızdır.
   HAL `write` içinde `ActionValidator` tarafından yazımdan önce reddedilir. `shooterLeft` motor çıkışı
   shooter'ın, enkoder girişi turret'indir; enkoder sıfırlama merkezî init'te bir kez yapılır (arşivdeki
   ikinci reset bilerek düzeltilir). `ready`/`state` şeması bundan etkilenmez.
-- **B01 bildirim biçimleri:** cihaz bildirimleri `RobotConstants`'ta satır başına bir tane, ad+tip+yön.
-  Tam record imzaları B01 koddan önce ADR'ye eklenir ve ftc-main bu bölüme sabitler; bu kural
-  eklenmeden B01 kodu başlamaz. A02 bu kuralı beklemez.
+- **B01 bildirim biçimleri (SABİTLENDİ 17 Eyl, ADR docs 2a83507 + ftc-main düzeltmesi):** satır
+  başına bir bildirim. Mevcut `Motor`/`Pinpoint` record'ları ve `MOTORS` (yalnız 4 tekerlek) DEĞİŞMEZ.
+  Astranın önerdiği `String[]` listeleri yön, zero-power davranışı ve servo başlangıç konumunu
+  taşımadığı için (ADR kural 3 başlangıç konumu ister) üç yeni record eklenir:
+  ```java
+  public record DcDevice(String name, String direction, String zeroPower, double ticksPerRev, double freeRpm) {}
+  public record CrServo(String name, String direction) {}
+  public record PosServo(String name, String direction, double initialPos) {}
+  ```
+  `direction` ∈ {"FORWARD","REVERSE"}, `zeroPower` ∈ {"BRAKE","FLOAT"}, `initialPos` ∈ [0,1].
+  Listeler: `DC_DEVICES` = {intake, feeder, shooterRight, shooterLeft} (`DcDevice[]`);
+  `CR_SERVOS` = {turret_servo, turret_servo2} (`CrServo[]`); `SERVOS` = {hood_left, hood_right}
+  (`PosServo[]`, tipi `String[]`'den değişir; parser regex'ini B01 günceller); `ENCODERS` = `String[]`
+  {leftFront, rightFront, leftBack, rightBack, intake, feeder, shooterRight, shooterLeft};
+  `PINPOINT` aynen `Pinpoint(161.0, 0.0, "FORWARD", "REVERSED", "goBILDA_4_BAR_POD")`.
+  Her değer arşivdeki `HardwareConstants` ile aynı olmalı (hardware-profile-v0.md).
+  `ready.motors` = MOTORS ∪ DC_DEVICES ∪ CR_SERVOS adları (bu sırayla); `ready.servos` = SERVOS adları;
+  `state.enc` anahtarları = ENCODERS. FTC runtime tipi listeden seçilir, tel adından çıkarılmaz.
+  Bu sabitlemeyle B01 protokol kapısı AÇIKTIR; A05 kanıt/tag kapısı ayrıdır.
 - **Eşli fixture'lar:** ADR §"Paired seam fixtures" 1–6 bağlayıcıdır; bölüm kanıtı (evidence-A/B)
   R ve S hash'leriyle sonuçlarını kaydeder.
 
@@ -161,3 +177,6 @@ gürültü yalnızca `seed`'li RNG'den. Test: 500 adım iki kez koş, `truth` e�
 - 17 Eyl (ADR device-seam-v2, docs 3201d65): `ROBOT_MASS_KG` skaler sözleşmeye girdi (kg, sessiz varsayılan yasak).
   Proto 2 tanımlandı: `reset.proto`/`ready.proto` pazarlığı, CR servo `motors` map'inde, eksik konum servosu = tut.
   A02 seam kodu bu hash ile serbest; B01 record imzaları sabitlenince serbest.
+- 17 Eyl (B01 kapısı, ADR docs 2a83507): record imzaları sabitlendi — `DcDevice`/`CrServo`/`PosServo` eklendi,
+  `SERVOS` `PosServo[]` oldu; `Motor`/`Pinpoint`/`MOTORS` değişmedi. Gerekçe: yön, zero-power ve başlangıç konumu
+  String listesinde taşınamıyordu.
