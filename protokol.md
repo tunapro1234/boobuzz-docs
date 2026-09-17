@@ -15,9 +15,13 @@ Değişiklik önce burada, sonra kodda. Bu dosyayı ftc-main günceller.
 İki taraf da **aynı Java dosyasını** okur: Java derleme zamanı sabit olarak, Python
 (`sim/mechanism.py`) regex ile satır satır. Makine-okunur sözleşme:
 - skaler: `public static final double NAME = value;` tek satır (ROBOT_WIDTH, ROBOT_LENGTH,
-  WHEEL_DIAMETER, BATTERY_V, MOTOR_TAU_S, EFFICIENCY_FL/FR/BL/BR, STRAFE_EFF,
+  ROBOT_MASS_KG, WHEEL_DIAMETER, BATTERY_V, MOTOR_TAU_S, EFFICIENCY_FL/FR/BL/BR, STRAFE_EFF,
   ZERO_POWER_DECEL_FORWARD_IN_S2, ZERO_POWER_DECEL_LATERAL_IN_S2); string: ANGLE_UNIT="deg",
   DRIVETRAIN_TYPE="mecanum".
+- **ROBOT_MASS_KG (17 Eyl, A02):** kilogram, sonlu ve pozitif. Eksik/bozuk/sonsuz/≤0 ⇒ Python
+  `MechanismError` ile gövde kurulmadan durur; sessiz varsayılan (12 veya arşiv 13.8) YASAK.
+  Kütle telden geçmez, kaynağı yalnız bu dosyadır. Kanıt: izole 18 kg fixture (kopya dosya,
+  yalnız literal değişir) + eksik/bozuk varyant.
 - motor: `public static final Motor FL = new Motor("fl", "wheel", xForward, yLeft, rollerDeg, ticksPerRev, freeRpm);`
   tek satır; `MOTORS` dizisi; `SERVOS = {}`; `PINPOINT = new Pinpoint(xOffset, yOffset, xDir, yDir, pod)`.
 - Motor/servo/sensör **adları** buradan gelir; protokol şeması sabit kalır. Java başlangıçta
@@ -87,6 +91,34 @@ Faz 0/1'de sadece 4 tekerlek. Shooter/turret/tof **eklendiğinde** buraya girer,
   `RobotState`'e girmez.
 - `voltage`: Faz 1'de sabit 12.6 olabilir; alan şimdiden var.
 
+## Proto 2 — seyrek konum-servosu komutu (17 Eyl, ADR `phases/phase-1.1-a/adr-device-seam-v2.md`)
+Proto 1 yukarıdaki gibi kalır; proto 2 yalnız aşağıdaki farkları getirir. B01 koduyla birlikte
+devreye girer; A02 kütle kuralından bağımsızdır.
+- **Sürüm pazarlığı:** Java `reset`'e `"proto":2` ekler (alan yoksa 1 sayılır). Python `ready.proto`
+  ile kendi sürümünü söyler. İki taraf eşit değilse **her iki taraf da çıkış üretmeden çöker**;
+  proto 2 mekanizma profili için sessiz proto 1 geri düşüşü yok. Proto 1 eşine tam map + sıfır
+  doldurma davranışı aynen sürer (mevcut golden JSON satırları korunur).
+- **İki map, semantiğe göre:** `motors` = güç cihazları (DC motor **ve CR servo**; −1..1, eksik = 0,
+  STOP = 0). `servos` = yalnız **konum servoları** (0..1). Cihazın FTC tipi (DcMotorEx/CRServo/Servo)
+  `RobotConstants` bildiriminden gelir, telde ayrı map açılmaz; `RobotAction` iki map olarak kalır.
+- **Eksik konum servosu = tut:** Python her konum servosu için son *açık* komutu saklar; `step.servos`'ta
+  eksik ad ⇒ o servo son açık konumunda kalır. Daha hiç komut almamışsa mekanizma profilindeki başlangıç
+  konumunda durur, tahmini bir konuma GİTMEZ. Stow/nötr açık komuttur, STOP değildir. `reset` saklanan
+  konumları siler. Java tarafı (`SimHal.fill`) proto 2'de konum servolarını sıfırla DOLDURMAZ; yalnız
+  aksiyonda olanı gönderir. `RealHal` aynı kuralı uygular: bu tick'te komut yoksa `setPosition` çağırmaz.
+- **Ad listeleri:** `ready.motors` güç cihazlarının (DC+CR), `ready.servos` konum servolarının adlarını
+  taşır; Java iki listeyi de `RobotConstants` bildirimleriyle karşılaştırır, uyuşmazlık = çıkış öncesi çökme.
+- **Çift cihaz sahipliği (kablo dışı ama bağlayıcı):** bir çiftin iki üyesi tek aksiyonda birlikte
+  gelir (shooterRight/shooterLeft, hood_left/hood_right, turret_servo/turret_servo2); yarım çift komutu
+  HAL `write` içinde `ActionValidator` tarafından yazımdan önce reddedilir. `shooterLeft` motor çıkışı
+  shooter'ın, enkoder girişi turret'indir; enkoder sıfırlama merkezî init'te bir kez yapılır (arşivdeki
+  ikinci reset bilerek düzeltilir). `ready`/`state` şeması bundan etkilenmez.
+- **B01 bildirim biçimleri:** cihaz bildirimleri `RobotConstants`'ta satır başına bir tane, ad+tip+yön.
+  Tam record imzaları B01 koddan önce ADR'ye eklenir ve ftc-main bu bölüme sabitler; bu kural
+  eklenmeden B01 kodu başlamaz. A02 bu kuralı beklemez.
+- **Eşli fixture'lar:** ADR §"Paired seam fixtures" 1–6 bağlayıcıdır; bölüm kanıtı (evidence-A/B)
+  R ve S hash'leriyle sonuçlarını kaydeder.
+
 ## Java tarafı tipler (`:core`, SDK'sız)
 ```java
 record RobotAction(Map<String,Double> motors, Map<String,Double> servos, List<Event> events) {}
@@ -126,3 +158,6 @@ gürültü yalnızca `seed`'li RNG'den. Test: 500 adım iki kez koş, `truth` e�
 - 15 Eyl: ittifak kenarı görsele göre kırmızı x=0 / mavi x=144 (viewer yer tutucusu tersti, takas edildi); ızgara 24 in kaldı.
 - 16 Eyl: `mechanism.yaml` → `RobotConstants.java` (tek kaynak, derleme zamanı). Faz 1.1: `step.events` alanı, `--physics` backend seçimi.
 - 16 Eyl (R3.6): `gamepad` şemasına `back`, `start` alanları eklendi (teleop reset-pose ve engine switch). Eksik anahtar = false.
+- 17 Eyl (ADR device-seam-v2, docs 3201d65): `ROBOT_MASS_KG` skaler sözleşmeye girdi (kg, sessiz varsayılan yasak).
+  Proto 2 tanımlandı: `reset.proto`/`ready.proto` pazarlığı, CR servo `motors` map'inde, eksik konum servosu = tut.
+  A02 seam kodu bu hash ile serbest; B01 record imzaları sabitlenince serbest.
