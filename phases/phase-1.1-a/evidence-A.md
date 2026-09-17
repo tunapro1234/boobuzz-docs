@@ -99,6 +99,11 @@ planned trace vectors, not newly run tests or implementation outcomes.
   IDLE. GP1 D-pad applies configured turret steps and hood ±1°; Recovery applies
   turret ±2° and hood ±1°. B press parks/releases teleop; BACK held 2 s enters
   Recovery; START+Y held 2 s hard-resets (`contingency/lvbelc5/teleop/{BlueTeleop,RedTeleop}.java:74-171,184-217`; `controllers/RecoveryController.java:27-37,68-177`).
+- Normal GP1 manual offsets are edge-triggered: the configured turret step is
+  2.0° and the accumulated offset clamps to ±30° (`TelemetryManager.java:64-79,450-465`);
+  hood steps are ±1° and clamp to ±10° (`TelemetryManager.java:483-500`). Recovery
+  has separate edge-triggered offsets of ±2° turret and ±1° hood
+  (`RecoveryController.java:107-138`); these normal and Recovery limits must not be merged.
 - Hardware remains one shooter mechanism with two DC motors, one hood with two
   complementary position servos, one turret with two equal CR-servo outputs, plus
   intake1, feeder1 and drive4. `shooterRight` is the speed source; `shooterLeft`
