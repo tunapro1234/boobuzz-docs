@@ -67,6 +67,10 @@ Independent checks from the S checkout:
 | Check | Command | Result |
 |---|---|---|
 | A01 focused regressions | `../.venv/bin/python -m unittest -v test_multi_robot.TestMultiRobotServer.test_partial_frame_deadline test_multi_robot.TestMultiRobotServer.test_slow_peer_does_not_advance_world test_events.TestStepEvents.test_fractional_timestamp_rejected` (cwd `tests`) | **3 passed** |
+| Focused multi-robot suite | `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k multi_robot` | **9 passed** |
+| Focused events suite | `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k events` | **7 passed** |
+| Focused server-I/O timeout | `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k server_io_timeout` | **1 passed** |
+| Focused protocol validation | `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k protocol_validation` | **4 passed** |
 | Process-boundary determinism | `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k process_network` | **2 passed** |
 | Multi-robot subset | `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k multi_robot` | **9 passed** |
 | Full S suite | `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh` | **85 passed, 0 skipped** |
