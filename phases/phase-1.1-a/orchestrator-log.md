@@ -46,3 +46,20 @@
   `review-robot-cx-22-sim.md` only after the worker published the stable simulator
   hash. No protected document, tag, reviewer, ball task, or phase transition was
   touched.
+
+## 2026-09-17 — revised intent and planning hold
+
+- Tuna clarified that phase-1.1-a is the branch lineage, not a freeze on the old
+  Phase 1.1 feature scope. Detailed new subsystem/shooting/vision/range/game/RL
+  direction is preserved in tuna-intent-2026-09-17.md.
+- New priority: simulator baseline, archived mechanism behavior, practical shooting,
+  turret Limelight scan/world model, chassis range fusion, then full-game/RL readiness.
+  No training, ball agent or reviewer launch. Accepted checkpoints now require tags.
+- Tuna then requested a detailed roadmap written personally by ftc-main-cx and
+  discussed together BEFORE distributing new work. Existing workers were told to
+  finish their current checkpoint and hold; no new implementation goal was started.
+- ftc-main-cx wrote roadmap-v1.md as a discussion draft, with framework choices,
+  ordered work packages, simulator counterparts, engine fallback ladder and gates.
+- This supersedes the earlier no-tags/strict-old-spec execution assumptions.
+  Historical protected documents remain unchanged. This is a documentation-only
+  planning checkpoint; the roadmap itself is not approved implementation scope.
