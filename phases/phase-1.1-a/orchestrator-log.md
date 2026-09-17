@@ -364,3 +364,40 @@
 - B01 remains unaccepted. Remediation recommendation is to add the Java mass
   contribution and a regression test, then rerun the bounded bidirectional seam
   review; no source fix is dispatched by docs.
+
+## 2026-09-17 — B01 bounded R↔S seam rerun PASS
+
+- The authoritative read-only rerun closes the prior R-owned mass-hash finding.
+  Verified pins are R `18b1d629fa21869963b9cd678e285c770f37c9d4`
+  (HEAD/origin `dev-phase-1.1-a`, clean; descendant of `b72da4a` and
+  `bffd71b`), S `0ca3175b81fa499e8c169bbc005713aa4d63e3b2` (HEAD/origin,
+  only preserved untracked `.claude/`), and protected D
+  `74475463add0f23afd6d84b801245650712bbb62`.
+- R `RobotConstants.constantsHash()` delegates to
+  `constantsHashForMass(ROBOT_MASS_KG)` (`RobotConstants.java:113-116`),
+  appending mass (`:120-123`), wheel efficiencies (`:124-129`), typed device
+  arrays, `ENCODERS`, and `PINPOINT` (`:130-144`).
+  `RobotConstantsHashTest.java:10-15` proves 12.0 kg and 18.0 kg produce
+  different hashes. The reflection probe returned mass12
+  `b189515a90da49e2e98a63de90daf23912f8d17e80bd937800ced3f4fba1555d` and
+  mass18 `f5b1af72d2d0cabdf07c3ba5a93f062abde442d52731baeccbde88bfcfb99c51`.
+- All four protocol-v2 fixture comparisons passed byte-for-byte. SHA-256 pairs:
+  ready `27a14aac3b1c1666998fca315db940c00dd95aa9968394788b2a4f36d11e92e1`,
+  state `308850533f16d16fad014ab1e1409167ad26823ec272c0495e68f281090cd009`,
+  hold `fcc17e3b10760ab0bc880808bb00ff3fbae704abf434d8d9447d46547e80cdab`,
+  explicit-zero `6253f2782c11875d2142adc79c4e2988820258d042bc7f26db8d648ff1ef5fb3`.
+- Reset/ready ordering, two-map rejection, proto1 full-map zero-fill, DC/CR
+  zero-fill, sparse positional hold/reset, shared `shooterLeft` roles, and
+  kinematic/Pymunk/PyBullet plus multi-robot forwarding all passed. Source
+  anchors and detailed fixture rows are in `evidence-B.md`.
+- R `JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew -q :core:test :sim:test`
+  exited 0 with 138 core + 17 sim tests and zero failures/errors/skips. S's
+  focused mechanism/protocol/multi/process/Pymunk command ran 48 tests OK; the
+  full `run_tests.sh` ran 106 tests OK with no skips/failures/errors. The bounded
+  Python seam script reported PASS for all listed parser, protocol, backend and
+  two-robot checks.
+- Review result: **PASS** for the bounded B01 R↔S seam gate. Java and Python
+  constants hashes use different canonical encodings and are not on the wire;
+  no cross-language digest equality is asserted. Java tests use `FakeSimServer`,
+  and no physical Control Hub, real-HAL, or B02+ decay result is claimed. No
+  source/protocol edits, tag, reviewer, ball, training, or B02 work was made.

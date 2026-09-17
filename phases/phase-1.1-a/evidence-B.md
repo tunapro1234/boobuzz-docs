@@ -2,9 +2,10 @@
 
 **Status:** B is approved and eligible at the verified Chapter-A checkpoint. This
 file is the sole Chapter-B evidence ledger. The entry scaffold and the R/S
-completion evidence below are append-only. The bounded S→R seam review is FAIL on
-one major R-owned defect; B01 remains unaccepted pending the fix, rerun, and
-bidirectional R↔S review closure.
+completion evidence below are append-only. The latest bounded bidirectional R↔S
+seam rerun is **PASS** after one scoped R fix at `18b1d629`; the historical FAIL
+record remains below for audit. No physical-hardware or B02+ plant result is
+claimed by this ledger.
 
 ## Authoritative entry pins and gates
 
@@ -221,8 +222,8 @@ Java mass contribution, not a required cross-language hash match.
 ## Limitations and publication boundary
 
 - This increment publishes documentation only. The R and S worker results are
-  recorded above; no bidirectional cross-review, fixture acceptance trace, physical
-  direction, or hardware claim is marked passed.
+  recorded above; the bounded bidirectional R↔S seam rerun is now marked passed,
+  including fixture parity, but no physical direction or hardware claim is made.
 - A05 host tests and runner traces establish the entry baseline; they do not prove
   B01 device declarations, sparse-servo behavior, paired writes, or shared-port
   ownership.
@@ -233,3 +234,71 @@ Java mass contribution, not a required cross-language hash match.
   phase transition is included. Later append-only updates must independently
   verify each R/S commit, remote ref, worktree exception, command exit and exact
   outcome before recording it.
+
+## B01 bounded R↔S seam rerun — PASS after scoped R fix
+
+This final, read-only rerun supersedes the earlier pending/FAIL status for the
+current B01 seam gate; that earlier section is retained as historical evidence.
+The verified pins were:
+
+| Side | Pin and worktree evidence |
+|---|---|
+| R (`robot-code`) | `18b1d629fa21869963b9cd678e285c770f37c9d4`, HEAD/origin `dev-phase-1.1-a`, clean; descendant of `b72da4a` and `bffd71b` |
+| S (`re-cock-nize`) | `0ca3175b81fa499e8c169bbc005713aa4d63e3b2`, HEAD/origin `dev-phase-1.1-a`; only preserved untracked `.claude/` |
+| D protocol | `74475463add0f23afd6d84b801245650712bbb62` |
+
+### Closed R mass-hash finding
+
+R `RobotConstants.constantsHash()` now delegates to
+`constantsHashForMass(ROBOT_MASS_KG)` (`RobotConstants.java:113-116`). The mass is
+included at `:120-123`, wheel efficiencies at `:124-129`, and typed
+`Motor`/`DcDevice`/`CrServo`/`PosServo` arrays, `ENCODERS`, and `PINPOINT` at
+`:130-144`. `RobotConstantsHashTest.java:10-15` asserts that changing only mass
+from 12.0 kg to 18.0 kg changes the digest. The independently repeated
+reflection probe returned:
+
+```text
+mass12=b189515a90da49e2e98a63de90daf23912f8d17e80bd937800ced3f4fba1555d
+mass18=f5b1af72d2d0cabdf07c3ba5a93f062abde442d52731baeccbde88bfcfb99c51
+diff=true
+```
+
+This closes the prior R-owned mass omission; the b72da4a wheel-efficiency fix
+is also present. No cross-language digest-string equality is required: the
+canonical algorithms differ and `constantsHash` is not a wire field.
+
+### Paired protocol-v2 fixtures
+
+All four `cmp -s` checks between `S/tests/fixtures/protocol-v2/` and
+`R/sim/src/test/resources/protocol-v2/` passed. The equal SHA-256 pairs are:
+
+| Fixture | S and R SHA-256 |
+|---|---|
+| `ready.json` | `27a14aac3b1c1666998fca315db940c00dd95aa9968394788b2a4f36d11e92e1` |
+| `state.json` | `308850533f16d16fad014ab1e1409167ad26823ec272c0495e68f281090cd009` |
+| `step-hold.json` | `fcc17e3b10760ab0bc880808bb00ff3fbae704abf434d8d9447d46547e80cdab` |
+| `step-explicit-zero.json` | `6253f2782c11875d2142adc79c4e2988820258d042bc7f26db8d648ff1ef5fb3` |
+
+### Seam results
+
+The following checks were PASS in the bounded rerun; source anchors are included
+so the result can be audited against the pinned R/S trees.
+
+| Seam | Result and source anchors |
+|---|---|
+| Reset/ready negotiation and exact order | **PASS** — S `sim/server.py:130-141,976-999`; R `SimHal.java:109-149`, `Mechanism.java:116-130`, `RobotConstants.java:92-106`; proto2 ready carried the ten power names, two positional names, and `t_ms=0`. |
+| Exactly two actuator maps | **PASS** — S `sim/server.py:207-211,1012-1028`; R `SimHal.java:192-200`; extra maps reject and only `motors`/`servos` plus events are forwarded. |
+| Proto1 compatibility | **PASS** — S `sim/server.py:130-141,904-913`; R `SimHal.java:132-135`; absent-proto legacy reset/partial step produced proto1 and full motor/servo zero-fill. |
+| DC/CR zero-fill | **PASS** — S `sim/server.py:202-204,1020-1028`, `sim/physics/motor.py:184-198`; R `SimHal.java:195-231`; missing DC/CR keys became zero and CR stayed in `motors`. |
+| Positional hold/reset | **PASS** — S `sim/server.py:900-913,976-999`, `kinematic_backend.py:54-58`, `pymunk_backend.py:174-180`, `pybullet_backend.py:346-352`; R `RealHal.java:88-99`; sparse `hood_left=.25` held, reset restored `{hood_left:1.0,hood_right:0.0}`, and explicit zero remained a command. |
+| Shared shooter/turret port roles | **PASS** — S `sim/mechanism.py:623-639,668-681`, `sim/physics/motor.py:245-262`; R `RobotConstants.java:74-81,103`, `Hardware.java:58-69`; `shooterRight` is feedback input, `shooterLeft` is turret input/active output, with no duplicate source. |
+| All backends and multi-robot forwarding | **PASS** — S `kinematic_backend.py:54-112`, `pymunk_backend.py:174-206`, `pybullet_backend.py:346-371`, `multi.py:64-95`; single/two-robot kinematic, Pymunk, and PyBullet checks passed for zero-fill, sparse forwarding, and hold isolation. |
+
+### Commands, outcomes, and limits
+
+- R: `cd ../robot-code && JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew -q :core:test :sim:test` exited 0; independently observed **138 core + 17 sim tests**, zero failures/errors/skips, including `RobotConstantsHashTest`.
+- S focused: `PYTHONPATH="/home/shared/projects/boobuzz/re-cock-nize/tests" "/home/shared/projects/boobuzz/re-cock-nize/.venv/bin/python" -m unittest test_mechanism test_protocol_validation test_multi_robot test_process_network test_pymunk_backend` — **48 tests, OK**.
+- S full: `PYTHON="/home/shared/projects/boobuzz/re-cock-nize/.venv/bin/python" ./run_tests.sh` — **106 tests, OK**; no skipped/failure/error cases.
+- The bounded Python seam script reported PASS for parser/profile, v2/v1 server, two-map rejection, zero-fill, hold/reset, shared-port isolation, all three backends, and all three two-robot worlds.
+- Java hash probes returned the mass-sensitive values above. R/S use different canonical hash algorithms and no digest is sent on the wire.
+- Java tests use `FakeSimServer`, not a live Python process. FLOAT/BRAKE metadata is validated at this B01 seam only, not later B02+ physical decay. No physical robot, Control Hub, or real-HAL result is claimed; no source/protocol files were edited by the review.
