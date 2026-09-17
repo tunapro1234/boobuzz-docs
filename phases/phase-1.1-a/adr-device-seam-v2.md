@@ -1,9 +1,10 @@
 # ADR A02/B01 — device and protocol seam v2
 
 Status: **DRAFT, documentation only.** This ADR is a proposal for the A02/B01
-seam. It does not amend `protokol.md`, change code, or authorize an implementation.
-`ftc-main` owns any binding protocol edit; the seam remains blocked until that edit
-is approved. Source pins for this draft are robot-code `d5bda62`, re-cock-nize
+seam. It does not itself amend `protokol.md`, change code, or authorize an
+implementation. The protected binding amendment was published by `ftc-main` in
+commit `26f915b`; B01 record signatures and any implementation evidence remain
+separate gates. Source pins for this draft are robot-code `d5bda62`, re-cock-nize
 `5dd6daa`, and archive `d7711d0`.
 
 ## Context and decision
@@ -27,9 +28,9 @@ R/S fixture are approved:
    A proto2 peer advertises `ready.proto=2`; mixed versions fail before enabling
    outputs. There is no silent proto1 fallback for a proto2 mechanism profile.
 4. `ROBOT_MASS_KG` remains a Java-source configuration value consumed by the Python
-   parser; it is not smuggled through a new runtime wire field. The binding protocol
-   owner must nevertheless add it to the documented scalar/source contract before
-   A02 consumes it.
+   parser; it is not smuggled through a new runtime wire field. The binding
+   scalar/source rule is now recorded in the protected amendment `26f915b`; this
+   ADR does not claim that the A02 parser or fixture has been implemented.
 
 The choice keeps an explicit safety distinction: power devices stop at zero, while a
 position servo does not jump to zero merely because an action omitted it.
@@ -143,11 +144,13 @@ approved task file. They are not evidence that any fixture has run.
 
 1. This draft is reviewed without touching `protokol.md` or
    `phases/phase-1.1/design-spec.md`.
-2. `ftc-main` updates the protected protocol with the proto2 version, scalar mass
-   provenance, name/type lists, sparse-servo rule, and paired golden frames. The
-   amendment records compatibility and rejection behavior.
-3. Only after that approval may R and S implement the paired adapter/parser change;
-   both retain proto1 regression fixtures until the migration gate is accepted.
+2. `ftc-main` has published the protected protocol amendment at `26f915b`, covering
+   the proto2 version, scalar mass provenance, sparse-servo rule, and paired-device
+   behavior. That amendment records compatibility and rejection behavior; its B01
+   record-signature follow-up remains explicit.
+3. Any R/S adapter or parser implementation is a separately authorized change. Both
+   sides retain proto1 regression fixtures until the migration gate is accepted;
+   this ADR records no implementation outcome.
 4. Proto2 clients reject proto1 peers and vice versa when the required semantics do
    not match. The old proto1 path is not silently reinterpreted.
 5. A02's 18 kg parser/body proof and B01's device/handshake proofs are prerequisites

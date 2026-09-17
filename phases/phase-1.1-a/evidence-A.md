@@ -23,7 +23,7 @@ not a test result; later entries must name the exact command and artifact.
 |---|---|---|---|
 | A00 | D release cleanup | fixed-prefix retirement, English-content rule, ADR/evidence paths | **Recorded in this docs increment; no implementation outcome** |
 | A01 | S transport/events | bounded fragmented I/O, integral millisecond events, no mixed-world advance | **Not started; no outcome recorded** |
-| A02.0 | D + ftc-main protocol owner | `adr-device-seam-v2.md`; protected protocol amendment gate | **ADR draft recorded; approval pending** |
+| A02.0 | D + ftc-main protocol owner | `adr-device-seam-v2.md`; protected protocol amendment gate | **ADR draft recorded; protected amendment published at ftc-main `26f915b`; implementation/fixture evidence pending** |
 | A02 | R/S mass seam + R regression | Java-source mass parsing, 18 kg isolated fixture, cancellation/deadband tests | **Not started; no outcome recorded** |
 | A03 | R/S e2e seam | two fixed Pymunk scenarios and JSONL traces | **Not started; no outcome recorded** |
 | A04 | R analysis + D evidence | extension of predecessor gamepad/request evidence with archive file:line handoff | **Handoff received; archive facts appended below; no test outcome** |
@@ -44,9 +44,9 @@ not a test result; later entries must name the exact command and artifact.
 
 | Check | Command / artifact | Outcome |
 |---|---|---|
-| Documentation diff | `git diff --check` | Pending until this increment is committed |
+| Documentation diff | `git diff --check` | Pending for the next docs increment; prior evidence commit was clean |
 | Mass parser | named A02 isolated fixture | Not run; no implementation dispatched |
-| Protocol fixture | proto1/proto2 paired golden frames | Not run; protected amendment pending |
+| Protocol fixture | proto1/proto2 paired golden frames | Not run; protected amendment published at `26f915b`; paired fixture evidence pending |
 | Chapter A e2e | A03 runner and two Pymunk scenarios | Not run; A03 not started |
 
 Prior robot/simulator reports remain provenance references, not new Chapter A
