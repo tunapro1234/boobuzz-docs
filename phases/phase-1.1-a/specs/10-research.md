@@ -3,7 +3,7 @@
 > Superseded in parts by [review 2026-09-17](../review-ftc-main-specs-2026-09-17.md);
 > known issues, revise after B09. Body retained, NOT a current work order.
 > Read [v2 index](README.md) and [hardware-profile-v0](../hardware-profile-v0.md).
-> Hardware/name/encoder conclusions below are corrected for v2; all other far-framework choices and section5 findings remain provisional. No further E–H work before B09.
+> Hardware/name/encoder conclusions below follow Tuna's v2.1 clarification, overriding the review's single-actuator interpretation; all other far-framework choices and section5 findings remain provisional. No further E–H work before B09.
 
 Status: DRAFT supporting the review pack, not an implementation order.
 Primary sources checked 2026-09-17. Recheck version-sensitive APIs/rules at execution.
@@ -26,10 +26,14 @@ unless an actual compatibility blocker warrants a separate change. Robot's `sim`
 folder is valuable as a thin runner: shared control code should remain shared.
 
 Archive-derived behavior is useful: power-domain shooter PIDF, timed feeder,
-LEFT-channel hood conversion and bounded turret control. The NEW profile uses ONE
-flywheel, ONE hood servo, ONE turret CR servo and ONE intake (plus feeder). Reuse
-calculations and names, not the archive's actuator count or whole scheduler.
-Shooter velocity is shooterRight/RIGHT; shooterLeft independently reads turret angle.
+complementary hood conversion and bounded turret control. Preserve archive mechanism
+AND actuator counts: ONE shooter/TWO DC motors, ONE hood/TWO position servos,
+ONE turret/TWO CR servos, ONE intake motor plus ONE feeder motor and FOUR drive motors.
+Reuse calculations, paired motions, directions and names, not the whole scheduler.
+Shooter velocity is shooterRight/RIGHT; shooterLeft is an ACTIVE shooter output whose
+encoder input reads turret angle. Hardware binds it once; sim separates output-plant
+and encoder-source roles. Hood positions are complementary; turret logical powers
+equal; shooter followerScale1.0. Motor count does not prove a particular shaft layout.
 Verify the actual28-tick/1.6-ratio settings against their contradictory old comments;
 do not treat the already-resolved encoder selection as an architectural blocker.
 
@@ -129,7 +133,7 @@ this one small actor, but requires strict parity tests and no generic ML runtime
 
 | Unknown | Needed evidence | Safe progress while unresolved |
 |---|---|---|
-| Physical encoder scaling | Old code resolves shooterRight speed vs shooterLeft turret; verify28 ticks/rev and1.6 wheel ratio physically | Separate known input names; no invented encoder conflict or physical calibration claim |
+| Physical encoder scaling | Old code resolves shooterRight speed vs shooterLeft turret while BOTH motors drive shooter; verify28 ticks/rev and1.6 ratio physically | Separate input/output roles on shared port; no invented second shooter encoder or physical calibration claim |
 | Pollen launch calibration | Ball-identified measurements with units/uncertainty | Synthetic software fixtures and explicit uncalibrated label |
 | Final intake/hood/turret geometry | Mechanism drawing/measurement | Versioned archive-derived profile, reject unproven reachability |
 | Camera detector/pipeline | Actual configuration and representative frames | Adapter fakes/sim frames; no claim of deployed perception |

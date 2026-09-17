@@ -118,3 +118,34 @@
   byte-preserved after the new header, hood/RPM/feedforward fixture arithmetic is
   consistent, git diff --check clean, protected documents unchanged. Review SHA-256:
   117674815998fce3f99de8aa9929287472db568a2401ca49bfb8edc2763dc2b1.
+
+## 2026-09-17 — v2.1 correction: mechanisms are not actuator counts
+
+- Published v2 was docs commit3969cc2. Its single-actuator topology was WRONG;
+  the orchestrator failed to reconcile the review wording with archived active
+  construction/output code. Tuna directly clarified: preserve last season's
+  mechanism counts AND motor/servo counts. This overrides the review topology,
+  not the accepted near/far, engine-composition or lean-process decisions.
+- Rechecked archive robot-code d7711d0: Blue/RedTeleop -> lvbelc5/Robot constructs
+  ShooterPidfPowerSubsystem, HoodSubsystem, TurretPidPazarSubsystem, Power intake
+  and feeder. ONE shooter has2 DC motors; ONE hood has2 complementary position
+  servos; ONE turret has2 equally commanded CR servos. Intake1, feeder1, drive4.
+- Critical shared port: shooterLeft is an ACTIVE shooter motor output, while its
+  encoder input measures turret. Removed the erroneous encoder-only/force-zero
+  plan; Hardware binds once, power ownership remains shooter, input source turret.
+- Revised profile, README/00/A/B, targeted research/roadmap statements, intent and
+  review disposition. Added source file:line evidence, exact paired hood fixtures,
+  paired stop/hold/validation and shared-port isolation acceptance requirements.
+  B's small plant approximations are labeled, not inferred mechanical shaft layouts.
+  Kept one state/controller per mechanism and the existing three engine demos.
+- Original review retained verbatim for provenance; current index/intent/profile
+  explicitly supersede its single-actuator interpretation. Far04–09 and protected
+  protokol/design-spec unchanged. No robot/sim source edits, implementation dispatch,
+  new goal, training, dependency changes or draft tags. Existing untracked S/.claude
+  and archive/.gradle-user-home are unrelated and untouched.
+- Docs worker is authorized only to verify/publish this correction on
+  dev-phase-1.1-a, report commit/push/hash and hold. Tuna reviews before execution.
+- Documentation checks passed:63 relative links,14 near-task headings, four paired
+  hood fixtures and4000-RPM/feedforward arithmetic, git diff --check. Original review
+  hash unchanged; far04–09/protected documents unchanged; R/S HEAD still d5bda62/
+  5dd6daa. These are document checks, not a claim of newly run robot/physics tests.

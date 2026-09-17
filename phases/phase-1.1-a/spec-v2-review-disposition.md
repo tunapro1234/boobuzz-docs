@@ -1,7 +1,9 @@
-# Spec v2 disposition — near-term findings closed in the plan, not in code
+# Spec v2.1 disposition — corrected topology, near-term plan only
 
-Status: DRAFT v2 for Tuna. Source: [full review](review-ftc-main-specs-2026-09-17.md),
-read completely. Files below use [v2 index](specs/README.md) and
+Status: DRAFT v2.1 for Tuna. The [full review](review-ftc-main-specs-2026-09-17.md)
+is preserved verbatim, but its single-actuator interpretation and our v2 response
+are superseded by [Tuna's direct clarification](tuna-intent-2026-09-17.md).
+Mechanism count is NOT motor count. Files below use [current index](specs/README.md) and
 [hardware-profile-v0](hardware-profile-v0.md). No implementation was dispatched.
 "Addressed" means the specification names the behavior/owner/test; code remains at
 R d5bda62 / S 5dd6daa. Far findings are deliberately not claimed implemented/resolved.
@@ -10,12 +12,12 @@ R d5bda62 / S 5dd6daa. Far findings are deliberately not claimed implemented/res
 
 | Review IDs | V2 disposition |
 |---|---|
-| F1–F5 | README binding topology, hardware profile, B01/B05–B07: one flywheel, hood, CR turret; no follower/second-actuator plant. Preserve LEFT hood inversion. |
+| F1–F5 | Single-actuator recommendation REJECTED by latest direct Tuna clarification. Corrected profile/B01/B05–B07 preserve ONE shooter with2 motors, ONE hood with2 complementary servos, ONE turret with2 CR servos. Active constructors and power/position writes are cited; preserve followerScale and directions. |
 | F6 | 00 preserves actual ACTIVE/DONE/FAILED/REJECTED; cancel stays REJECTED+note, not imaginary CANCELLED/FAULTED. |
 | F7 | 00/A01/B01 use integer ms; no microseconds. |
 | F8 | 00 preserves actual five-stage RobotLoop; B01 owns ActionValidator inside HAL writes; Pedro updates only in PedroDrive. |
 | F9 | B01.0 owns ADR/protokol approval and proto2 sparse-servo hold; RealHal, SimHal fill removal, server/plant behavior, fixtures/test names explicit. |
-| F10–F11 | Profile/A04/B04: capacity3 and unused intake_dist; shooterRight speed vs shooterLeft turret resolved. Real verification concerns28 ticks/1.6 ratio, not an invented channel conflict. |
+| F10–F11 | Profile/A04/B01/B04: capacity3 and unused intake_dist; shooterRight speed vs shooterLeft turret resolved. shooterLeft ALSO actively drives the shooter; bind once, separate input/output roles, test isolation. Verify28 ticks/1.6 ratio physically. |
 | F12 | A02 describes actual Java regex input, adds mass to binding scalar contract/parser/backend; keeps12 kg baseline. |
 | F13–F14 | B01 lists single-line Java declarations and exact parser extension; explicit version/name lists, no unsupported capability negotiation. |
 | F15 | A04/A05 extend existing gamepad-map-analysis, teleop-map, request-catalog rather than duplicate inventory. |
@@ -36,7 +38,7 @@ R d5bda62 / S 5dd6daa. Far findings are deliberately not claimed implemented/res
 | M1 | A05 registry and v2 README reserve stable indices; Vision split adds an engine before range without renumbering existing0/1. |
 | M7 | B08 explicitly creates planar physical release; C header says flight is its later upgrade. B09 tray demo is NOT elevated-goal/ballistics proof. |
 | M8 | B01 early object dimensions in RobotConstants/parser; README C assigns true target geometry there, retains GOAL_* only as legacy placeholders until replacement. |
-| Mo1/Mo4 + servo-rejection minor | Profile and A/B flag single-wheel retuning; concrete paths/tests/seeds; B01 explicitly removes nonempty-servo rejection with paired tests. |
+| Mo1/Mo4 + servo-rejection minor | Single-motor conversion rationale withdrawn: topology stays archived. Pollen/launch calibration and physical tuning still unverified. Concrete paths/tests/seeds; B01 removes nonempty-servo rejection, tests both hood outputs and shared-port semantics. |
 
 Other section4 range/vision internals remain retained historical text with header
 warnings, not approved instructions. Vision-A is AprilTag/simple detection/PID with
@@ -59,4 +61,4 @@ Check relative links, hardware-profile references, A01–A05/B01–B09 headings,
 review text, unchanged protected protokol/design-spec, and far-body preservation.
 Numerical fixture checks: hood25/44/45/50°,4000-RPM ticks conversion/feedforward.
 These are plan checks, not robot/physics test runs. Docs worker alone stages this
-review + v2 publication and reports commit/push/hash, then holds. No draft tags.
+v2.1 correction publication and reports commit/push/hash, then holds. No draft tags.

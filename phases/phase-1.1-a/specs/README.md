@@ -1,7 +1,10 @@
-# Phase 1.1-a spec pack v2 — review before implementation
+# Phase 1.1-a spec pack v2.1 — review before implementation
 
-Status: **DRAFT v2, 2026-09-17. No implementation dispatch or training authorized.**
-Authority: [Tuna's decisions and reviews](../review-ftc-main-specs-2026-09-17.md).
+Status: **DRAFT v2.1, 2026-09-17. No implementation dispatch or training authorized.**
+Authority: [Tuna's latest direct clarification](../tuna-intent-2026-09-17.md) overrides
+the single-actuator interpretation in the [original review](../review-ftc-main-specs-2026-09-17.md).
+All other accepted process/scope decisions remain. V2 conflated mechanism and actuator
+counts; this correction follows the active archived construction/control paths.
 Every chapter uses [hardware-profile-v0](../hardware-profile-v0.md).
 Starting commits: R `d5bda62`, S `5dd6daa`; remain on `dev-phase-1.1-a`.
 
@@ -9,12 +12,14 @@ Starting commits: R `d5bda62`, S `5dd6daa`; remain on `dev-phase-1.1-a`.
 
 1. Preserve `contract / hal / subsystem / logic / controller` and shared Java core.
    Keep R's `sim` as a thin adapter, not a second robot implementation.
-2. ONE intake motor, ONE feeder motor, ONE single-flywheel shooter, ONE hood servo,
-   ONE turret CR servo; POLLEN only. Archive is a behavior/calibration/name reference,
-   NOT a mandate to reproduce its multi-actuator hardware.
+2. Preserve last season's mechanism AND actuator counts: ONE shooter with TWO motors,
+   ONE hood with TWO oppositely moving position servos, ONE turret with TWO CR servos,
+   ONE intake motor, ONE feeder motor and FOUR mecanum motors. POLLEN-only intake.
+   Each pair serves one mechanism/state/controller, not two independent subsystems.
 3. RealHal keeps archived HardwareMap names, including drive names, `shooterRight`,
-   encoder-only `shooterLeft`, `turret_servo`, `hood_left`, `intake_dist`. No device
-   renaming/reconfiguration required. Mechanical compatibility still needs bench proof.
+   `shooterLeft`, `turret_servo`, `turret_servo2`, `hood_left`, `hood_right`, `intake_dist`.
+   shooterLeft is an active shooter output whose encoder input measures the turret.
+   No device renaming; preserve pairing/directions, with physical checks before enable.
 4. Gall's law: preserve the previous useful engine; add one composed module, not a
    copied engine. Each release must support a complete useful operator workflow.
 5. Commit/push working increments. Tags/manifests ONLY at A05 baseline and engine
@@ -29,7 +34,7 @@ Starting commits: R `d5bda62`, S `5dd6daa`; remain on `dev-phase-1.1-a`.
 | [00 Common](00-common.md) | Actual contracts, composition and lean acceptance |
 | [01 Baseline](01-baseline.md) | A01–A05 worker detail: files, tests, seeds, thresholds |
 | [02 Devices/intake/feeder](02-intake-feeder.md) | B01–B04 worker detail; owned protocol migration |
-| [03 Mechanisms/cplx1](03-mechanisms-cplx1.md) | B05–B09 worker detail; single devices, three e2e gates |
+| [03 Mechanisms/cplx1](03-mechanisms-cplx1.md) | B05–B09 worker detail; archive actuator pairs, three e2e gates |
 | [04 Shooting](04-shooting-cplx2.md) | Historical detail preserved; C outline below governs until refined |
 | [05 Vision](05-vision-cplx3.md) | Split into Vision-A/B below; refine after B09 |
 | [06 Range](06-range-cplx4.md), [07 Game](07-game.md) | Roadmap only; preserve bodies, revise after B09 |
@@ -67,8 +72,9 @@ load beliefs wait for actual modeled target mechanics, not imaginary Hive truth.
   minRPM + .55*(maxRPM-minRPM). Interpolate resulting hood/RPM pairs; reject outside
   [43.3,90.7] in or unsupported height (an intentionally conservative subset: the
   actual table also contains longer distances). This is a documented NEW simplification,
-  not the archived placeholder LINEAR algorithm. Pollen/single-flywheel calibration
-  remains unverified; old multi-actuator data cannot prove the new launch mapping.
+  not the archived placeholder LINEAR algorithm. Actuator topology stays unchanged;
+  pollen/target/launch calibration still needs verification, not a fictitious
+  single-motor conversion or assumed transfer of last season's shot table.
 - C03: upgrade B08 planar release to height-aware flight/contact including barrel
   world velocity from chassis/turret motion. No RK4 program. Target dimensions go
   into RobotConstants and the S parser, not pixel measurements of field artwork.
@@ -85,4 +91,4 @@ controller/inference/xRC feasibility spikes independently of full-game fidelity;
 do not assume they must wait behind all F. No learning runs of any kind.
 
 [Review disposition](../spec-v2-review-disposition.md) maps findings to revisions.
-Next: Tuna reviews v2. Only documentation publication is delegated now.
+Next: Tuna reviews v2.1. Only documentation publication is delegated now.

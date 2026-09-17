@@ -1,4 +1,4 @@
-# B01–B04 v2 — smallest device seam, pollen intake and feeder
+# B01–B04 v2.1 — smallest device seam, pollen intake and feeder
 
 Status: DRAFT, not dispatched. Entry A05. Read [00](00-common.md) and
 [hardware-profile-v0](../hardware-profile-v0.md). Exact path aliases are in00.
@@ -23,7 +23,7 @@ planning revision. Migration contract:
 | step.motors | normalized DC power; missing declared key=0 |
 | step.crservos | normalized CR power; missing declared key=0 |
 | step.servos | positional0..1; ABSENT=HOLD/no new write, explicit0=position0 |
-| state.enc / vel | union of output-motor encoder channels and independent shooterLeft input; ticks/ticks-sec, missing required channel invalid |
+| state.enc / vel | unique declared motor-port encoder names; ticks/ticks-sec; shooterRight measures shooter, shooterLeft measures turret despite being a shooter OUTPUT; missing required channel invalid |
 | state | existing t_ms/pose/voltage/gamepad behavior; truth remains outside core |
 | events | diagnostic only; remove old contradictory prose implying events establish physical ball launch; physical transfer comes from plant/actuation |
 
@@ -34,6 +34,9 @@ and S/tests/fixtures/protocol-v2 equivalents, byte-compared in integration check
 Tests: SJT/SimHalTest.java `rejectsProto1ForMechanismProfile` / `omittedServoIsNotZeroFilled`;
 JT/contract/RobotActionServoHoldTest.java; S/tests/test_protocol_validation.py
 `test_servo_omitted_holds` / `test_servo_explicit_zero_moves`.
+Protocol sparse-map tests use a generic servo fixture. In the actual paired-hood
+profile, explicit right=0 is valid with left=1 (25°); a left-only zero is NOT a
+permitted mechanism command. B01.2 validates the pair before any physical write.
 
 ### B01.1 — one-line Java constants and matching parser
 
@@ -45,8 +48,12 @@ Extend S/sim/mechanism.py with explicit CR_SERVOS / ENCODERS array parsing and
 resolution of declared String identifiers in arrays/Motor's name argument. Reject
 unknown identifiers/arbitrary expressions. Never add YAML or Python-only aliases.
 
-Output names/order: leftFront,rightFront,leftBack,rightBack,intake,feeder,shooterRight.
-Servo list=[hood_left]; CR list=[turret_servo]; independent encoder=[shooterLeft].
+Output names/order: leftFront,rightFront,leftBack,rightBack,intake,feeder,shooterRight,shooterLeft.
+Servo list=[hood_left,hood_right]; CR list=[turret_servo,turret_servo2].
+ENCODERS lists all8 motor-port names exactly once; shooterLeft is NOT a ninth device.
+SHOOTER_FEEDBACK_ENCODER_NAME="shooterRight"; TURRET_ENCODER_NAME="shooterLeft".
+These input-role declarations override a generic motor-shaft-to-encoder assumption:
+S reads shooter speed from the former and turret angle/rate from the latter.
 RobotConstants.buildMechanism currently hardcodes four motorNames: replace with ALL
 MOTORS; wheelMotorNames still filters exactly four. Pedro name mapping remains by
 wheel geometry, no shooter chassis force. Preserve efficiencies by wheel ROLE when
@@ -64,15 +71,19 @@ legacy placeholders, not authoritative BIOBUZZ targets. C owns real target geome
 Tests: JT/hal/MechanismTest.java and new JT/hal/HardwareProfileTest.java;
 S/tests/test_mechanism.py tests name resolution, exact lists, unknown identifier,
 wheel-only force contribution, and constantsHash change. Seed1. Hardware profile
-keeps old names, not active old secondary devices. No camera/range/digital channels.
+keeps ALL active archived actuators/names. No camera/range/digital channels.
 
 ### B01.2 — real/sim writes, inputs and safe omission
 
 J/contract/RobotAction adds separate CR map + compatible old constructors;
 J/hal/Mechanism adds typed name lists. Keep IHal methods unchanged. Hardware binds
-DcMotorEx output motors plus encoder-only shooterLeft, ONE CRServo, ONE Servo.
-Set encoder-only motor power0 without changing direction/resetting someone else's
-measurement. Read enc/vel from declared input union; do not substitute missing0.
+8 DcMotorEx outputs,2 CRServo and2 Servo devices, each name ONCE. shooterLeft remains
+an ACTIVE shooter output (FORWARD); shooterRight is REVERSE. BOTH RUN_WITHOUT_ENCODER,
+FLOAT, matching archive. Central initialization owns reset/configuration before enable;
+turret runtime may read shooterLeft encoder but cannot reset/configure its motor or
+write its power. No second HardwareMap lookup/competing owner for the input alias.
+Read enc/vel from declared unique inputs; do not substitute missing0 or calculate
+shooterLeft encoder ticks from its flywheel shaft in S.
 Handshake name mismatch is fatal. A runtime absent reading from a declared channel
 remains absent in RobotState, so the affected subsystem faults safely while drive
 can remain usable; it is not replaced with0 or confused with malformed JSON/schema.
@@ -86,13 +97,28 @@ passes sparse servo/CR maps to plants and retains last explicit servo target. Ba
 step signatures and multi-robot forwarding update together. Initial no servo command
 means no fabricated position readout or automatic startup move.
 
+Profile checks stay small: each paired mechanism supplies BOTH outputs or neither;
+for hood, left+right=1 within1e-9 and right in[0,215/300]. No half-hood move. For
+shooter, left=right*followerScale (1.0); for turret, both logical powers equal.
+Omitted pairs use the usual zero/hold policy. Validate BEFORE writes; this is a
+software frame guarantee, not a claim of atomic physical bus writes. A device-write
+exception triggers best-effort zero on all DC/CR outputs and explicit fault; do not
+guess a new hood position after a partially delivered write. Never silently run a
+one-actuator fallback on a linked mechanism.
+
 Tests: JT/contract/ActionValidatorTest.java, SJT/SimHalTest.java,
 S/tests/test_protocol_validation.py, S/tests/test_multi_robot.py. Add
 R/TeamCode/src/test/java/org/firstinspires/ftc/teamcode/hal/RealHalWriteTest.java
 using narrow fake device sinks if SDK unit instantiation is unavailable; reuse the
 production write helper, do not write another fake HAL algorithm. Verify invalid
-frame powers zero, omitted hood holds across engine switch, explicit0 differs, and
-only shooterRight spins. HAL exceptions must reach OpMode finally/STOP safe-write;
+frame powers zero, BOTH omitted hood servos hold across engine switch, valid(1,0)
+differs from omission, partial/mismatched pairs reject, both shooter outputs are
+written, and hardware directions are applied ONCE. Add shared-port tests:
+`HardwareProfileTest.shooterLeftHasIndependentOutputAndEncoderRoles`,
+`RealHalWriteTest.turretReadDoesNotReconfigureShooterOutput` and
+S/tests/test_mechanism.py `test_shooter_left_encoder_follows_turret_not_shooter`.
+B01 may use an injected turret-angle fixture; B07 repeats against its real plant.
+HAL exceptions must reach OpMode finally/STOP safe-write;
 review existing thin OpMode cleanup and add coverage if missing. Android build required.
 
 Exit: A-drive/A-cancel with new names pass; one all-device fixture demonstrates

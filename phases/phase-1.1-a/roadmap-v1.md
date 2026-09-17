@@ -146,16 +146,18 @@ Primary sources already located in the archived DE-Cock tree:
 Concrete observations that the port must account for:
 
 - Shooter uses power-domain PID + feedforward, integral zone/clamp, optional slew,
-  and a readiness dwell on ONE flywheel. Archive defaults include 100 RPM error
+  and a readiness dwell for ONE shooter with TWO motors. Archive defaults include 100 RPM error
   tolerance and 150 ms stable duration; these are inherited settings, not new measurements.
 - Feeder owns pulse/delay sequencing. `clearRequest()` lets a running pulse finish;
   `stop()` cancels it immediately. The archived pulse default is 350 ms, not the
   current stub's 200 ms. Driver release and emergency cancel need distinct semantics.
-- New turret uses ONE CR servo (`turret_servo`), incremental encoder `shooterLeft`
+- Turret preserves TWO CR servos (`turret_servo`,`turret_servo2`) on ONE mechanism,
+  same logical power/both FORWARD; incremental encoder `shooterLeft`
   and analog startup input `turret_analog`, with inherited -90 to +90 degree limits.
-  Shooter speed independently uses `shooterRight`; the archive resolves that selection.
-- New hood uses ONE position servo `hood_left`, its inherited LEFT-inverted mapping
-  and mechanical clamps, not a paired or mirrored-actuator arrangement.
+  Shooter speed uses `shooterRight`; BOTH motor outputs drive shooter, while
+  shooterLeft's encoder input measures turret. Do not delete the follower output.
+- Hood preserves TWO position servos `hood_left`/`hood_right` on ONE mechanism,
+  complementary commands (LEFT inverted), with the archive mechanical clamps.
 - Current teleop RB/LB behavior differs from the archived hold-based shooting and
   reverse controls. Proposed default: restore the match-used driver's map, keep the
   present diagnostic map as an explicitly selected alternative. Discuss this choice.
@@ -212,7 +214,9 @@ Robot inventory is a sensor-supported estimate; simulator inventory is separate 
 
 Port the archived controller math into SDK-free `FlywheelShooter`: RPM conversion,
 PIDF, clamping/anti-windup, slew, readiness dwell, target changes and spin-down.
-Use one output/velocity source `shooterRight`; no follower motor/scaling. Inspect archived feedforward units before
+Use right=power, left=power*followerScale1.0 with right reversed/left forward in HAL;
+velocity source is shooterRight only, while shooterLeft encoder measures turret.
+Inspect archived feedforward units before
 adding any voltage compensation; do not apply compensation twice.
 
 The plant models independent flywheel inertia/lag, battery limitation, sensing noise
@@ -223,7 +227,9 @@ within tolerance for a duration, never an elapsed-time substitute.
 
 ### B4. Hood and turret
 
-Port the ONE hood_left channel's inverted conversion and limits; test endpoints and intermediate positions.
+Port BOTH hood channels' complementary conversion and limits on ONE hood angle;
+test paired endpoints/intermediate positions and hold. Turret also keeps BOTH CR
+outputs on one angle controller, with equal logical power rather than hood inversion.
 Give hood motion a finite simulated rate. Port turret calibration, encoder scaling,
 analog initialization/filter, angle wrap, bounded target motion and hold/manual stop.
 Start with fixed angle commands; no scanning yet. Distinguish `hold current angle`
@@ -508,9 +514,11 @@ hardware exists. Simulator success cannot erase that limitation.
 1. Recommended control baseline: port last season's match-used button semantics,
    retaining today's diagnostic map under another profile. Confirm whether instead
    the current buttons should remain while only actuator behavior is ported.
-2. Binding hardware: ONE single-flywheel shooter, ONE intake, ONE feeder, ONE hood
-   servo and ONE turret CR servo. Archive provides behavior/calibration/device names,
-   not topology. See hardware-profile-v0; physical tuning remains to be verified.
+2. Binding hardware after Tuna's direct v2.1 correction: archive mechanism AND
+   actuator counts are preserved. ONE shooter/TWO motors, ONE hood/TWO position
+   servos, ONE turret/TWO CR servos; intake1, feeder1, drive4 motors.
+   See hardware-profile-v0 for pair mapping and shared encoder port; physical tuning
+   remains to be verified. The original review's single-actuator interpretation is wrong.
 3. Recommended shooting baseline: stationary calibrated shots first; no RK4 or
    moving-shot work before that gate.
 4. Recommended vision milestone: cplx3 builds observable tracks/beliefs and scans

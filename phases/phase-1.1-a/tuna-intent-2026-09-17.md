@@ -7,13 +7,19 @@ Both are proposals, not execution orders.
 
 ## Latest instruction: plan first
 
-V2 authority: read [Tuna's binding review decisions](review-ftc-main-specs-2026-09-17.md)
-and [hardware-profile-v0](hardware-profile-v0.md). They supersede older assumptions:
-ONE flywheel, ONE hood servo, ONE turret CR servo, ONE intake (plus feeder), archive
-device names retained; full detail A/B only, C medium, far chapters preserved/deferred;
+V2.1 authority: Tuna directly clarified AFTER the review: preserve last season's
+mechanism counts AND actuator counts. ONE shooter has TWO flywheel motors; ONE
+hood has TWO servos moving oppositely together; ONE turret has TWO CR servos.
+The single-actuator interpretation in [the original review](review-ftc-main-specs-2026-09-17.md)
+and published v2 was WRONG. The orchestrator must verify active construction AND
+control paths, not treat mechanism count as motor count. Do not repeat this after
+compaction. [hardware-profile-v0](hardware-profile-v0.md) records corrected names,
+counts, pair mappings and the shooterLeft output/turret-encoder dual role.
+ONE intake motor and ONE feeder motor also match the archive; drive has FOUR motors.
+All other review decisions remain: full detail A/B only, C medium, far chapters preserved/deferred;
 baseline/engine tags only, chapter evidence, seam-only cross-review; composed engines;
 few e2e gates; Vision-A before Vision-B. Today's authorization is revision/publication
-of specs v2 ONLY, not implementation. Docs worker commits review and revised docs.
+of specs v2.1 ONLY, not implementation. Docs worker commits the corrected docs.
 
 Before distributing the expanded requirements to workers, ftc-main-cx must personally
 prepare a detailed roadmap: implementation steps, framework choices, dependencies,

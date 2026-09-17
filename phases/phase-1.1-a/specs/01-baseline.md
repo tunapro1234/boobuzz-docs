@@ -1,4 +1,4 @@
-# A v2 — baseline first, extend existing archive analysis
+# A v2.1 — baseline first, extend existing archive analysis
 
 Status: DRAFT, not dispatched. Read [00](00-common.md) and
 [hardware-profile-v0](../hardware-profile-v0.md); path aliases are defined in 00.
@@ -107,11 +107,17 @@ feeder sign every500 ms; LT>.1 intake in idle; D-pad offsets; B held park/releas
 cancel; BACK2 s recovery toggle (4000 RPM,45° hood,0° turret); START+Y2 s reset.
 Differences from today's diagnostic map are explicit, not silent replacements.
 
-Shooter speed uses RIGHT/shooterRight; turret encoder uses shooterLeft, no shared
-measurement ambiguity. Flag actual28-tick/1.6-ratio versus stale8192/1:1 comments.
+Shooter speed uses RIGHT/shooterRight; turret encoder uses shooterLeft, whose MOTOR
+OUTPUT simultaneously drives the shooter follower. Trace BOTH input/output roles;
+not an encoder-only device or a second turret motor. Flag actual28-tick/1.6-ratio
+versus stale8192/1:1 comments. Trace active Blue/RedTeleop -> lvbelc5/Robot construction
+before choosing implementations, not just declarations or abandoned variants.
 intake_dist exists only as an unused declaration in active intake; capacity3 is real
 archive configuration. Keep350 ms pulse, default500 ms gap and match-requested100 ms
-separate. Single actuator/name choices come from hardware-profile-v0, not archive count.
+separate. Counts, names, paired motion and directions MUST match the active archive:
+shooter2 motors, hood2 position servos, turret2 CR servos, intake1, feeder1, drive4.
+Golden traces include both outputs per pair and the shared-port isolation case;
+hardware-profile-v0 supplies the source locations, not permission to delete actuators.
 
 Exit: existing analysis annotated preserve/correct/defer per relevant gesture, exact
 constants/source fields, and a short golden actuator trace table. No redundant

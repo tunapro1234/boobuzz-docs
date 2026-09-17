@@ -1,7 +1,8 @@
-# Common rules v2 — preserve the system, keep process small
+# Common rules v2.1 — preserve the system, keep process small
 
-Status: DRAFT v2, not dispatched. Read [hardware-profile-v0](../hardware-profile-v0.md)
-and [binding review](../review-ftc-main-specs-2026-09-17.md). These rules supersede
+Status: DRAFT v2.1, not dispatched. Read [hardware-profile-v0](../hardware-profile-v0.md)
+and [latest Tuna clarification](../tuna-intent-2026-09-17.md), which overrides the
+original review's actuator-count interpretation. These rules supersede
 conflicting v1/far-draft process, topology and engine-numbering statements.
 
 ## Exact path shorthand
@@ -15,6 +16,13 @@ conflicting v1/far-draft process, topology and engine-numbering statements.
 Keep existing layers/versions. HAL binds devices; subsystems own feedback loops;
 logic coordinates; controller emits intent. R/sim transports the SAME core. S owns
 physical truth/plants, never a duplicate Java PID or shot coordinator.
+
+Preserve mechanism AND actuator counts: shooter2 DC, hood2 position servos,
+turret2 CR servos, intake1 DC, feeder1 DC, drive4 DC. One subsystem owns each pair;
+do not duplicate controllers or infer the same inversion for every pair. Hood
+commands are complementary, turret logical powers equal, shooter follower scale1.
+shooterLeft motor output belongs to shooter; its encoder input belongs to turret.
+HAL binds once and configures before enable; simulation must model these roles separately.
 
 ## Actual contracts
 
