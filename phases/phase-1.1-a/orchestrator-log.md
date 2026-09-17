@@ -326,5 +326,22 @@
   bffd71b.
 - SDK-module Android `HardwareMap` fake-device write tests remain unavailable;
   production binding compilation and core/sim seam coverage are the limitation.
-  B01 is not accepted: await matching S evidence and bounded R↔S seam
-  cross-review. No protocol/spec/source edit or new tag was made.
+  B01 is not accepted: await bounded bidirectional R↔S seam cross-review. No
+  protocol/spec/source edit or new tag was made.
+
+## 2026-09-17 — B01 S completion evidence (cross-review pending)
+
+- S supplied clean pushed pin `0ca3175b81fa499e8c169bbc005713aa4d63e3b2`;
+  origin matches and only the preserved untracked `.claude/` directory remains.
+  Changed paths cover the typed mechanism parser, physics/backend forwarding,
+  protocol-v1/v2 fixtures, protocol/multi-robot/process tests and fake client; the
+  exact grouped list is recorded in `evidence-B.md`.
+- Independently rerun with S's repository-local venv: the focused mechanism,
+  protocol, multi-robot, process-network and Pymunk command ran **48 tests, OK**;
+  `PYTHON=... ./run_tests.sh` ran **106 tests, OK**. No skipped/failure/error cases
+  were reported. Coverage includes typed DC/CR/PosServo parsing, identifier and
+  literal rejection/hash/encoder roles, proto negotiation/lists, sparse hold/reset,
+  zero-fill, backend forwarding, shared shooterLeft input, fixtures and determinism.
+- S models declared actuator state/metadata only; no B02+ plant or real-HAL result
+  is claimed. R and S evidence are both present, but B01 remains unaccepted until
+  bounded bidirectional R↔S seam reviews are completed and recorded.

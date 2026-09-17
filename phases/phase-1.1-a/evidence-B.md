@@ -1,9 +1,9 @@
 # Chapter B evidence ledger
 
 **Status:** B is approved and eligible at the verified Chapter-A checkpoint. This
-file is the sole Chapter-B evidence ledger. The entry scaffold and the R-only
-completion evidence below are append-only; S evidence and the R↔S cross-review are
-still required before B01 acceptance.
+file is the sole Chapter-B evidence ledger. The entry scaffold and the R/S
+completion evidence below are append-only; bounded bidirectional R↔S seam reviews
+are still required before B01 acceptance.
 
 ## Authoritative entry pins and gates
 
@@ -51,8 +51,8 @@ The planned R reads/binds `TeamCode/core/src/main/java/boobuzz/core/hal/{RobotCo
 
 ## B01 task slots (entry plan)
 
-This table is the original entry plan. The R-only result below supersedes its
-no-outcome wording for R; S and cross-review rows remain open.
+This table is the original entry plan. The R/S result sections below supersede its
+no-outcome wording; the bounded bidirectional cross-review remains open.
 
 | Slot | R owner / S owner | Required seam evidence | State at this scaffold |
 |---|---|---|---|
@@ -83,7 +83,7 @@ the positional list. `RobotAction` has only `motors`, `servos`, and diagnostic
 events; a reset/ready mismatch fails before output. Positional omission holds (or
 uses the declared initial position when never commanded); DC/CR omission is zero.
 
-## Required tests and commands (not run for this scaffold)
+## Required tests and commands
 
 | Side | Required checks from the approved B01 spec |
 |---|---|
@@ -132,15 +132,40 @@ R's current worktree is clean and local/remote refs agree at the final bffd pin.
 
 The worker reports the SDK module cannot provide Android `HardwareMap` fake-device
 write tests; production binding compilation plus core/sim seam tests cover the
-contract. No physical hardware result is claimed. B01 remains pending S's matching
-completion evidence and the bounded R↔S seam cross-review; no B01 acceptance is
-declared by this R-only entry.
+contract. No physical hardware result is claimed. B01 remains pending bounded,
+bidirectional R↔S seam reviews; no B01 acceptance is declared by the R-only entry.
+
+## B01 S completion evidence (bidirectional seam review pending)
+
+The S worker supplied clean pushed pin
+`0ca3175b81fa499e8c169bbc005713aa4d63e3b2`; S local and origin refs agree, with
+only the preserved untracked `.claude/` directory. Independently verified changed
+paths are `sim/mechanism.py`, `sim/physics/{backend,kinematic_backend,motor,multi,pybullet_backend,pymunk_backend}.py`, `sim/server.py`, `tests/common.py`, `tests/fixtures/protocol-v1/RobotConstants.java`, `tests/fixtures/protocol-v2/{ready,state,step-explicit-zero,step-hold}.json`, the B01-related `tests/test_*.py` modules (calibrated physics, determinism, events, gamepad, kinematics, mechanism, multi-robot, process-network, protocol validation, Pymunk, server timeout and signal), and `tools/fake_client.py`. This is simulator state/contract coverage, not a claim of physical-HAL behavior.
+
+Independently verified commands (using S's repository-local absolute paths) were:
+
+```text
+PYTHONPATH="/home/shared/projects/boobuzz/re-cock-nize/tests" "/home/shared/projects/boobuzz/re-cock-nize/.venv/bin/python" -m unittest test_mechanism test_protocol_validation test_multi_robot test_process_network test_pymunk_backend
+PYTHON="/home/shared/projects/boobuzz/re-cock-nize/.venv/bin/python" ./run_tests.sh
+```
+
+The focused command ran **48 tests, OK**. The full command ran **106 tests, OK**;
+no skipped/failure/error cases were reported. Coverage reported by the worker and observed
+in the run includes typed `DcDevice`/`CrServo`/`PosServo` parsing, identifier and
+literal rejection, constants hash and encoder roles, proto negotiation and exact
+lists, two maps, sparse positional hold/reset, DC+CR zero-fill, all backends and
+multi-robot forwarding, the shared `shooterLeft` turret encoder role, proto1
+fixtures/zero-fill, and deterministic process behavior.
+
+S models declared actuator state and metadata only; no B02+ plant or real-HAL
+validation is claimed. B01 therefore remains unaccepted until bounded
+bidirectional R↔S seam reviews are completed and their pins/results are recorded.
 
 ## Limitations and publication boundary
 
-- This increment publishes documentation only. The R worker result is recorded
-  above; no S result, cross-review, fixture acceptance trace, physical direction,
-  or hardware claim is marked passed.
+- This increment publishes documentation only. The R and S worker results are
+  recorded above; no bidirectional cross-review, fixture acceptance trace, physical
+  direction, or hardware claim is marked passed.
 - A05 host tests and runner traces establish the entry baseline; they do not prove
   B01 device declarations, sparse-servo behavior, paired writes, or shared-port
   ownership.
