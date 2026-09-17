@@ -302,3 +302,41 @@ so the result can be audited against the pinned R/S trees.
 - The bounded Python seam script reported PASS for parser/profile, v2/v1 server, two-map rejection, zero-fill, hold/reset, shared-port isolation, all three backends, and all three two-robot worlds.
 - Java hash probes returned the mass-sensitive values above. R/S use different canonical hash algorithms and no digest is sent on the wire.
 - Java tests use `FakeSimServer`, not a live Python process. FLOAT/BRAKE metadata is validated at this B01 seam only, not later B02+ physical decay. No physical robot, Control Hub, or real-HAL result is claimed; no source/protocol files were edited by the review.
+
+## B01 bounded R→S seam rerun — PASS (read-only)
+
+This reverse-direction rerun confirms the PASS closure above without changing
+either implementation repository. R `18b1d629fa21869963b9cd678e285c770f37c9d4`
+and S `0ca3175b81fa499e8c169bbc005713aa4d63e3b2` are the verified
+HEAD/origin `dev-phase-1.1-a` pins; R is clean and S retains only its preserved
+untracked `.claude/` directory. Protected protocol D remains
+`74475463add0f23afd6d84b801245650712bbb62`.
+
+The mass-sensitive R implementation is present at
+`RobotConstants.java:18,113-154`: production hashing inserts the supplied mass
+into the canonical input, followed by efficiencies, typed declarations,
+`ENCODERS`, and `PINPOINT`. `RobotConstantsHashTest.java:10-15` checks the
+default hash and that 12.0 versus 18.0 kg differ. The Java hash for the default
+12.0 kg profile is
+`b189515a90da49e2e98a63de90daf23912f8d17e80bd937800ced3f4fba1555d`.
+
+### Reverse-direction seam checks
+
+| Seam | Result and source anchors |
+|---|---|
+| Protocol contract and negotiation | **PASS** — D `protokol.md:94-136` requires proto2 negotiation, exactly two semantic maps, sparse positional hold/reset, typed lists, and shared `shooterLeft` roles; D `:150-159` defines backend/determinism boundaries. R `SimHal.java:106-149`, `Mechanism.java:89-131`; S `sim/server.py:130-141,202-211,890-913,976-1029`. |
+| Two maps, proto1 compatibility, power zero-fill | **PASS** — R `SimHal.java:192-231`; S `sim/server.py:202-211,904-913,1012-1029`; no third map, absent proto1 uses full maps/zero-fill, and DC/CR omission is zero. |
+| Positional hold/reset and real binding | **PASS** — R `RealHal.java:68-105`, `Hardware.java:36-123`; S `sim/server.py:900-913`, `kinematic_backend.py:54-58`, `pymunk_backend.py:174-180`, `pybullet_backend.py:346-352`; sparse hood hold/reset and explicit zero match. |
+| Shared port and paired validation | **PASS** — R `ActionValidator.java:19-33,54-90`, `Hardware.java:36-123`; S `sim/physics/motor.py:245-262`; shooterRight remains the speed encoder and shooterLeft the turret input/active output. |
+| Configured mass and forwarding | **PASS** — S `sim/mechanism.py:289-316,687-722`, `sim/physics/pymunk_backend.py:81-107`, `pybullet_backend.py:185-220`, `multi.py:64-95`; parser requires positive finite mass, both physics backends use it, and sparse frames forward lockstep. |
+
+The four paired protocol-v2 fixtures still compare byte-for-byte with the
+previously recorded equal SHA-256 values (`ready`, `state`, `step-hold`, and
+`step-explicit-zero`).
+
+### Reverse-direction commands and limits
+
+- R: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew :core:test :sim:test --rerun-tasks` — **BUILD SUCCESSFUL**, 138 core + 17 sim tests, zero failures/errors/skips.
+- S: `PYTHONPATH=/home/shared/projects/boobuzz/re-cock-nize/tests /home/shared/projects/boobuzz/re-cock-nize/.venv/bin/python -m unittest test_mechanism test_protocol_validation test_multi_robot test_process_network test_pymunk_backend test_pybullet_backend` — **49 tests, OK**.
+- Independent parser/mass/name probing passed. The bounded review reports all protocol, two-map, hold/reset, shared-port, multi-backend and PyBullet checks PASS.
+- No new live Java-to-S socket run was needed for this bounded rerun. Java protocol tests use `FakeSimServer`; no physical hardware, B02+ decay, tag, or source/protocol edit is claimed.

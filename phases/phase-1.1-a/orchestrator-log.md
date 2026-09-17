@@ -401,3 +401,31 @@
   no cross-language digest equality is asserted. Java tests use `FakeSimServer`,
   and no physical Control Hub, real-HAL, or B02+ decay result is claimed. No
   source/protocol edits, tag, reviewer, ball, training, or B02 work was made.
+
+## 2026-09-17 — B01 bounded R→S seam rerun PASS
+
+- Reverse-direction, read-only review pins: R
+  `18b1d629fa21869963b9cd678e285c770f37c9d4` (clean HEAD/origin
+  `dev-phase-1.1-a`), S `0ca3175b81fa499e8c169bbc005713aa4d63e3b2`
+  (HEAD/origin; only preserved untracked `.claude/`), and D
+  `74475463add0f23afd6d84b801245650712bbb62`.
+- R `RobotConstants.java:18,113-154` includes `ROBOT_MASS_KG` in the canonical
+  hash; `RobotConstantsHashTest.java:10-15` proves mass sensitivity. Default R
+  hash: `b189515a90da49e2e98a63de90daf23912f8d17e80bd937800ced3f4fba1555d`.
+- Paired `ready/state/step-hold/step-explicit-zero` protocol-v2 fixtures again
+  compared byte-for-byte; their equal SHA-256 values are recorded in
+  `evidence-B.md`.
+- D `protokol.md:94-136,150-159`, R `SimHal.java:106-149`, `Mechanism.java:89-131`,
+  `RealHal.java:68-105`, `Hardware.java:36-123`, and `ActionValidator.java:19-33,54-90`
+  align with S `sim/server.py:130-141,202-211,890-913,976-1029`,
+  `sim/physics/motor.py:245-262`, configured-mass backends, and
+  `multi.py:64-95`. Negotiation, two maps, proto1 zero-fill, sparse hold/reset,
+  paired validation, shared-port isolation, and all-backend/multi forwarding
+  were PASS.
+- R `JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew :core:test :sim:test
+  --rerun-tasks` was BUILD SUCCESSFUL with 138 core + 17 sim tests and zero
+  failures/errors/skips. S's six-module focused command ran 49 tests OK; parser,
+  mass/name, and bounded seam probes passed.
+- Reverse-direction B01 seam result: **PASS**. No live Java-to-S socket run was
+  required; Java uses `FakeSimServer`. No physical-hardware/B02+ decay result,
+  source/protocol edit, tag, reviewer, ball, or training work was made.
