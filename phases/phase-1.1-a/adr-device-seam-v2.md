@@ -1,12 +1,13 @@
 # ADR A02/B01 — device and protocol seam v2
 
-Status: **A02 unblocked at protected protocol pin `26f915b`; B01 blocked pending
-the protected pin of this ADR's record signatures. Documentation only.** This ADR
-does not itself amend `protokol.md`, change code, or authorize an implementation.
-The binding amendment was published by `ftc-main` in commit `26f915b`; B01's
-signature pin and all implementation evidence remain separate gates. Source pins
-for this record are robot-code `d5bda62`, re-cock-nize `5dd6daa`, and archive
-`d7711d0`.
+Status: **A02 is unblocked at protected protocol pin `26f915b`; the B01 record
+protocol gate is satisfied at `74475463add0f23afd6d84b801245650712bbb62`, and the
+A05 docs gate is satisfied at D `cec382d6380ceb209700fe3abef19684556fb51a`
+(`p11a-baseline-v1`). B01 is open/in progress. Documentation only.** This ADR
+does not itself amend `protokol.md`, change code, or claim an implementation
+outcome. Source pins for the original A02 review remain robot-code `d5bda62`,
+re-cock-nize `5dd6daa`, and archive `d7711d0`; the A05 entry pins are recorded in
+the Chapter-B evidence ledger.
 
 ## Context and decision
 
@@ -19,8 +20,9 @@ value with `0.0` (`robot-code/sim/src/main/java/boobuzz/sim/SimHal.java:171-207`
 `RealHal` also writes every declared name each tick
 (`robot-code/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/hal/RealHal.java:63-71`).
 
-Adopt the versioned proto2 seam defined by the protected amendment; implementation
-remains blocked for B01 until this ADR's exact record signatures are pinned:
+The protected amendment at `74475463add0f23afd6d84b801245650712bbb62` is the
+authoritative versioned proto2 seam. B01 implementation is open/in progress; this
+ADR records the binding contract and its validation boundary, not a result:
 
 1. `reset.proto` is optional: absent means proto1 (`1`). `ready.proto` advertises
    the peer's version. A requested proto2 session requires matching values; any
@@ -39,31 +41,33 @@ remains blocked for B01 until this ADR's exact record signatures are pinned:
    permitted for a proto2 mechanism profile.
 5. `ROBOT_MASS_KG` remains a Java-source configuration value consumed by the Python
    parser; it is not smuggled through a new runtime wire field. The binding
-   scalar/source rule is now recorded in the protected amendment `26f915b`; this
-   ADR does not claim that the A02 parser or fixture has been implemented.
+   scalar/source rule was first recorded at `26f915b` and remains in the protected
+   contract carried by `74475463`; this ADR does not claim a new parser or fixture
+   outcome.
 
 The choice keeps an explicit safety distinction: power devices stop at zero, while a
 position servo does not jump to zero merely because an action omitted it. Java
 validates both `ready.motors` (DC+CR) and `ready.servos` (positional) against
 RobotConstants before output; a mismatch fails pre-output.
 
-## Current and planned device seam
+## Current four-wheel records and authoritative B01 device seam
 
-The current Java profile has four drive `Motor` records (`fl`, `fr`, `bl`, `br`) and
-an empty `SERVOS` array (`robot-code/TeamCode/core/src/main/java/boobuzz/core/hal/RobotConstants.java:66-76`).
-The following archive-compatible names are **planned B01 declarations**, not current
-capabilities. Each physical name is bound once by the adapter.
+The unchanged Java baseline has four drive `Motor` records (`fl`, `fr`, `bl`, `br`)
+and its four-wheel `MOTORS`/`PINPOINT` declarations. The typed B01 declarations
+below are authoritative protocol shape; their R/S implementation remains open/in
+progress, so this section does not claim that adapters already bind them. Each
+physical name is bound once by the adapter.
 
 | Role | FTC type | Name(s) and input/output ownership |
 |---|---|---|
-| Mecanum drive | `DcMotorEx` | `leftFront`, `rightFront`, `leftBack`, `rightBack`; four motor outputs |
-| Shooter | `DcMotorEx` | `shooterRight`, `shooterLeft`; one controller writes both, follower scale `1.0`; speed source is `shooterRight` |
-| Intake | `DcMotorEx` | `intake`; one output, archive direction REVERSE, BRAKE |
-| Feeder | `DcMotorEx` | `feeder`; one output, archive direction FORWARD, BRAKE |
-| Turret motion | `CRServo` | `turret_servo`, `turret_servo2`; one angle controller writes equal logical power to both |
+| Mecanum drive | `DcMotorEx` | unchanged four-wheel `MOTORS` (`fl`, `fr`, `bl`, `br`); four motor outputs |
+| Shooter | `DcMotorEx` | typed `DC_DEVICES`: `shooterRight`, `shooterLeft`; one controller writes both, follower scale `1.0`; speed source is `shooterRight` |
+| Intake | `DcMotorEx` | typed `DC_DEVICES`: `intake`; one output, archive direction REVERSE, BRAKE |
+| Feeder | `DcMotorEx` | typed `DC_DEVICES`: `feeder`; one output, archive direction FORWARD, BRAKE |
+| Turret motion | `CRServo` | typed `CR_SERVOS`: `turret_servo`, `turret_servo2`; one angle controller writes equal logical power to both |
 | Turret feedback | encoder input on `DcMotorEx` | `shooterLeft` encoder is read for turret angle while `shooterLeft` motor power remains shooter-owned |
 | Turret startup | `AnalogInput` | `turret_analog`; voltage 0–3.3 V, archive shaft offset 125° |
-| Hood | positional `Servo` | `hood_left`, `hood_right`; one hood angle, complementary positions, left inversion |
+| Hood | positional `Servo` | typed `SERVOS`: `hood_left`, `hood_right`; one hood angle, complementary positions, left inversion |
 | Odometry | `GoBildaPinpointDriver` | `pinpoint`; measured pod-axis offsets 161 mm and 0 mm, directions FORWARD/REVERSED, `goBILDA_4_BAR_POD` |
 | Declared but unsensed in B | distance sensor | `intake_dist`; inventory remains unsensed |
 | Archive vision, later seam | `Limelight3A` | `limelight`; active in the archive but optional there, owned by Vision-A rather than B |
@@ -72,44 +76,60 @@ The archive evidence for paired construction and writes is recorded in
 `hardware-profile-v0.md`. In particular, `shooterLeft` is both an active shooter
 output and the turret encoder input; it is not an encoder-only device.
 
-## Proposed B01 `RobotConstants` records and semantic lists
+## Authoritative B01 `RobotConstants` records and semantic lists
 
-These are the exact nested record signatures to pin before B01 code. The numeric
-fields keep the protocol's machine-readable line format; no new calibration values
-are asserted here.
+The protected protocol pin fixes these exact nested record signatures. The numeric
+fields retain the machine-readable line format; values below are archive
+provenance or explicitly labelled fixture values, not new measurements.
 
 ```java
+// Unchanged four-wheel records
 public record Motor(String name, String drives, double xForward, double yLeft,
                     double rollerDeg, double ticksPerRev, double freeRpm) {}
 public record Pinpoint(double xPodOffsetMm, double yPodOffsetMm,
                        String xPodDirection, String yPodDirection, String podType) {}
+
+// Protocol-pinned B01 records
+public record DcDevice(String name, String direction, String zeroPower,
+                       double ticksPerRev, double freeRpm) {}
+public record CrServo(String name, String direction) {}
+public record PosServo(String name, String direction, double initialPos) {}
 ```
 
-The B01 semantic lists are fixed as follows (names are planned archive-compatible
-declarations, not a claim that the current four-wheel profile already binds them):
+The existing `Motor` and `Pinpoint` record signatures and the four-wheel `MOTORS`
+and `PINPOINT` values are unchanged. `ENCODERS` remains a `String[]`; only the
+three actuator lists use the typed records fixed by the protocol:
 
-| RobotConstants list | Exact semantic contents |
+| RobotConstants list | Type and exact semantic contents |
 |---|---|
-| `MOTORS` | DC motor records: `leftFront`, `rightFront`, `leftBack`, `rightBack`, `intake`, `feeder`, `shooterRight`, `shooterLeft` |
-| `CR_SERVOS` | CR power devices: `turret_servo`, `turret_servo2` |
-| `SERVOS` | positional devices: `hood_left`, `hood_right` |
-| `ENCODERS` | motor-port inputs, each once: `leftFront`, `rightFront`, `leftBack`, `rightBack`, `intake`, `feeder`, `shooterRight`, `shooterLeft` |
-| `PINPOINT` | one `Pinpoint(161.0, 0.0, "FORWARD", "REVERSED", "goBILDA_4_BAR_POD")` record |
+| `MOTORS` | unchanged four-wheel `Motor[]`: `fl`, `fr`, `bl`, `br` |
+| `DC_DEVICES` | `DcDevice[]`: `intake`, `feeder`, `shooterRight`, `shooterLeft` |
+| `CR_SERVOS` | `CrServo[]`: `turret_servo`, `turret_servo2` |
+| `SERVOS` | `PosServo[]`: `hood_left`, `hood_right` |
+| `ENCODERS` | `String[]`, each once: `leftFront`, `rightFront`, `leftBack`, `rightBack`, `intake`, `feeder`, `shooterRight`, `shooterLeft` |
+| `PINPOINT` | unchanged one `Pinpoint(161.0, 0.0, "FORWARD", "REVERSED", "goBILDA_4_BAR_POD")` record |
 
-The corresponding one-line array declarations are the B01 machine-readable shape:
+Archive `HardwareConstants` values bind the typed fields as follows. `direction` is
+`FORWARD` or `REVERSE`; `zeroPower` is `BRAKE` or `FLOAT`; `initialPos` is finite
+in `[0,1]`. The archive has no measured free-RPM constant; the current
+`RobotConstants` declaration uses the named 6000-RPM fixture value, not a hardware
+measurement.
 
-```java
-public static final String[] CR_SERVOS = {"turret_servo", "turret_servo2"};
-public static final String[] SERVOS = {"hood_left", "hood_right"};
-public static final String[] ENCODERS = {
-    "leftFront", "rightFront", "leftBack", "rightBack",
-    "intake", "feeder", "shooterRight", "shooterLeft"
-};
-```
+| Typed entry | Archive value to preserve |
+|---|---|
+| `intake` | `REVERSE`, `BRAKE`, encoder `28.0` ticks/rev, `freeRpm=6000.0` named fixture; HC default power `1.0`, hold declaration `.2` unused |
+| `feeder` | `FORWARD`, `BRAKE`, encoder `28.0` ticks/rev, `freeRpm=6000.0` named fixture; feed power `1.0`, active pulse `350 ms` plus `100 ms` delay |
+| `shooterRight` / `shooterLeft` | right `REVERSE`, left `FORWARD`, both `FLOAT`, encoder `28.0` ticks/rev, `freeRpm=6000.0` named fixture, follower scale `1.0`, motor-to-wheel ratio `1.6`; speed input is RIGHT |
+| `turret_servo` / `turret_servo2` | both `FORWARD` (archive reverse flags false), equal logical CR power; turret reads `shooterLeft` without owning its motor output |
+| `hood_left` / `hood_right` | typed declarations use left `REVERSE`, initial `1.0`, and right `FORWARD`, initial `0.0`; archive `HoodSubsystem` has no separate `Servo.setDirection`, so preserve `rightInverse=false` complementary logic. The 25° stow vector is `(1.0, 0.0)`; 44° default is `(.4553333333, .5446666667)` |
 
-`ready.motors` is the ordered name union of `MOTORS` and `CR_SERVOS`; `ready.servos`
-is exactly `SERVOS`. `state.enc` uses `ENCODERS`; it is not a third `RobotAction`
-map or a third ready actuator list. FTC runtime types (`DcMotorEx`, `CRServo`,
+The typed Java declarations are the machine-readable target shape (one record row
+per line where the parser requires it): `DC_DEVICES` is `DcDevice[]`,
+`CR_SERVOS` is `CrServo[]`, `SERVOS` is `PosServo[]`, and `ENCODERS` remains
+`String[]`. `ready.motors` names are `MOTORS`, then `DC_DEVICES`, then `CR_SERVOS`;
+`ready.servos` names are `SERVOS`; `state.enc` keys are `ENCODERS`.
+
+These lists are not a third `RobotAction` map or a third ready actuator list. FTC runtime types (`DcMotorEx`, `CRServo`,
 `Servo`, `AnalogInput`, and `GoBildaPinpointDriver`) are selected from these
 RobotConstants declarations and role lists, not inferred from wire-map names.
 
@@ -133,10 +153,11 @@ configuration is not substituted.
 
 ## Ownership and validation
 
-- `RobotConstants.java` owns compile-time defaults. Its current machine-readable
-  forms are scalar doubles, strings, `Motor(...)` records, `MOTORS`, `SERVOS`, and
-  `PINPOINT` (`RobotConstants.java:16-76,133-139`). B01 adds named device/profile
-  declarations one per line; it does not introduce YAML or arbitrary Java parsing.
+- `RobotConstants.java` owns compile-time defaults. Its machine-readable forms are
+  scalar doubles, strings, unchanged `Motor(...)`/`MOTORS`/`PINPOINT`, typed
+  `DcDevice[]`/`CrServo[]`/`PosServo[]` actuator lists, and `String[] ENCODERS`.
+  B01's parser reads those declarations one record row at a time; it does not
+  introduce YAML or arbitrary Java parsing.
 - `sim/mechanism.py` owns the Python source reader and must reject a missing file,
   missing required scalar, non-numeric value, duplicate name, invalid range, or
   unsupported expression before constructing a plant (`sim/mechanism.py:20-31,112-211`).
@@ -201,14 +222,16 @@ then no fixture result is implied.
 
 1. This draft is reviewed without touching `protokol.md` or
    `phases/phase-1.1/design-spec.md`.
-2. `ftc-main` has published the protected protocol amendment at `26f915b`, covering
-   the proto2 version, scalar mass provenance, sparse-servo rule, and paired-device
-   behavior. A02 is unblocked at this pin. This ADR now records the exact B01
-   record signatures and semantic lists; B01 remains blocked until ftc-main pins
-   this ADR hash in the protected protocol.
+2. `ftc-main` has published the protected protocol amendment at
+   `74475463add0f23afd6d84b801245650712bbb62`, covering the proto2 version, scalar
+   mass provenance, sparse-servo rule, paired-device behavior, and the exact
+   `DcDevice`/`CrServo`/`PosServo` signatures. A02 and the B01 protocol gate are
+   unblocked. The A05 docs gate is satisfied at D
+   `cec382d6380ceb209700fe3abef19684556fb51a` / `p11a-baseline-v1`; B01 is
+   open/in progress, while implementation evidence remains a separate result.
 3. Any R/S adapter or parser implementation is a separately authorized change. Both
-   sides retain proto1 regression fixtures until the migration gate is accepted;
-   this ADR records no implementation outcome.
+   sides retain proto1 regression fixtures while migration is implemented and
+   verified; this ADR records no implementation outcome.
 4. Proto2 clients reject proto1 peers and vice versa when the required semantics do
    not match. The old proto1 path is not silently reinterpreted.
 5. A02's 18 kg parser/body proof and B01's device/handshake proofs are prerequisites

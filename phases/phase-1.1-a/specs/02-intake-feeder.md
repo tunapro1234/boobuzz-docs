@@ -1,7 +1,10 @@
 # B01–B04 v2.2 — smallest device seam, pollen intake and feeder
 
-Status: **B approved but gated; B01 is blocked pending the protected pin of the
-ADR record signatures.** Read [00](00-common.md) and
+Status: **B approved; B01 is open/in progress.** The record-signature protocol
+gate is satisfied at `74475463add0f23afd6d84b801245650712bbb62`; the A05 docs gate
+is satisfied at D `cec382d6380ceb209700fe3abef19684556fb51a` and annotated tag
+`p11a-baseline-v1`. This spec records the seam and planned checks, not an
+implementation outcome. Read [00](00-common.md) and
 [hardware-profile-v0](../hardware-profile-v0.md). Exact path aliases are in00.
 ONE evidence-B.md, no per-task releases. R/S seam changes get a concise cross-review.
 
@@ -12,12 +15,22 @@ Read J/hal/{RobotConstants,Mechanism,IHal}.java; J/contract/{RobotAction,RobotSt
 H/{Hardware,RealHal}.java; SJ/{SimHal,Json}.java; S/sim/{mechanism,server}.py;
 S/sim/physics/{motor,pymunk_backend,multi}.py. Do not add a device framework.
 
-### B01.0 — blocked until the paired seam signature pin
+### B01.0 — protocol migration (record-signature gate satisfied)
 
-The protected amendment is published at `26f915b`; A02 is unblocked at that pin.
-This B01 task remains blocked until ftc-main pins the exact record signatures in
-`adr-device-seam-v2.md` into the protected protocol. No worker codes proto2 before
-that pin. Migration contract:
+The protected amendment is published at
+`74475463add0f23afd6d84b801245650712bbb62`; A02 and the B01 record-signature gate
+are unblocked. B01 is open/in progress, with implementation and test outcomes
+still to be reported. The exact typed records are:
+
+```java
+public record DcDevice(String name, String direction, String zeroPower,
+                       double ticksPerRev, double freeRpm) {}
+public record CrServo(String name, String direction) {}
+public record PosServo(String name, String direction, double initialPos) {}
+```
+
+`direction` is `FORWARD` or `REVERSE`, `zeroPower` is `BRAKE` or `FLOAT`, and
+`initialPos` is finite in `[0,1]`. Migration contract:
 
 | Item | Proto2 behavior / exact owner |
 |---|---|
@@ -42,30 +55,56 @@ Protocol sparse-map tests use a generic servo fixture. In the actual paired-hood
 profile, explicit right=0 is valid with left=1 (25°); a left-only zero is NOT a
 permitted mechanism command. B01.2 validates the pair before any physical write.
 
-### B01.1 — one-line Java constants and matching parser
+### B01.1 — typed Java constants and matching parser
 
-RobotConstants.java is the only source of names/compiled profile defaults. Add one-line
-`public static final String NAME = literal;` name block from hardware-profile-v0;
-keep scalar doubles, String arrays and each `new Motor(...)` on ONE line. Existing
-parser only recognizes literal doubles/strings, SERVOS and one-line Motor rows.
-Extend S/sim/mechanism.py with explicit CR_SERVOS / ENCODERS array parsing and
-resolution of declared String identifiers in arrays/Motor's name argument. Reject
-unknown identifiers/arbitrary expressions. Never add YAML or Python-only aliases.
-These declarations are PLANNED, not already present: R d5bda62 has fl/fr/bl/br and
-SERVOS={}. Static profile/plant defaults stay here; B05's recorded runtime shooter
-tuning overrides are controller inputs, not a second Python plant configuration.
+RobotConstants.java is the only source of names/compiled profile defaults. The
+existing `Motor` record, four-wheel `MOTORS`, `Pinpoint` record and `PINPOINT` are
+unchanged. B01 uses the protocol-pinned typed declarations below; `ENCODERS`
+remains `String[]`:
 
-Output names/order: leftFront,rightFront,leftBack,rightBack,intake,feeder,shooterRight,shooterLeft.
-Servo list=[hood_left,hood_right]; CR list=[turret_servo,turret_servo2].
-ENCODERS lists all8 motor-port names exactly once; shooterLeft is NOT a ninth device.
+| Declaration | Type and exact contents |
+|---|---|
+| `DC_DEVICES` | `DcDevice[]` = `intake`, `feeder`, `shooterRight`, `shooterLeft` |
+| `CR_SERVOS` | `CrServo[]` = `turret_servo`, `turret_servo2` |
+| `SERVOS` | `PosServo[]` = `hood_left`, `hood_right` |
+| `ENCODERS` | `String[]` = `leftFront`, `rightFront`, `leftBack`, `rightBack`, `intake`, `feeder`, `shooterRight`, `shooterLeft` (each once) |
+
+Archive `HardwareConstants` values are the source for the typed fields: intake is
+REVERSE/BRAKE, feeder FORWARD/BRAKE, shooterRight REVERSE and shooterLeft FORWARD
+with both shooter motors FLOAT; intake/feeder/shooter encoder constants are
+`28.0` ticks/rev, shooter follower scale is `1.0` and motor-to-wheel ratio is
+`1.6`; both turret CR-servos are FORWARD. Hood keeps `rightInverse=false` and
+complementary positions (25° stow = `(1.0,0.0)`, 44° default =
+`(.4553333333,.5446666667)`). The archive has no measured free-RPM constant;
+the named 6000-RPM simulator value remains a fixture value, not hardware data.
+`initialPos` is constrained to `[0,1]`; the authoritative profile values are
+hood_left `REVERSE,1.0` and hood_right `FORWARD,0.0`, the archive-derived 25° stow
+vector.
+
+Extend `S/sim/mechanism.py` to parse the typed `DcDevice[] DC_DEVICES`,
+`CrServo[] CR_SERVOS`, `PosServo[] SERVOS`, and `String[] ENCODERS` declarations,
+including declared String identifiers in arrays and record name arguments. Preserve
+the unchanged `Motor`/`MOTORS`/`Pinpoint` parser. Reject unknown identifiers,
+arbitrary expressions, missing/duplicate names and invalid field ranges. Never add
+YAML or Python-only aliases. Static profile/plant defaults stay here; B05's recorded
+runtime shooter tuning overrides are controller inputs, not a second Python plant
+configuration.
+
+`ready.motors` names/order is names from unchanged four-wheel `MOTORS`, then
+`DC_DEVICES` (`intake,feeder,shooterRight,shooterLeft`), then `CR_SERVOS`
+(`turret_servo,turret_servo2`). `ready.servos` is the names from typed `SERVOS`
+(`hood_left,hood_right`). `state.enc` keys are `ENCODERS`, which remains a
+`String[]` listing all8 motor-port names exactly once; shooterLeft is NOT a ninth
+device.
 SHOOTER_FEEDBACK_ENCODER_NAME="shooterRight"; TURRET_ENCODER_NAME="shooterLeft".
 These input-role declarations override a generic motor-shaft-to-encoder assumption:
 S reads shooter speed from the former and turret angle/rate from the latter.
-RobotConstants.buildMechanism currently hardcodes four motorNames: replace with ALL
-MOTORS; wheelMotorNames still filters exactly four. Pedro name mapping remains by
-wheel geometry, no shooter chassis force. Preserve efficiencies by wheel ROLE when
-renaming fl/fr/bl/br; update stale literal-name test/tool fixtures deliberately.
-Include mass and new machine-readable declarations in constantsHash.
+The binding exposes the ordered power names as `MOTORS` then `DC_DEVICES` then
+`CR_SERVOS`; `wheelMotorNames` still filters exactly the four unchanged `MOTORS`.
+Pedro name mapping remains by wheel geometry, with no shooter chassis force.
+Preserve efficiencies by wheel role when retaining `fl/fr/bl/br`; update stale
+literal-name test/tool fixtures deliberately.
+Include mass and the typed machine-readable declarations in constantsHash.
 
 Represent direction as declared strings FORWARD/REVERSE (existing scalar parser does
 not read booleans); declare zero-power behavior per motor role too: shooter FLOAT,
