@@ -9,9 +9,11 @@ Both are proposals, not execution orders.
 ## Current handoff — 2026-09-17, before compaction (superseded by Chapter A release)
 
 > **Current release status (2026-09-17):** Tuna approved v2.2. Chapter A is released
-> now. B is approved but gated until A05/evidence/tag; C and the far roadmap remain
-> unreleased. Training, ftc-reviewer, and ftc-ball remain forbidden. The protected
-> protocol gate is ftc-main amendment `26f915b`, reconciled in docs at `0973e86`.
+> now; A02 is unblocked at protected pin `26f915b`. B is approved but gated, with B01
+> blocked pending the ADR signature pin, until A05/evidence/tag. C and the far roadmap
+> remain unreleased. Training, ftc-reviewer, and ftc-ball remain forbidden. The
+> protected protocol gate is ftc-main amendment `26f915b`, reconciled in docs at
+> `0973e86`.
 > The dated hold bullets below are retained as history; this release supersedes their
 > current-handoff status.
 

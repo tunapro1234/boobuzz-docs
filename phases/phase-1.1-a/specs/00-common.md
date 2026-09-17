@@ -1,13 +1,15 @@
 # Common rules v2.2 — preserve the system, keep process small
 
-Status: **Tuna-approved v2.2 (2026-09-17). Chapter A is released now. B is approved
-but gated until A05/evidence/tag; C and the far roadmap remain unreleased. Training,
-ftc-reviewer, and ftc-ball remain forbidden.** Read [hardware-profile-v0](../hardware-profile-v0.md)
+Status: **Tuna-approved v2.2 (2026-09-17). Chapter A is released now. A02 is
+unblocked at protected pin `26f915b`; B is approved but gated, with B01 blocked
+pending the ADR signature pin, until A05/evidence/tag. C and the far roadmap remain
+unreleased. Training, ftc-reviewer, and ftc-ball remain forbidden.** Read [hardware-profile-v0](../hardware-profile-v0.md)
 and [latest Tuna clarification](../tuna-intent-2026-09-17.md), which overrides the
 original review's actuator-count interpretation. These rules supersede
 conflicting v1/far-draft process, topology and engine-numbering statements.
 The protected protocol gate is already approved: ftc-main published amendment
 `26f915b`, and docs reconciled it at `0973e86`; preserve that newer gate state.
+The ADR record-signature pin is the remaining B01 gate.
 
 ## Exact path shorthand
 
@@ -59,15 +61,21 @@ mass parsing; B01 owns device names/declarations/parser cases, one declaration/l
 ## Protocol/ADR route — explicitly owned before code
 
 A02 and B01 use ONE `D/phases/phase-1.1-a/adr-device-seam-v2.md`, documenting old/new
-semantics, names, units and paired fixtures. Before implementing the affected seam,
-the ftc-main/orchestrator owner must approve/update binding `D/protokol.md`. B07
-appends analog semantics there before its paired change. Today's spec-only revision
-does NOT edit protokol.md or phase-1.1/design-spec.md. Future seam authorization
-must include the protocol amendment; no undocumented bypass of protected history.
+semantics, names, units and paired fixtures. The required A02 amendment is published
+at `26f915b`, so A02 is unblocked; B01 remains blocked until its exact record
+signatures are pinned in `D/protokol.md`. B07 appends analog semantics there before
+its paired change. Today's spec-only revision does NOT edit protokol.md or
+phase-1.1/design-spec.md. Future seam authorization must include the approved
+protocol amendment; no undocumented bypass of protected history.
 
 Use exact ready.proto and per-type name lists, not an imaginary capabilities set.
-Unsupported proto/name mismatch fails before enabling outputs. No silent proto1
-fallback for mechanism profiles. Future changes are explicitly reserved, NOT B scope:
+The optional `reset.proto` defaults to `1`; `ready.proto` reports the peer version.
+Unsupported proto/name mismatch fails before enabling outputs, and Java validates both
+ready actuator lists against RobotConstants. `RobotAction` has exactly two maps:
+`motors` (DC+CR power) and `servos` (positional hold); no third CR map. Proto1 keeps
+full maps with zero-fill, while proto2 omits absent positional-servo keys and applies
+the declared-initial-position/reset-cleared-hold rule. No silent proto1 fallback for
+mechanism profiles. Future changes are explicitly reserved, NOT B scope:
 
 | Later entry | Required owned seam before code |
 |---|---|

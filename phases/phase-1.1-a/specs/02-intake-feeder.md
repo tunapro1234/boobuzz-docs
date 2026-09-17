@@ -1,6 +1,7 @@
 # B01–B04 v2.2 — smallest device seam, pollen intake and feeder
 
-Status: DRAFT, not dispatched. Entry A05. Read [00](00-common.md) and
+Status: **B approved but gated; B01 is blocked pending the protected pin of the
+ADR record signatures.** Read [00](00-common.md) and
 [hardware-profile-v0](../hardware-profile-v0.md). Exact path aliases are in00.
 ONE evidence-B.md, no per-task releases. R/S seam changes get a concise cross-review.
 
@@ -11,24 +12,27 @@ Read J/hal/{RobotConstants,Mechanism,IHal}.java; J/contract/{RobotAction,RobotSt
 H/{Hardware,RealHal}.java; SJ/{SimHal,Json}.java; S/sim/{mechanism,server}.py;
 S/sim/physics/{motor,pymunk_backend,multi}.py. Do not add a device framework.
 
-### B01.0 — approve the paired seam before implementing it
+### B01.0 — blocked until the paired seam signature pin
 
-Append explicit amendment to chapter ADR from A02; protocol owner updates
-D/protokol.md BEFORE either worker codes proto2. No protocol changes during this
-planning revision. Migration contract:
+The protected amendment is published at `26f915b`; A02 is unblocked at that pin.
+This B01 task remains blocked until ftc-main pins the exact record signatures in
+`adr-device-seam-v2.md` into the protected protocol. No worker codes proto2 before
+that pin. Migration contract:
 
 | Item | Proto2 behavior / exact owner |
 |---|---|
-| ready | proto=2; motors, servos, crservos, encoders exact declared name lists; initial state t_ms=0 |
-| step.motors | normalized DC power; missing declared key=0 |
-| step.crservos | normalized CR power; missing declared key=0 |
-| step.servos | positional0..1; ABSENT=HOLD/no new write, explicit0=position0 |
+| reset | optional `proto`; absent means proto1 (`1`); proto2 requests `2` |
+| ready | `proto` advertises the server version; `motors` is the exact DC+CR power-device name list and `servos` the exact positional-servo list; Java validates both before output; initial state `t_ms=0` |
+| RobotAction | exactly two value maps: `motors` (DC+CR power) and `servos` (positional); events remain a list, not a third map |
+| step.motors | normalized DC and CR power; missing declared key=`0` |
+| step.servos | positional `0..1`; ABSENT=HOLD/no new write, explicit `0`=position `0`; never-commanded uses the declared initial position |
 | state.enc / vel | unique declared motor-port encoder names; ticks/ticks-sec; shooterRight measures shooter, shooterLeft measures turret despite being a shooter OUTPUT; missing required channel invalid |
 | state | existing t_ms/pose/voltage/gamepad behavior; truth remains outside core |
 | events | diagnostic only; remove old contradictory prose implying events establish physical ball launch; physical transfer comes from plant/actuation |
 
-Proto1 peers fail with clear version mismatch; preserve old source tag for old clients,
-not an untested compatibility layer. Add paired fixtures
+Proto1 keeps the full maps and zero-fills omitted entries. For proto2, a mismatch
+between `reset.proto` and `ready.proto` fails before output; there is no silent
+proto1 fallback. Add the binding fixtures
 R/sim/src/test/resources/protocol-v2/{ready,step-hold,step-explicit-zero,state}.json
 and S/tests/fixtures/protocol-v2 equivalents, byte-compared in integration check.
 Tests: SJT/SimHalTest.java `rejectsProto1ForMechanismProfile` / `omittedServoIsNotZeroFilled`;
@@ -79,7 +83,8 @@ keeps ALL active archived actuators/names. No camera/range/digital channels.
 
 ### B01.2 — real/sim writes, inputs and safe omission
 
-J/contract/RobotAction adds separate CR map + compatible old constructors;
+`RobotAction` retains exactly two value maps (`motors`, `servos`) plus events; CR power
+stays in `motors`, with no third map.
 J/hal/Mechanism adds typed name lists. Keep IHal methods unchanged. Hardware binds
 8 DcMotorEx outputs,2 CRServo and2 Servo devices, each name ONCE. shooterLeft remains
 an ACTIVE shooter output (FORWARD); shooterRight is REVERSE. BOTH RUN_WITHOUT_ENCODER,
@@ -100,18 +105,19 @@ strafe-MEASURING pod's forward offset. Keep SDK setOffsets(161,0,MM), no blind s
 and no unused HC.Pinpoint(-84,-168) substitution. Document this in both Pinpoint
 records and H/Hardware.java; test exact offsets/directions/pod type through the
 production init helper. No record/parser rename solely for terminology in B.
-Handshake name mismatch is fatal. A runtime absent reading from a declared channel
+Handshake name mismatch is fatal. Java validates both ready name lists against
+RobotConstants before any output. A runtime absent reading from a declared channel
 remains absent in RobotState, so the affected subsystem faults safely while drive
 can remain usable; it is not replaced with0 or confused with malformed JSON/schema.
 
 Add J/contract/ActionValidator.java: validate whole frame names/finiteness/type/range
-before writes. On invalid frame, adapters apply DC/CR zero + hood hold and fail
-explicitly, not partially write a valid prefix then discover NaN. RealHal writes
-position only if key present; SimHal must NOT call fill() for servo map. Motor/CR
-zero-fill stays. S/server.py lifts its current unconditional nonempty-servo rejection,
-passes sparse servo/CR maps to plants and retains last explicit servo target. Backend
-step signatures and multi-robot forwarding update together. Initial no servo command
-means no fabricated position readout or automatic startup move.
+before writes and reject every half-pair. On invalid frame, adapters apply DC/CR zero +
+hood hold and fail explicitly, not partially write a valid prefix then discover NaN.
+RealHal writes a positional servo only if its key is present; SimHal must NOT call
+fill() for the servo map. Motor/CR zero-fill stays. Both adapters clear saved servo
+holds on reset; a never-commanded servo uses its declared initial position. S/server.py
+passes sparse positional-servo maps to plants and retains the last explicit target.
+Backend step signatures and multi-robot forwarding update together.
 
 Profile checks stay small: each paired mechanism supplies BOTH outputs or neither;
 for hood, left+right=1 within1e-9 and right in[0,215/300]. No half-hood move. For

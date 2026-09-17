@@ -1,9 +1,10 @@
 # A v2.2 — baseline first, extend existing archive analysis
 
 Status: **Chapter A is released now under Tuna-approved v2.2 (2026-09-17).**
-Evidence-A remains authoritative for per-task outcomes. B is approved but gated until
-A05/evidence/tag; C and the far roadmap remain unreleased. Training, ftc-reviewer, and
-ftc-ball remain forbidden. Read [00](00-common.md) and
+Evidence-A remains authoritative for per-task outcomes. A02 is unblocked at protected
+protocol pin `26f915b`; B01 is blocked pending the ADR signature pin. B is approved but
+gated until A05/evidence/tag; C and the far roadmap remain unreleased. Training,
+ftc-reviewer, and ftc-ball remain forbidden. Read [00](00-common.md) and
 [hardware-profile-v0](../hardware-profile-v0.md); path aliases are defined in 00.
 R d5bda62 / S 5dd6daa are the planning pins, not new verification claims.
 Evidence: ONE `D/phases/phase-1.1-a/evidence-A.md`. A05 is the only chapter tag.
@@ -40,8 +41,10 @@ Read J/hal/RobotConstants.java (already ROBOT_MASS_KG=12), S/sim/mechanism.py,
 S/sim/physics/pymunk_backend.py (still hard-coded12), J/subsystem/stub/StubTurret.java,
 J/controller/teleop/TeleopMap.java. Constants are parsed from Java, NOT transmitted.
 
-A02.0: initiate the chapter ADR from00; protocol owner adds ROBOT_MASS_KG to the
-binding scalar list BEFORE S consumes it. Do not change12 kg to archive13.8 here.
+A02.0: the protected amendment `26f915b` adds ROBOT_MASS_KG to the binding scalar list;
+A02 is unblocked at that pin. Do not change12 kg to archive13.8 here.
+The exact B01 record signatures remain an ADR/protected-protocol gate; B01 is blocked
+until ftc-main pins them.
 Then extend `Mechanism.Physics`/`PhysicsConfig` and parser as needed; Pymunk body uses
 parsed mass. Test fixture copies RobotConstants into an isolated temporary file and
 sets mass18; assert actual body mass/inertia derivation changes. Do not demand changed

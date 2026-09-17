@@ -1,9 +1,10 @@
 # Hardware profile v0 — archive mechanism AND actuator counts
 
-Status: **Tuna-approved v2.2 reference, 2026-09-17. Chapter A is released now; B is
-approved but gated until A05/evidence/tag; C and the far roadmap remain unreleased.
-Training, ftc-reviewer, and ftc-ball remain forbidden.** No code/hardware changes are
-authorized by this profile before the B gate.
+Status: **Tuna-approved v2.2 reference, 2026-09-17. Chapter A is released now; A02 is
+unblocked at protected pin `26f915b`; B is approved but gated, with B01 blocked
+pending the ADR signature pin, until A05/evidence/tag. C and the far roadmap remain
+unreleased. Training, ftc-reviewer, and ftc-ball remain forbidden.** No code/hardware
+changes are authorized by this profile before the B gate.
 Authority: Tuna's direct clarification supersedes the review's single-actuator
 interpretation. ONE mechanism does NOT mean one motor/servo. Preserve both counts.
 Every spec uses this page. RobotConstants.java is the source of PLANNED compiled

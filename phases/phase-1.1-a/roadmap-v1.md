@@ -8,9 +8,10 @@
 > Vision-A precedes Vision-B; range follows them. Old action/reward/far-stage
 > prescriptions are retained history and must be reconciled after B09.
 >
-> Current release status (2026-09-17): Tuna approved v2.2. Chapter A is released now.
-> B is approved but gated until A05/evidence/tag. C and the far roadmap remain
-> unreleased. Training, ftc-reviewer, and ftc-ball remain forbidden.
+> Current release status (2026-09-17): Tuna approved v2.2. Chapter A is released now;
+> A02 is unblocked at protected pin `26f915b`. B is approved but gated, with B01
+> blocked pending the ADR signature pin, until A05/evidence/tag. C and the far roadmap
+> remain unreleased. Training, ftc-reviewer, and ftc-ball remain forbidden.
 
 Expanded by the [detailed review spec pack](specs/README.md). That newer proposal
 includes pollen-only intake, executable substeps and model/reward preparation.

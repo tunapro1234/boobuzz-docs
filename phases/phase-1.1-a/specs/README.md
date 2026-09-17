@@ -1,8 +1,9 @@
 # Phase 1.1-a spec pack v2.2 — Chapter A released; B gated
 
-Status: **Tuna-approved v2.2 (2026-09-17). Chapter A is released now. B is approved
-but gated until A05/evidence/tag; C and the far roadmap remain unreleased. Training,
-ftc-reviewer, and ftc-ball remain forbidden.**
+Status: **Tuna-approved v2.2 (2026-09-17). Chapter A is released now. A02 is
+unblocked at protected pin `26f915b`; B is approved but gated, with B01 blocked
+pending the ADR signature pin, until A05/evidence/tag. C and the far roadmap remain
+unreleased. Training, ftc-reviewer, and ftc-ball remain forbidden.**
 Authority: [Tuna's latest direct clarification](../tuna-intent-2026-09-17.md) overrides
 the single-actuator interpretation in the [original review](../review-ftc-main-specs-2026-09-17.md).
 All other accepted process/scope decisions remain. V2 conflated mechanism and actuator

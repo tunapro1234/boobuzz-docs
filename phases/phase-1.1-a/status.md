@@ -1,7 +1,13 @@
-# Phase 1.1-a status — evidence ledger
+# Phase 1.1-a status — evidence and release ledger
 
-**As-of:** 2026-09-17. This is an as-built audit, not a phase-close decision.
+**As-of:** 2026-09-17. Tuna approved v2.2; Chapter A is released now. A02 is
+unblocked at protected protocol pin `26f915b`. B is approved but gated, with B01
+blocked pending the ADR signature pin, until A05/evidence/tag. C and the far roadmap
+remain unreleased. Training, ftc-reviewer, and ftc-ball remain forbidden. This remains
+an as-built audit, not a phase-close decision.
 Protected `protokol.md` and `design-spec.md` are unchanged.
+The protected amendment was published by ftc-main at `26f915b` and reconciled in docs
+at `0973e86`; this newer approved gate state is authoritative.
 
 ## Snapshot and scope
 

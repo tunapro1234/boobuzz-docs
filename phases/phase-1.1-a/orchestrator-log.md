@@ -225,3 +225,17 @@
 - The pre-compaction current handoff is superseded by this release status. Its dated
   planning-hold entries remain historical; no protected document or source file was
   edited by this consistency update.
+
+## 2026-09-17 — A02 protocol amendment consumed
+
+- The protected `protokol.md` amendment `26f915b` is now the binding seam: optional
+  `reset.proto` absent means `1`; `ready.proto` advertises the peer version; mismatch
+  fails before output; `RobotAction` has exactly two maps (`motors` for DC+CR power,
+  `servos` for positional hold); reset clears positional holds and proto1 retains
+  full-map/zero-fill behavior.
+- A02 is unblocked at `26f915b`. B01 remains blocked pending ftc-main's protected pin
+  of the exact record signatures now recorded in `adr-device-seam-v2.md`; fixtures 1–6
+  are binding, with no new test outcome claimed here.
+- Release metadata remains: Chapter A released; B approved/gated; C and the far
+  roadmap unreleased; training, ftc-reviewer, and ftc-ball forbidden. No code or
+  protocol file was edited.

@@ -1,8 +1,10 @@
 # Chapter A evidence ledger
 
-Status: **open, documentation-only.** This is the sole Chapter A evidence file.
-It records approved pins, task slots, commands and limitations; an empty result is
-not a passing result. No implementation or acceptance outcome is claimed here.
+Status: **Chapter A released; documentation-only evidence ledger.** This is the sole
+Chapter A evidence file. It records approved pins, task slots, commands and
+limitations; an empty result is not a passing result. No unrun implementation or
+acceptance outcome is claimed here. A02 is unblocked at protected pin `26f915b`;
+B01 remains blocked pending the ADR record-signature pin.
 
 ## Pinned inputs
 
@@ -23,8 +25,8 @@ not a test result; later entries must name the exact command and artifact.
 |---|---|---|---|
 | A00 | D release cleanup | fixed-prefix retirement, English-content rule, ADR/evidence paths | **Recorded in this docs increment; no implementation outcome** |
 | A01 | S transport/events | bounded fragmented I/O, integral millisecond events, no mixed-world advance | **Verified at S `5ba0a96`; focused 3/3 and full suite 85/85 (0 skipped)** |
-| A02.0 | D + ftc-main protocol owner | `adr-device-seam-v2.md`; protected protocol amendment gate | **ADR draft recorded; protected amendment published at ftc-main `26f915b`; implementation/fixture evidence pending** |
-| A02 | R/S mass seam + R regression | Java-source mass parsing, 18 kg isolated fixture, cancellation/deadband tests | **Not started; no outcome recorded** |
+| A02.0 | D + ftc-main protocol owner | `adr-device-seam-v2.md`; protected protocol amendment gate | **Unblocked at protected pin `26f915b`; ADR record-signature pin remains the B01 gate** |
+| A02 | R/S mass seam + R regression | Java-source mass parsing, 18 kg isolated fixture, cancellation/deadband tests | **Unblocked at `26f915b`; no implementation/fixture outcome recorded** |
 | A03 | R/S e2e seam | two fixed Pymunk scenarios and JSONL traces | **Not started; no outcome recorded** |
 | A04 | R analysis + D evidence | extension of predecessor gamepad/request evidence with archive file:line handoff | **Handoff received; archive facts appended below; no test outcome** |
 | A05 | R + D checkpoint | registry/order fixtures, A-drive/A-cancel gate, chapter manifest/tag only after approval | **Not started; no tag** |
@@ -34,8 +36,14 @@ not a test result; later entries must name the exact command and artifact.
 - `00-common.md` now retains the English-content rule but no fixed message prefix.
 - `adr-device-seam-v2.md` distinguishes current proto1 zero-fill from proposed
   proto2 positional-servo hold, keeps DC/CR omission at zero, lists paired devices,
-  units, ownership and validation, and blocks code until ftc-main approves the
-  protected protocol amendment.
+  units, ownership and validation, and records the exact B01 signatures pending the
+  protected protocol pin. A02 is unblocked at amendment `26f915b`; B01 remains blocked.
+  The amendment fixes optional `reset.proto` absent=`1` versus `ready.proto`,
+  pre-output failure on mismatch, exactly two `RobotAction` maps (`motors` for DC+CR
+  power and `servos` for positional hold), declared initial positions for never-commanded
+  servos, reset-cleared holds, proto1 full-map/zero-fill behavior, and Java validation
+  of both ready name lists. `ActionValidator` rejects half-pairs before writes; paired
+  seam fixtures 1–6 are binding and still have no run outcome here.
 - A02's planned Java-source reader rule requires a finite positive
   `ROBOT_MASS_KG` in kg, clear missing/invalid failure, and an isolated 18 kg body/
   inertia fixture. These are requirements for a future task, not completed tests.
@@ -46,7 +54,7 @@ not a test result; later entries must name the exact command and artifact.
 |---|---|---|
 | Documentation diff | `git diff --check` | **Passed for this evidence increment** (no output) |
 | Mass parser | named A02 isolated fixture | Not run; no implementation dispatched |
-| Protocol fixture | proto1/proto2 paired golden frames | Not run; protected amendment published at `26f915b`; paired fixture evidence pending |
+| Protocol fixture | proto1/proto2 paired golden frames | Not run; amendment `26f915b` is published; B01 remains blocked pending the ADR signature pin and paired-fixture evidence |
 | Chapter A e2e | A03 runner and two Pymunk scenarios | Not run; A03 not started |
 
 Prior robot/simulator reports remain provenance references, not new Chapter A

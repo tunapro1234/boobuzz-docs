@@ -1,8 +1,9 @@
 # Spec v2.2 disposition — Chapter A released; B gated
 
-Status: **Tuna-approved v2.2 (2026-09-17). Chapter A is released now. B is approved
-but gated until A05/evidence/tag; C and the far roadmap remain unreleased. Training,
-ftc-reviewer, and ftc-ball remain forbidden.** The [full review](review-ftc-main-specs-2026-09-17.md)
+Status: **Tuna-approved v2.2 (2026-09-17). Chapter A is released now. A02 is
+unblocked at protected pin `26f915b`; B is approved but gated, with B01 blocked
+pending the ADR signature pin, until A05/evidence/tag. C and the far roadmap remain
+unreleased. Training, ftc-reviewer, and ftc-ball remain forbidden.** The [full review](review-ftc-main-specs-2026-09-17.md)
 is preserved verbatim, but its single-actuator interpretation and our v2 response
 are superseded by [Tuna's direct clarification](tuna-intent-2026-09-17.md).
 Mechanism count is NOT motor count. Files below use [current index](specs/README.md) and
