@@ -5,6 +5,24 @@ Read this after compaction, before resuming work. The current detailed discussio
 draft is [the spec pack](specs/README.md), expanding [roadmap-v1.md](roadmap-v1.md).
 Both are proposals, not execution orders.
 
+## Current handoff — 2026-09-17, before compaction
+
+- Latest request: save final records, then compact. Do NOT start implementation.
+- Published spec pack v2.2: docs `7423ed639020d033f4f3e55f27b223345fd7a1e0`.
+  Robot stays `d5bda62`, sim stays `5dd6daa`, all on dev-phase-1.1-a.
+- A/B have detailed implementation proposals; C is medium-depth; later chapters
+  remain deferred drafts. Readiness is not approval. Before affected A02/B01/B07
+  seam changes, resolve the explicit ADR/protocol amendment gate in00-common.
+- Tuna wants Luna workers stopped around **12:10 America/Chicago on2026-09-17**
+  (17:10 UTC), for a possible model switch. Avoid large tasks beforehand. If later
+  authorized to work, plan no new task after11:50 and checkpoint/handoff by12:00,
+  leaving a10-minute buffer; the buffer is an orchestrator proposal, not a new goal.
+- All three workers were observed idle before this documentation-only checkpoint.
+  No training, implementation goal, reviewer/ball launch or model switch authorized.
+  Expected model availability at12:00 is Tuna's expectation, not verified release news.
+- Resume by reading this file, hardware-profile-v0, specs/README and the latest log.
+  Preserve the corrected paired topology and archive/runtime distinctions in v2.2.
+
 ## Latest instruction: plan first
 
 V2.1 authority: Tuna directly clarified AFTER the review: preserve last season's

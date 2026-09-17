@@ -179,3 +179,18 @@
  14 A/B headings, paired hood arithmetic and350+100-ms tick boundaries passed;
   git diff --check clean. Original review SHA256 unchanged. R/S HEAD remain
   d5bda62/5dd6daa; these are documentation/source checks, not new physics test runs.
+
+## 2026-09-17 — saved before user-requested compaction
+
+- V2.2 publication confirmed on origin/dev-phase-1.1-a:
+  `7423ed639020d033f4f3e55f27b223345fd7a1e0`; docs clean after publication.
+- Tuna asked for small tasks and Luna workers stopped around12:10 local
+  America/Chicago (17:10 UTC) for a possible model switch, then superseded the
+  readiness check with "save final records, then compact." No implementation began.
+- BP status observed ftc-robot-cx, ftc-sim-cx and ftc-docs-cx idle. Only docs may
+  briefly publish these handoff notes, then hold. No model switch or launch.
+- Readiness boundary: A/B are detailed proposals, not an approved execution order;
+  C medium, far chapters deferred. ADR/protocol gate still applies before affected
+  A02/B01/B07 changes. Do not claim the entire far roadmap is implementation-ready.
+- Intent file now pins source/spec hashes, stop time, optional11:50/12:00 buffer,
+  planning hold and resume reading order. No change to protected docs or code.
