@@ -10,7 +10,7 @@ not a passing result. No implementation or acceptance outcome is claimed here.
 |---|---|---|---|
 | docs | `dev-phase-1.1-a` | `e5796b7c1b005d4c1559d5339621c99080de0903` | v2.2 docs entry |
 | robot-code (R) | `dev-phase-1.1-a` | `d5bda622d5bba6dfef6c4bfefed69e0cc20d7e67` | Java core, FTC adapter, Java sim |
-| re-cock-nize (S) | `dev-phase-1.1-a` | `5dd6daacedbd629deb0827b36240f3064a808f3b` | Python server, physics and tests |
+| re-cock-nize (S) | `dev-phase-1.1-a` | `5ba0a9671eeedc84f2a628ff970133c1e86f656f` | Python server, physics and tests; A01 publication |
 | archive (OLD) | archived source | `d7711d043280034ab5c75ae26a253629fd2d4a7b` | behavior/calibration provenance |
 
 The protected `protokol.md` and `phases/phase-1.1/design-spec.md` are read-only.
@@ -22,7 +22,7 @@ not a test result; later entries must name the exact command and artifact.
 | Slot | Owner / seam | Planned evidence | State |
 |---|---|---|---|
 | A00 | D release cleanup | fixed-prefix retirement, English-content rule, ADR/evidence paths | **Recorded in this docs increment; no implementation outcome** |
-| A01 | S transport/events | bounded fragmented I/O, integral millisecond events, no mixed-world advance | **Not started; no outcome recorded** |
+| A01 | S transport/events | bounded fragmented I/O, integral millisecond events, no mixed-world advance | **Verified at S `5ba0a96`; focused 3/3 and full suite 85/85 (0 skipped)** |
 | A02.0 | D + ftc-main protocol owner | `adr-device-seam-v2.md`; protected protocol amendment gate | **ADR draft recorded; protected amendment published at ftc-main `26f915b`; implementation/fixture evidence pending** |
 | A02 | R/S mass seam + R regression | Java-source mass parsing, 18 kg isolated fixture, cancellation/deadband tests | **Not started; no outcome recorded** |
 | A03 | R/S e2e seam | two fixed Pymunk scenarios and JSONL traces | **Not started; no outcome recorded** |
@@ -44,7 +44,7 @@ not a test result; later entries must name the exact command and artifact.
 
 | Check | Command / artifact | Outcome |
 |---|---|---|
-| Documentation diff | `git diff --check` | Pending for the next docs increment; prior evidence commit was clean |
+| Documentation diff | `git diff --check` | **Passed for this evidence increment** (no output) |
 | Mass parser | named A02 isolated fixture | Not run; no implementation dispatched |
 | Protocol fixture | proto1/proto2 paired golden frames | Not run; protected amendment published at `26f915b`; paired fixture evidence pending |
 | Chapter A e2e | A03 runner and two Pymunk scenarios | Not run; A03 not started |
@@ -52,6 +52,33 @@ not a test result; later entries must name the exact command and artifact.
 Prior robot/simulator reports remain provenance references, not new Chapter A
 outcomes. Their test counts and smoke results must not be copied into this ledger as
 fresh evidence.
+
+## A01 published simulator increment — independently verified
+
+S published `5ba0a9671eeedc84f2a628ff970133c1e86f656f` (`5ba0a96`) on
+`dev-phase-1.1-a`; `git ls-remote origin refs/heads/dev-phase-1.1-a` resolves to
+the same hash. The parent is the planning pin `5dd6daa`. The commit changes exactly
+`sim/server.py`, `tests/test_events.py`, and `tests/test_multi_robot.py`. The S
+worktree was clean relative to its branch except for the preserved pre-existing
+untracked `.claude/` directory; no other path was staged by the worker.
+
+Independent checks from the S checkout:
+
+| Check | Command | Result |
+|---|---|---|
+| A01 focused regressions | `../.venv/bin/python -m unittest -v test_multi_robot.TestMultiRobotServer.test_partial_frame_deadline test_multi_robot.TestMultiRobotServer.test_slow_peer_does_not_advance_world test_events.TestStepEvents.test_fractional_timestamp_rejected` (cwd `tests`) | **3 passed** |
+| Process-boundary determinism | `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k process_network` | **2 passed** |
+| Multi-robot subset | `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh -k multi_robot` | **9 passed** |
+| Full S suite | `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh` | **85 passed, 0 skipped** |
+
+The source diff also passes `git diff --check` against `5dd6daa`. A01 now carries
+one monotonic budget across fragmented frame I/O and multi-robot reset/step work;
+integral, finite, non-negative millisecond event timestamps are canonicalized and
+fractional/NaN/infinite/boolean/out-of-range values are rejected. A failed
+synchronized operation aborts the connected session, clears pending state/output,
+and requires a fresh reset barrier; a remaining client is not advanced alone. This
+increment does not provide A03's Java/Python acceptance runner or physical-robot
+validation, and no A03 outcome is inferred here.
 
 ## A04 source-grounded handoff — preserve, correct, defer
 
