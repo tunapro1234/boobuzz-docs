@@ -312,21 +312,19 @@
 - No protocol, specification, source, tag, reviewer, ball, training, or phase
   change was made. Continue monitoring only for proven R/S B01 reports.
 
-## 2026-09-17 — B01 R completion evidence (S/cross-review pending)
+## 2026-09-17 — B01 R completion evidence (seam-review pin; S pending)
 
-- R supplied completion pin `e234a8e5c075832ec6c28dbe56b62b372c235e91` with
-  increments `aedc96c`, `e33b988`, `0936f39`, `6c852c7`, `637f225`, and `e234a8e`;
-  changed paths and seam scope are recorded in `evidence-B.md`.
-- The reported Gradle command (`core:test`, `sim:test`, `sim:installDist`, and
-  `TeamCode:assembleDebug`) was green at R e234 with 134 core + 17 sim tests,
-  zero skipped/failures/errors. The worker also reported bit-equal replay and a
-  full `:sim:test --rerun-tasks`; an independent current-descendant run exited 0
-  with zero skips/failures/errors.
-- Verification found R origin had already advanced to unreported descendant
-  `bffd71b331a7c1dfc67abe30f16df7df92165cc5` (only
-  `HardwareProfileTest.java`, three additional core tests); it is not folded into
-  the e234 evidence pin. R worktree/remotes are clean and agree at bffd71b.
+- R's final seam-review pin is `bffd71b331a7c1dfc67abe30f16df7df92165cc5`, a
+  clean pushed descendant of the earlier completion pin `e234a8e5`; increments,
+  changed paths, and seam scope are recorded in `evidence-B.md`.
+- The final Gradle command (`core:test`, `sim:test`, `sim:installDist`, and
+  `TeamCode:assembleDebug`) is green with **137 core + 17 sim tests**, all passed
+  with zero skips/failures/errors. InstallDist, Android assembleDebug, and the
+  Pymunk replay bit-equality check remain green; the full sim rerun exited 0.
+- `bffd71b` adds `HardwareProfileTest.java` (three core tests) after e234's
+  reported 134+17 totals. R worktree and local/remote refs are clean and agree at
+  bffd71b.
 - SDK-module Android `HardwareMap` fake-device write tests remain unavailable;
-  production binding compilation and core/sim seam coverage are the stated
-  limitation. B01 is not accepted: await matching S evidence and bounded R↔S
-  seam cross-review. No protocol/spec/source edit or new tag was made.
+  production binding compilation and core/sim seam coverage are the limitation.
+  B01 is not accepted: await matching S evidence and bounded R↔S seam
+  cross-review. No protocol/spec/source edit or new tag was made.

@@ -98,11 +98,12 @@ reports. The review artifact, exact source pins, commands, and results are a
 later evidence slot; no reviewer has been launched and no review outcome is
 implied by this file.
 
-## B01 R completion evidence (S and cross-review pending)
+## B01 R completion evidence (seam-review pin; S pending)
 
-The R worker supplied completion pin `e234a8e5c075832ec6c28dbe56b62b372c235e91`.
-The hash exists and is an ancestor of R `origin/dev-phase-1.1-a`; the increment
-paths and reported scope were independently checked:
+The final R seam-review pin is `bffd71b331a7c1dfc67abe30f16df7df92165cc5`.
+It is a clean pushed descendant of the worker's earlier completion pin
+`e234a8e5c075832ec6c28dbe56b62b372c235e91`; the increment paths and reported
+scope were independently checked:
 
 | Increment | Changed paths | Reported seam contribution |
 |---|---|---|
@@ -112,28 +113,22 @@ paths and reported scope were independently checked:
 | `6c852c7c1ef0b949533f73b12c797054fce6b16e` | `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/hal/{Hardware,RealHal}.java` | Single-owner binding, directions, zero-power, reset-once and Pinpoint |
 | `637f22579d85d30ed10fdce2e10943d1943d7858` | `TeamCode/core/src/test/java/boobuzz/core/contract/RobotActionServoHoldTest.java`; `sim/src/main/java/boobuzz/sim/Json.java`; `sim/src/test/java/boobuzz/sim/JsonValidationTest.java` | Malformed JSON fail-closed and sparse two-map tests |
 | `e234a8e5c075832ec6c28dbe56b62b372c235e91` | `sim/src/test/java/boobuzz/sim/SimHalTest.java` | Legacy proto1 full-map zero-fill regression |
+| `bffd71b331a7c1dfc67abe30f16df7df92165cc5` | `TeamCode/core/src/test/java/boobuzz/core/hal/HardwareProfileTest.java` | Final typed hardware-role, output-order, shared-port and initial-position assertions |
 
-The worker reported this command as successful at `e234a8e`:
+The final R verification reported this command as successful at `bffd71b`:
 
 ```text
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew :core:test :sim:test :sim:installDist :TeamCode:assembleDebug
 ```
 
-Reported totals are **134 core tests + 17 sim tests, 0 skipped/failures/errors**;
-the worker also reported an explicit bit-equal `ReplayIntegrationTest` and a full
-`:sim:test --rerun-tasks`. Independently, the exact Gradle command exited `0` on
-the currently published R descendant, and `JAVA_HOME=/usr/lib/jvm/java-21-openjdk
-./gradlew :sim:test --rerun-tasks` exited `0`; current XML totals are 137 core and
-17 sim tests with zero skips/failures/errors, including
-`seededRecordAndReplayAreBitEqual`.
-
-**Pin drift noted at verification:** R `origin/dev-phase-1.1-a` had advanced to
-unreported descendant `bffd71b331a7c1dfc67abe30f16df7df92165cc5`, which adds only
-`TeamCode/core/src/test/java/boobuzz/core/hal/HardwareProfileTest.java` (three
-core tests). That descendant is not silently folded into the worker's `e234a8e`
-completion pin; its successful independent command run does not constitute a new
-acceptance result. R's current worktree is clean and its local/remote refs agree at
-`bffd71b`; the supplied e234 pin remains the recorded R completion evidence.
+Reported final totals are **137 core tests + 17 sim tests, all passed with zero
+skips/failures/errors**; installDist, Android `assembleDebug`, and the Pymunk
+replay (`seededRecordAndReplayAreBitEqual`) are green. The earlier e234 run was
+reported as 134 core + 17 sim; the three additional core tests are the
+`HardwareProfileTest` commit above. Independently, the exact Gradle command and
+`JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew :sim:test --rerun-tasks` both
+exited `0`, and current XML totals are 137/17 with no skipped/failure/error cases.
+R's current worktree is clean and local/remote refs agree at the final bffd pin.
 
 The worker reports the SDK module cannot provide Android `HardwareMap` fake-device
 write tests; production binding compilation plus core/sim seam tests cover the
