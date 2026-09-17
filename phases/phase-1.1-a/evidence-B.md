@@ -1,8 +1,9 @@
 # Chapter B evidence ledger
 
 **Status:** B is approved and eligible at the verified Chapter-A checkpoint. This
-file is the sole Chapter-B evidence ledger. It is an entry scaffold for B01: no
-B01 implementation, test, acceptance, or hardware outcome is claimed below.
+file is the sole Chapter-B evidence ledger. The entry scaffold and the R-only
+completion evidence below are append-only; S evidence and the R↔S cross-review are
+still required before B01 acceptance.
 
 ## Authoritative entry pins and gates
 
@@ -48,7 +49,10 @@ reset clears saved holds.
 
 The planned R reads/binds `TeamCode/core/src/main/java/boobuzz/core/hal/{RobotConstants,Mechanism,IHal}.java`, `TeamCode/core/src/main/java/boobuzz/core/contract/{RobotAction,RobotState}.java`, `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/hal/{Hardware,RealHal}.java`, and `sim/src/main/java/boobuzz/sim/{SimHal,Json}.java`. The planned S counterparts are `sim/{mechanism,server}.py` and `sim/physics/{motor,pymunk_backend,multi}.py`; paired protocol fixtures are under `R/sim/src/test/resources/protocol-v2/` and `S/tests/fixtures/protocol-v2/`. These are task slots, not evidence that the planned declarations or files have already changed.
 
-## B01 task slots (planned; no outcomes)
+## B01 task slots (entry plan)
+
+This table is the original entry plan. The R-only result below supersedes its
+no-outcome wording for R; S and cross-review rows remain open.
 
 | Slot | R owner / S owner | Required seam evidence | State at this scaffold |
 |---|---|---|---|
@@ -94,11 +98,54 @@ reports. The review artifact, exact source pins, commands, and results are a
 later evidence slot; no reviewer has been launched and no review outcome is
 implied by this file.
 
+## B01 R completion evidence (S and cross-review pending)
+
+The R worker supplied completion pin `e234a8e5c075832ec6c28dbe56b62b372c235e91`.
+The hash exists and is an ancestor of R `origin/dev-phase-1.1-a`; the increment
+paths and reported scope were independently checked:
+
+| Increment | Changed paths | Reported seam contribution |
+|---|---|---|
+| `aedc96c45e0050330982acad88602932341bb597` | `TeamCode/core/src/main/java/boobuzz/core/hal/{Mechanism,RobotConstants}.java`; `TeamCode/core/src/test/java/boobuzz/core/hal/MechanismTest.java` | Typed profile declarations and mechanism lists |
+| `e33b9882226ee8b70099be84276a7be84e422e1a` | `TeamCode/core/src/main/java/boobuzz/core/contract/ActionValidator.java`; its `ActionValidatorTest.java` | Whole-frame and paired-output validation |
+| `0936f3980fe7ea10a213e5bdadcb9098308ec102` | `sim/src/main/java/boobuzz/sim/{Json,SimHal}.java`; `AcceptanceMainTest.java`; `FakeSimServer.java`; `SimHalTest.java`; four `sim/src/test/resources/protocol-v2/*.json` fixtures | Proto1/proto2 negotiation, exact lists, sparse positional hold and paired fixtures |
+| `6c852c7c1ef0b949533f73b12c797054fce6b16e` | `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/hal/{Hardware,RealHal}.java` | Single-owner binding, directions, zero-power, reset-once and Pinpoint |
+| `637f22579d85d30ed10fdce2e10943d1943d7858` | `TeamCode/core/src/test/java/boobuzz/core/contract/RobotActionServoHoldTest.java`; `sim/src/main/java/boobuzz/sim/Json.java`; `sim/src/test/java/boobuzz/sim/JsonValidationTest.java` | Malformed JSON fail-closed and sparse two-map tests |
+| `e234a8e5c075832ec6c28dbe56b62b372c235e91` | `sim/src/test/java/boobuzz/sim/SimHalTest.java` | Legacy proto1 full-map zero-fill regression |
+
+The worker reported this command as successful at `e234a8e`:
+
+```text
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew :core:test :sim:test :sim:installDist :TeamCode:assembleDebug
+```
+
+Reported totals are **134 core tests + 17 sim tests, 0 skipped/failures/errors**;
+the worker also reported an explicit bit-equal `ReplayIntegrationTest` and a full
+`:sim:test --rerun-tasks`. Independently, the exact Gradle command exited `0` on
+the currently published R descendant, and `JAVA_HOME=/usr/lib/jvm/java-21-openjdk
+./gradlew :sim:test --rerun-tasks` exited `0`; current XML totals are 137 core and
+17 sim tests with zero skips/failures/errors, including
+`seededRecordAndReplayAreBitEqual`.
+
+**Pin drift noted at verification:** R `origin/dev-phase-1.1-a` had advanced to
+unreported descendant `bffd71b331a7c1dfc67abe30f16df7df92165cc5`, which adds only
+`TeamCode/core/src/test/java/boobuzz/core/hal/HardwareProfileTest.java` (three
+core tests). That descendant is not silently folded into the worker's `e234a8e`
+completion pin; its successful independent command run does not constitute a new
+acceptance result. R's current worktree is clean and its local/remote refs agree at
+`bffd71b`; the supplied e234 pin remains the recorded R completion evidence.
+
+The worker reports the SDK module cannot provide Android `HardwareMap` fake-device
+write tests; production binding compilation plus core/sim seam tests cover the
+contract. No physical hardware result is claimed. B01 remains pending S's matching
+completion evidence and the bounded R↔S seam cross-review; no B01 acceptance is
+declared by this R-only entry.
+
 ## Limitations and publication boundary
 
-- This commit publishes documentation only. No B01 worker has supplied a result,
-  so no fixture, test, acceptance trace, physical direction, or hardware claim is
-  marked passed.
+- This increment publishes documentation only. The R worker result is recorded
+  above; no S result, cross-review, fixture acceptance trace, physical direction,
+  or hardware claim is marked passed.
 - A05 host tests and runner traces establish the entry baseline; they do not prove
   B01 device declarations, sparse-servo behavior, paired writes, or shared-port
   ownership.
