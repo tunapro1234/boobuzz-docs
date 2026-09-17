@@ -79,8 +79,88 @@ taşıma ve sözleşme commitleri:
   akış diyagramını kayda aldı; `d2a9a8f` gamepad haritası analizini ekledi.
 - Markdown temizliğiyle eski devir/rapor notları `_parked/` altına taşındı
   (`0f13c41`, `28898b2`, `541ce24`).
-- `robot-cx-13` R3 uygulaması ve cross-review hâlâ **devam ediyor**; sözleşme
-  dondurma ve senkron tag bir sonraki kontrol noktasına kaldı.
+
+### R3 completion — robot-code `dev-phase-1.1` — *ftc-robot-cx (Codex)*
+
+After `5defadf`, the remaining R3 implementation landed in order:
+
+- `09f7d71` replaced `Intent` with `RequestBatch`.
+- `3dd773f` split the direct request map from `DirectEngine`.
+- `3f44c75` added the turret contract and stub.
+- `1622a27` added the `cplx1` motion, turret, and shooter logic modules.
+- `a4a42a6` added the button map and teleop sequences.
+- `f185ce1` moved engine switching to the `RobotLoop` boundary.
+- `d4226eb` documented the core architecture in robot-code.
+
+### R4 debug seams — robot-code `dev-phase-1.1` — *ftc-robot-cx (Codex)*
+
+- `c80e4ff` published HAL, subsystem, and logic seam records from the loop.
+- `023c273` added deterministic seam bagging; `ad7307c` moved serialization and
+  bag I/O off the loop thread.
+- `c1921b4` added deterministic bag replay; `0fead81` added the asynchronous
+  feedback/command `SocketController`.
+- `33ace3f` added the tap and drive command-line tools and real-robot debugging
+  notes.
+
+### R5 review fixes and follow-ups — robot-code `dev-phase-1.1` — *ftc-robot-cx (Codex)*
+
+The R3/R4 findings in `review-sim-cx-12-r3.md` and
+`review-sim-cx-15-r4-r5.md` were addressed by these commits (the review files
+also record residual test gaps):
+
+- `aca0f19` selected the recorded initial sensor state (later corrected by
+  `8329676`, which gives the bag header pose precedence).
+- `20f3812` yielded the FTC loop; `4f0b38f` made `RESET_POSE` a consumer path.
+- `3775131` aligned SHOOT RPM semantics; `5ef4a18` zeroed stale output on an
+  engine handoff; `8c11fb7` quiesced the turret during cancel-all.
+- `658c3d4` routed per-request shooter cancellation; `ef039a5` cancelled all
+  sequence-owned work on manual takeover; `164619d` made attached requests
+  completion barriers.
+- `1620e33` fixed axis-aligned velocity interpolation; `2fa9655` forwarded
+  switch statuses and rejected malformed switches; `3e7ab31` removed the
+  unreachable `ACCEPTED` status; `4e8f5fe` validated path constraints.
+- `4151143` added R3 safety integration coverage.
+- `5fbc7c1` granted Android network permission; `46bf2ba` added per-client
+  bounded tap queues; `826b83e` kept drop metadata out of the three-seam bag.
+- `8bf55f7` made socket timeout cancel active work; `68aeace` rejected malformed
+  batches without refreshing the watchdog; `99d1551` closed tap/socket threads
+  during opmode shutdown.
+- `2094bc0` removed APIs newer than Android minSdk 24; `3c52351` added bounded
+  feedback queues for socket clients.
+- `8329676` fixed replay reset-pose precedence; `7a7cbfb` added seeded,
+  bit-equal simulator replay; `ed28303` separated intake ownership from terminal
+  status IDs; `8e3fa97` added direct-engine, SDK-shaped cadence, and bag-shutdown
+  coverage; `2a649b4` made bag path failures synchronous; `907c31a` replaced
+  remaining Java 9 collection factories for minSdk compatibility.
+
+### S3 and simulator follow-ups — re-cock-nize `dev-phase-1.1` — *ftc-sim-cx (Codex)*
+
+- `6dfabff` added multi-robot contact and determinism tests; `238e91d` added
+  viewer robot selection; `76db5f4` added the two-robot convenience runner.
+- `b083b92` added `back` and `start` gamepad fields (sim-cx-13). No commit named
+  or identified as sim-cx-14 is present in the inspected history.
+- The later simulator hardening sequence added a non-blocking tap reader and
+  HUD/bag tools (`c8ff50e`, `3ef567c`, `49c1330`, `05a367b`), protocol and
+  lockstep validation/timeouts (`37d45b7`, `0a348c6`, `e3eee77`), reset epochs
+  (`d9b3320`), strict seam groups and tap-drop metadata (`c16b676`, `d81c138`),
+  numeric event and servo validation (`f501507`, `f6666b0`), reconnect backoff
+  (`bfa9c29`), and the demo launcher (`518bf9c`).
+
+### docs on `stable` — *ftc-main / review records*
+
+- `d1d009c` recorded the S3 and R4 design-spec revisions; `8512985` added the
+  `back`/`start` fields to `protokol.md`.
+- `9a9c9c2`, `b3df1ae`, and `8a97ddb` established the architecture PDF pipeline,
+  real-TeX diagram rendering, and verbatim Mermaid source retention;
+  `979c891` refreshed the R3 architecture draft.
+- `d14bf3d` added `review-sim-cx-12-r3.md`; `0fd851b` and `c67e172` recorded the
+  teleop map and request catalog.
+- `77ba16a` added `review-sim-cx-15-r4-r5.md`; `f207977` added
+  `review-robot-cx-16-sim.md`; `ca8632f` appended the R5 robot review; and
+  `9a0babd` appended the simulator review response (81 Python tests passed in
+  that response).
+- `fed3467` replaced the prose architecture with the rendered diagram-first
+  reference (18-page PDF, 23 rendered diagrams).
 
 ---
 
