@@ -401,3 +401,26 @@ bench, sensor-truth inventory, or mechanical calibration claim is permitted;
 the dimensions are provisional fixtures. B04 remains the later owner of honest
 unknown inventory, and B08 owns a planar release body. No B03+ task, tag, reviewer,
 ball, training, or protocol/vision/range/field work is part of this entry.
+
+## B02 bounded seam-review checkpoint — acceptance paused (2026-09-18)
+
+This checkpoint records the watchdog-assigned reviews without accepting B02. The
+immutable implementation pins are R `63b5939ee69fdbc027436c91e54642caf27e2a1b`
+and S `c34ebb8467f51f851a1db0adb30d0c5b55e16592`, both on
+`dev-phase-1.1-a` and origin; R is clean and S has only the preserved untracked
+`.claude/` directory. The protected protocol is D
+`74475463add0f23afd6d84b801245650712bbb62`; the current docs pin used by the
+reviews is D `671a28008e4c918bb52c766f06a28d1fab0d4941`.
+
+### Review outcomes
+
+| Watchdog-assigned direction | Result | Verified evidence and limitation |
+|---|---|---|
+| R → S: S geometry and power mapping | **FAIL overall; B02 intake behavior PASS** | R `PowerIntake.java:19-36` clamps finite logical power to `[-1,1]`, maps non-finite to zero, stops at zero, and writes the `intake` key; `RobotFactory.java:84-85` wires it for direct/cplx1; `RobotConstants.java:16-25,99` supplies geometry and `REVERSE/BRAKE`. S `sim/mechanism.py:139-161`, `pymunk_backend.py:186-188`, and `mechanisms.py:162-252` provide geometry, power forwarding, swept pollen capture, nectar obstruction, capacity, release, and private inventory. Focused S `PYTHONPATH=tests .venv/bin/python -m unittest tests.test_intake_capture tests.test_mechanism` passed 26 tests; S determinism/Pymunk `PYTHONPATH=tests .venv/bin/python -m unittest tests.test_determinism tests.test_pymunk_backend` passed 14; the seed-42 intake episode was exactly equal for 120 ticks with stored IDs `(1,2,3)` and external nectar ID `4`. However, `JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew :sim:test --tests boobuzz.sim.ReplayIntegrationTest` failed at truth tick 229 (recorded expected/actual `PoseBits` differ), and `../re-cock-nize/.venv/bin/python tools/acceptance.py --chapter A --physics pymunk --seeds 1` failed repeat determinism at direct tick 201 (cplx1 tick 214 observed in another run); `--seeds 1,42` also failed repeat determinism. `AcceptanceMainTest` passed, and the A-drive reached its target, but these A traces use `intake=0.0` and no B02 scene. |
+| S → R: R `PowerIntake`, constants, and factory | **PASS (bounded)** | Pins S `c34ebb8467f51f851a1db0adb30d0c5b55e16592` and R `63b5939ee69fdbc027436c91e54642caf27e2a1b`; both trees are clean except S's preserved `.claude/`. Exact R command `JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew -q :core:test --tests boobuzz.core.subsystem.intake.PowerIntakeTest --tests boobuzz.core.RobotFactoryTest --tests boobuzz.core.hal.MechanismTest --tests boobuzz.core.hal.HardwareProfileTest --tests boobuzz.core.hal.RobotConstantsHashTest` passed 22 tests (3+5+10+3+1), zero failures/errors/skips. Exact S command `PYTHONPATH="/home/shared/projects/boobuzz/re-cock-nize/tests" "/home/shared/projects/boobuzz/re-cock-nize/.venv/bin/python" -m unittest test_mechanism test_intake_capture` passed 26 tests. The review verified finite clamp/non-finite handling, stop/false `hasBall`, intake-only output, direct+cplx1 factory wiring, exact geometry/hash inputs, single HAL direction/zero-power setup, and unchanged logical forwarding; no findings. Limitation: Java tests use fake/stub HAL, with no live Java-to-Pymunk B02 intake trace and no physical FTC claim. |
+
+B02 acceptance remains paused. The required stable seed-1 Java-to-visible-Pymunk
+end-to-end trace is not proven, and the cross-process replay/A-drive
+determinism failure is outside the B02 intake fixture but still fails the required
+gate. No source, protocol, tag, B03+, reviewer, ball, training, state, vision,
+range, PyBullet-parity, or field-expansion work is authorized.

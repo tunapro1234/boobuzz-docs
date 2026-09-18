@@ -455,3 +455,41 @@
   and one seed-1 end-to-end trace. Test counts alone are insufficient. No tag
   until B09; no B03+, reviewer, ball, training, protocol/state/vision/range,
   PyBullet-parity, or field-expansion work is authorized.
+
+## 2026-09-18 — B02 bounded seam reviews (acceptance paused)
+
+- Immutable implementation pins are R
+  `63b5939ee69fdbc027436c91e54642caf27e2a1b` and S
+  `c34ebb8467f51f851a1db0adb30d0c5b55e16592`, both pushed on
+  `dev-phase-1.1-a`; R is clean and S preserves only untracked `.claude/`.
+  Protected protocol D is `74475463add0f23afd6d84b801245650712bbb62`; review
+  docs were read at D `671a28008e4c918bb52c766f06a28d1fab0d4941`.
+- Watchdog-assigned R→S review: **FAIL overall** on the required cross-process
+  replay/A-drive determinism gate, while B02 intake geometry, signed power
+  mapping, pollen-only swept capture, nectar obstruction, capacity/release,
+  identity conservation, and in-process/seed-42 determinism passed. Exact
+  failures: `JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew :sim:test --tests
+  boobuzz.sim.ReplayIntegrationTest` failed at truth tick 229; from
+  robot-code, `../re-cock-nize/.venv/bin/python tools/acceptance.py --chapter A
+  --physics pymunk --seeds 1` failed repeat determinism at direct tick 201
+  (cplx1 tick 214 observed separately), and `--seeds 1,42` also failed repeat
+  determinism. `AcceptanceMainTest` passed, but these A traces use intake zero
+  and do not exercise the B02 scene. No Java positive-intake physical
+  end-to-end trace was available.
+- Watchdog-assigned S→R review: **PASS (bounded)**. Exact R focused command
+  `JAVA_HOME=/usr/lib/jvm/java-21-openjdk ./gradlew -q :core:test --tests
+  boobuzz.core.subsystem.intake.PowerIntakeTest --tests
+  boobuzz.core.RobotFactoryTest --tests boobuzz.core.hal.MechanismTest --tests
+  boobuzz.core.hal.HardwareProfileTest --tests
+  boobuzz.core.hal.RobotConstantsHashTest` passed 22 tests with zero
+  failures/errors/skips. Exact S command
+  `PYTHONPATH="/home/shared/projects/boobuzz/re-cock-nize/tests"
+  "/home/shared/projects/boobuzz/re-cock-nize/.venv/bin/python" -m unittest
+  test_mechanism test_intake_capture` passed 26 tests. It found no seam defect;
+  Java fake/stub HAL coverage and no live Java-to-Pymunk trace remain explicit
+  limitations.
+- B02 is not accepted: the stable seed-1 Java-to-visible-Pymunk gate is absent,
+  and cross-process determinism remains failing. No physical claim, tag, B03+,
+  reviewer, ball, training, protocol/state/vision/range/PyBullet-parity, or
+  field-expansion work is allowed pending an authorized determinism resolution
+  and new hash-pinned rerun.
