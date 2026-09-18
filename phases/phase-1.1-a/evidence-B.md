@@ -340,3 +340,64 @@ previously recorded equal SHA-256 values (`ready`, `state`, `step-hold`, and
 - S: `PYTHONPATH=/home/shared/projects/boobuzz/re-cock-nize/tests /home/shared/projects/boobuzz/re-cock-nize/.venv/bin/python -m unittest test_mechanism test_protocol_validation test_multi_robot test_process_network test_pymunk_backend test_pybullet_backend` — **49 tests, OK**.
 - Independent parser/mass/name probing passed. The bounded review reports all protocol, two-map, hold/reset, shared-port, multi-backend and PyBullet checks PASS.
 - No new live Java-to-S socket run was needed for this bounded rerun. Java protocol tests use `FakeSimServer`; no physical hardware, B02+ decay, tag, or source/protocol edit is claimed.
+
+## B02 release/entry scaffold — no outcomes claimed
+
+This is the B02-D entry record. It is documentation only and records the clean
+entry state before either worker implementation is accepted. The entry docs pin
+is D `3aebcfb52b0e4c4f228f0c4be59c1be6d5b15dc0`; the protected protocol pin is
+`74475463add0f23afd6d84b801245650712bbb62`. The latest proven B01 source pins
+used as B02 starting references are R `18b1d629fa21869963b9cd678e285c770f37c9d4`
+and S `0ca3175b81fa499e8c169bbc005713aa4d63e3b2`, both on `dev-phase-1.1-a` and
+origin. The A05 baseline remains D `cec382d6380ceb209700fe3abef19684556fb51a`
+with annotated tag `p11a-baseline-v1`. No B02 implementation hash, test result,
+trace, or seam-review result exists in this scaffold.
+
+### Owned paths and review boundary
+
+| Owner | B02 paths / responsibility |
+|---|---|
+| R | `J/subsystem/intake/PowerIntake.java`; factory wiring (exact binding file to be pinned by the R report); `JT/subsystem/intake/PowerIntakeTest.java` |
+| S | `sim/physics/balls.py`; `sim/physics/mechanisms.py`; `tests/test_intake_capture.py` |
+| D | This ledger and `orchestrator-log.md` only; no source, protocol, state, vision, range, PyBullet-parity, or field-expansion edits |
+
+The future bounded reviews are direction-specific and watchdog-assigned: R
+reviews S geometry and power mapping; S reviews R `PowerIntake`, constants, and
+factory wiring. Do not start either review until both implementation pins land
+and the assignment is explicit.
+
+### Seed fixtures and required gates
+
+The provisional B02 fixture uses an 18-in chassis, mouth forward offset 9 in,
+opening 3.2 in, capture depth 2 in, capacity 3, pollen diameter 2.8 in and
+nectar diameter 3.6 in. Seed 1 starts the robot at `(36,72,0)`, pollen at
+`(48,72)`, `(54,72)`, `(60,72)`, and nectar at `(54,78)`. Intake runs while
+normalized forward power is `.15`; the robot stops at public pose `(51,72,0)`
+and then goes neutral. The required seed-1 outcome is **not yet run**: three
+stored pollen, one external nectar, unique IDs, and conserved total
+`inventory + world = 4`.
+
+Seed 42 adds an approach offset of ±0.1 in as fixture noise; the seed-1 result
+must be deterministic on rerun. Dedicated geometry checks move nectar to the
+mouth and require blocking/obstruction, never class-based deletion. Full
+storage blocks or pushes without deleting; reverse releases stored pollen at
+the mouth. Capture requires an inward roller, a free object crossing the mouth,
+available capacity, and swept contact; off/reverse cannot capture. Pymunk is the
+plant and diagnostic event counts are not capture evidence.
+
+The B02 acceptance gates are all required and none is claimed here:
+
+1. R's focused intake suite covers signed `run(1)`, explicit `run(.8)`, negative,
+   stop, BRAKE, and one-time HAL inversion.
+2. S's `test_intake_capture.py` covers capture/release, reverse/off, capacity,
+   obstruction, conservation, unique IDs, seed-1 determinism and seed-42 noise.
+3. Both bounded bidirectional seam reviews pass with exact source pins, commands,
+   outcomes and limitations recorded here.
+4. One seed-1 end-to-end trace shows the Java intake driving the visible Pymunk
+   scene without simulator-truth or event-count leakage.
+
+Test counts alone cannot satisfy B02. No physical selectivity, Control Hub,
+bench, sensor-truth inventory, or mechanical calibration claim is permitted;
+the dimensions are provisional fixtures. B04 remains the later owner of honest
+unknown inventory, and B08 owns a planar release body. No B03+ task, tag, reviewer,
+ball, training, or protocol/vision/range/field work is part of this entry.

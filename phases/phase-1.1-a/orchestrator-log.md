@@ -429,3 +429,29 @@
 - Reverse-direction B01 seam result: **PASS**. No live Java-to-S socket run was
   required; Java uses `FakeSimServer`. No physical-hardware/B02+ decay result,
   source/protocol edit, tag, reviewer, ball, or training work was made.
+
+## 2026-09-18 — B02-D release/entry scaffold (no outcomes)
+
+- Entry D is clean docs `3aebcfb52b0e4c4f228f0c4be59c1be6d5b15dc0`; protected
+  protocol D is `74475463add0f23afd6d84b801245650712bbb62`. B02 starts from the
+  latest proven B01 references R `18b1d629fa21869963b9cd678e285c770f37c9d4`
+  and S `0ca3175b81fa499e8c169bbc005713aa4d63e3b2`; A05 remains D
+  `cec382d6380ceb209700fe3abef19684556fb51a` / `p11a-baseline-v1`.
+- R owns `J/subsystem/intake/PowerIntake.java`, its factory wiring, and
+  `JT/subsystem/intake/PowerIntakeTest.java`; S owns
+  `sim/physics/balls.py`, `sim/physics/mechanisms.py`, and
+  `tests/test_intake_capture.py`. D owns only `evidence-B.md` and this log.
+  No implementation hashes, test outcomes, traces or seam-review outcomes are
+  claimed by this scaffold.
+- The provisional seed-1 fixture is robot `(36,72,0)`, pollen
+  `(48,72),(54,72),(60,72)`, nectar `(54,78)`, normalized forward `.15` with
+  intake, stop at `(51,72,0)`, then neutral. Required unrun gate: three stored
+  pollen, one external nectar, unique IDs and conserved total four. Seed 42 adds
+  ±0.1-in approach noise and seed-1 must rerun deterministically. Nectar-at-mouth
+  obstruction, capacity blocking/no deletion, reverse release, Pymunk plant use,
+  and no event/truth leakage are required.
+- B02 acceptance requires both focused suites, both watchdog-assigned bounded
+  reviews (R→S geometry/power mapping and S→R `PowerIntake`/constants/factory),
+  and one seed-1 end-to-end trace. Test counts alone are insufficient. No tag
+  until B09; no B03+, reviewer, ball, training, protocol/state/vision/range,
+  PyBullet-parity, or field-expansion work is authorized.
