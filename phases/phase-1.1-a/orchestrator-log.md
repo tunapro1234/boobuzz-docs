@@ -493,3 +493,26 @@
   reviewer, ball, training, protocol/state/vision/range/PyBullet-parity, or
   field-expansion work is allowed pending an authorized determinism resolution
   and new hash-pinned rerun.
+
+## 2026-09-18 — A03 determinism diagnostic snapshot (no B02 acceptance)
+
+- The authorized detached 2×2 matrix covered R18
+  `18b1d629fa21869963b9cd678e285c770f37c9d4`, R63
+  `63b5939ee69fdbc027436c91e54642caf27e2a1b`, S0
+  `0ca3175b81fa499e8c169bbc005713aa4d63e3b2`, and S34
+  `c34ebb8467f51f851a1db0adb30d0c5b55e16592`. Each pair passed installDist,
+  the A acceptance command for seeds 1/42, and `ReplayIntegrationTest`; fresh
+  Replay repeats were 3/3 for all pairs. Acceptance repeats were 3/3 for
+  R18/S0, R18/S34, and R63/S34; R63/S0 was 2/3 because one process ended with a
+  transient `ServerClosedException` before producing a trace.
+- Successful A-drive JSONL traces were 6,000 lines and A-cancel traces 202
+  lines, raw-byte identical across repeats, with no first divergent
+  tick/field/bits. R18/R63 matched after removing only R63's added zero-valued
+  `motors.intake` key; all intake values were `0.0`, and no B02 truth fields or
+  scene were present. No causal S defect was proven and no source hash changed.
+- Independent current-S verification:
+  `PYTHON="$PWD/.venv/bin/python" ./run_tests.sh` — **115 tests, 0
+  failures/errors/skips**. This is a diagnostic update only; it does not replace
+  the prior R→S review failure or prove the missing Java positive-intake seed-1
+  end-to-end gate. B02 remains unaccepted, with the one transient transport
+  close retained as a limitation.

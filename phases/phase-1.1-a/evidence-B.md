@@ -424,3 +424,29 @@ end-to-end trace is not proven, and the cross-process replay/A-drive
 determinism failure is outside the B02 intake fixture but still fails the required
 gate. No source, protocol, tag, B03+, reviewer, ball, training, state, vision,
 range, PyBullet-parity, or field-expansion work is authorized.
+
+## A03 determinism diagnostic snapshot — no B02 acceptance (2026-09-18)
+
+The authorized detached four-pin diagnostic used R18
+`18b1d629fa21869963b9cd678e285c770f37c9d4`, R63
+`63b5939ee69fdbc027436c91e54642caf27e2a1b`, S0
+`0ca3175b81fa499e8c169bbc005713aa4d63e3b2`, and S34
+`c34ebb8467f51f851a1db0adb30d0c5b55e16592`. For each pair, `installDist`,
+`tools/acceptance.py --chapter A --physics pymunk --seeds 1,42`, and
+`ReplayIntegrationTest` passed in the detached worktrees; fresh Replay repeats
+were 3/3 for every pair. Acceptance repeats were R18/S0 3/3, R18/S34 3/3,
+R63/S34 3/3, and R63/S0 2/3; the single unsuccessful R63/S0 run ended in a
+transient `ServerClosedException` before a trace. Successful A-drive files had
+6,000 lines and A-cancel files 202 lines, with raw-byte-identical repeats and no
+first divergent tick/field/bits. R18/R63 traces matched after removing only the
+R63 `motors.intake` key; every intake value was `0.0`, with no inventory, ball,
+`hasBall`, B02 fields, or B02 scene.
+
+The independent published-S command
+`PYTHON="$PWD/.venv/bin/python" ./run_tests.sh` passed **115 tests**, 0 failures,
+0 errors, and 0 skips. No S-owned causal defect was proven, so no source commit
+or hash changed. The earlier published R→S failure remains a historical,
+intermittent gate failure pending an authorized final disposition; this snapshot
+does not prove the required Java positive-intake seed-1 end-to-end trace and does
+not accept B02. Limitation: one detached matrix run had the transient transport
+close above.
