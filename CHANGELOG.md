@@ -15,6 +15,28 @@ Gün bazlı kayıt. Her günün altında repo bazlı değişiklikler, commit has
 
 ---
 
+## 2026-09-25 — ADR analog-seam-v3 amendment ve flywheel sensör kaybı politikası
+
+### docs
+
+- **ADR analog-seam-v3 amendment (ftc-main onayı).** Sim, B09 B-fault için arızalı
+  taret sensörünü modelleyemiyordu: telde eksik ya da aralık dışı analog değer
+  protokol hatasıydı. Artık aralık dışı ve `NaN`/`Infinity` değerler tel üzerinde
+  serbest. HAL bu değeri atlıyor, tüketici de onu geçersiz görüyor. SimHal ve RealHal
+  aynı core metodunu kullanıyor, ayrı kopya yok. Anahtarın hiç gelmemesi, `null` ya da
+  tanımsız anahtar hâlâ protokol hatası. Gerçek donanım kopuk sensörde bile bir değer
+  döndürdüğü için eksik alan ancak bir bug'dan gelebilir. S hook'u anahtarı düşürmek
+  yerine `NaN` gönderecek. R, B-fault harness'ındaki geçici Java tarafı çözümünü
+  kaldıracak. (ftc-robocode)
+- **Flywheel hız okuması kaybı (ftc-main onayı).** Başlamış pulse süresini tamamlar
+  (arşivde de pulse süreye bağlı), yeni pulse başlamaz. Hız okuması yoksa FlywheelShooter
+  iki motora da 0 güç verir: kapalı döngüde controller sıfırlanır, açık döngü de
+  "no speed reading: never drive" kuralıyla 0'a düşer. Bunu kilitleyen testler:
+  `FlywheelShooterTest.missingOrNonFiniteVelocityZeroesBothAndClearsReady` ve
+  `openLoopNeverDrivesAgainstMeasuredRotation`. (ftc-robocode)
+
+---
+
 ## 2026-09-25 — Spec düzeltmesi: STOP_SHOOTING/sıcak flywheel ve taret açılış sınırı
 
 ### docs
