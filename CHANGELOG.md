@@ -74,6 +74,12 @@ Gün bazlı kayıt. Her günün altında repo bazlı değişiklikler, commit has
 - **Backlog:** Hata sim'de görünmedi, çünkü simülatör servo yönünü uygulamıyor.
   Ya sim'e servo direction desteği eklenecek ya da profil yönü ile pozisyon
   eşlemesinin çift ters çevirmesini yakalayan bir test yazılacak.
+- **Backlog kapandı (aynı gün, ftc-robocode).** Not yanlış çıktı: sim hood plant'ı
+  (S `1ae3da2`) yönü zaten uyguluyordu, ancak Java düzeltmesinden (`e5c633e`)
+  sonra yazıldığı için çift ters çevirme sim'de hiç denenmedi. S `77bf256` SDK
+  semantiğini (RobotCore 12.0.0: pozisyon clip → REVERSE `1-p`; CR negate → clip)
+  tek yerde topladı. Çift ters çeviren profil artık Pymunk hood plant'ında yüklenirken
+  reddediliyor ve regresyon testi var. Loader seviyesinde henüz reddedilmiyor (review minor #3).
 
 ---
 
