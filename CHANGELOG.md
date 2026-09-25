@@ -15,6 +15,27 @@ Gün bazlı kayıt. Her günün altında repo bazlı değişiklikler, commit has
 
 ---
 
+## 2026-09-25 — Spec düzeltmesi: drive end hold, socket tek teslim, B09 nectar yeri
+
+### docs
+
+- **Drive end hold (ftc-main onayı, arşivden doğrulandı).** Spec 00'a eklendi:
+  GOTO/PATH/TURN_TO `DONE` sonrası iki engine de son pozu tutar (arşiv
+  AutoBuilder.java:764-768 bitişte stop yok; simple-code DriveSubsystem.java:66 hold).
+  Hold'u yalnız yeni drive request, manual drive, o id'nin cancel'ı, CANCEL_ALL ve
+  RESET_POSE bitirir. R `590b98e`; A-drive .54 in hatasını çözdüğü `evidence-B.md`'de.
+  (ftc-robocode)
+- **R4.5 SocketController metni (ftc-main onayı).** "Her tick son alınan batch
+  kullanılır" yerine: manual-drive seviyesi her tick taşınır, request/cancel batch
+  başına bir kez tüketilir (yeniden teslim yok). R `7174d77`. (ftc-robocode)
+- **B09 B-collect-feed nectar (54,78) → (54,84) (ftc-main kararı).** 18 in robot y=72
+  hattında y63..81'i süpürüyor; (54,78) gövdeyle temas ediyordu. 82.8 tam temas sınırı,
+  84 seed42 ±.1 için marj. "untouched" tanımı değişmedi; rolling resistance eklenmedi
+  (kaynak yok), sürtünmesiz zemin sim sınırlaması olarak evidence'a yazıldı.
+  (ftc-robocode)
+
+---
+
 ## 2026-09-25 — Spec düzeltmesi: drive FLOAT (B01) ve B05 reset metni
 
 ### docs

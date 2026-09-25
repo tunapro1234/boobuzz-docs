@@ -35,8 +35,9 @@ pose (bit-equal `truth` sequence in the sim log; sim is deterministic).
 ## R4.5 — SocketController
 `controller/socket/SocketController implements IController`: listens on
 `RobotConstants.CONTROL_SOCKET_PORT` (default 5601, 0 = off). One client sends line-delimited
-JSON `RequestBatch` (same schema as the `logic` seam's `batch`); the controller uses the latest
-received batch each tick and an empty batch (stream zeros, no requests) if nothing arrived for
+JSON `RequestBatch` (same schema as the `logic` seam's `batch`); the manual-drive level is
+carried every tick; request/cancel commands are consumed once per batch id (no re-delivery)
+(spec correction 2026-09-25, ftc-main; R `7174d77`), and an empty batch (stream zeros, no requests) if nothing arrived for
 `CONTROL_SOCKET_TIMEOUT_MS` (250) — the robot stops when the client goes silent. Also echoes
 Feedback back to the client each tick (so an external agent has a closed loop).
 Test: a Java test client drives test-line through the socket in the sim.

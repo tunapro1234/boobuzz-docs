@@ -450,3 +450,22 @@ intermittent gate failure pending an authorized final disposition; this snapshot
 does not prove the required Java positive-intake seed-1 end-to-end trace and does
 not accept B02. Limitation: one detached matrix run had the transient transport
 close above.
+
+## 2026-09-25 spec corrections — evidence notes (ftc-robocode)
+
+- **A-drive .5 in failure resolved by the drive end hold.** S bisect (same Java build,
+  S 0ca3175..9068ed2 all identical): R good through `63b5939` (0.024507 in seed1,
+  0.002090 in seed42, DONE at 4700 ms); first bad `932ca3e` "Run Pedro hold timeout on
+  HAL time" (0.542267 / 2.621386 in, DONE at 1740/1720 ms): Pedro reported DONE with
+  the robot 2.47 in past target at 2.7 in/s, the drive then stopped and the robot
+  coasted. R `590b98e` keeps the end hold after DONE (spec 00 correction): A-drive
+  0.041556 in (seed1), 0.081003 in (seed42), both engines.
+- **Socket re-delivery flake.** SocketController re-delivered the last batch every tick
+  until a new line arrived (~300 ticks at ~120x sim speed), restarting GOTO/SHOOT.
+  R `7174d77` consumes requests/cancels once; SocketAgentIntegrationTest 2/10 failed
+  before, 0/10 after. Port probe-then-bind races fixed in R `fd2956b`, `dbad850`.
+- **B09 nectar placement.** At (54,78) the robot front face contacts the nectar at
+  robot x≈43.2 (seed1 900 ms, seed42 880 ms, local y=+6). Moved to (54,84).
+  **Sim limitation:** the Pymunk field has no floor friction (damping 1.0); a pushed
+  ball keeps its speed until a wall. No rolling resistance is modelled because no
+  source gives a value (manual §9.8 names the material only).

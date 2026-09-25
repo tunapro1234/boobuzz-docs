@@ -250,7 +250,9 @@ Extend A03 runner with R/tools/fixtures/phase11a-B.json and
 SJT/MechanismAcceptanceTest.java; S/tests/test_acceptance_scenarios.py.
 Use SAME Java RobotLoop/core on Pymunk,20 ms, seeds1 and42, repeat1 fresh-process.
 
-- **B-collect-feed**: robot(36,72,0), pollen(48,72),(54,72), nectar(54,78); scripted
+- **B-collect-feed**: robot(36,72,0), pollen(48,72),(54,72), nectar(54,84) (spec
+  correction 2026-09-25: at (54,78) the 18 in robot body sweeping y63..81 must hit it;
+  82.8 = 72+9+1.8 is the exact contact limit, 84 leaves margin for seed42 ±.1); scripted
   LT+drive collects two, then drives to(72,72,0) and stops; fixed preset4000/45°/0°,
   request2 feeds. Lab tray bounds x94..106,y68..76 captures planar releases physically.
   By24 s expect2 pollen in tray,0 stored/outlet, nectar untouched, no extra objects;

@@ -52,6 +52,12 @@ note `engine switch`). Device/timeout failure is `FAILED` with reason. At most o
 terminal result per accepted request. No new generic epoch framework in B; clear
 pending requests/events on reset so no stale pulse resumes.
 
+Drive end hold (spec correction 2026-09-25, ftc-main): when GOTO/PATH/TURN_TO reports
+`DONE`, both engines keep holding the end pose instead of stopping the drive (archive
+AutoBuilder.java:764-768 advances to the next step with no stop; simple-code
+DriveSubsystem.java:66 holds). The hold ends ONLY on: a new drive request, manual
+drive, a cancel of that request's id, CANCEL_ALL, or RESET_POSE.
+
 Proto1 currently zero-fills omitted servo commands. B01.0 OWNS its breaking change
 to absent-position-servo-means-hold under proto2. Do not pretend that behavior exists
 already. DC/CR omission still means zero. RobotConstants is configuration truth;
