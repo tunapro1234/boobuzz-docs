@@ -34,7 +34,11 @@ ready±100 RPM continuously150 ms; slew0(disabled). Verify exact archive calcula
 with no-error4000 RPM feedforward=.728222 on BOTH logical outputs. Topology is
 unchanged; inherited tuning remains a starting point, not new physical validation.
 Use HAL ms converted to seconds,
-clear controller/dwell on target change/disable/invalid sensor, protect abnormal dt.
+protect abnormal dt. Resets follow the archive (ShooterPidfPowerSubsystem:64-68, :79-86):
+a >50 RPM target change clears only readiness (stable flag and stability timer); integral
+and previous error are cleared only on disable. Deliberate non-archive addition (safety):
+an accepted tuning change and an invalid velocity sensor also clear controller and
+readiness; the archive has static tuning and no sensor-loss concept.
 Saturation/anti-windup correction must be explicit compared with source trace.
 
 Preserve live tuning with proposed SDK-free `J/subsystem/shooter/ShooterTuning.java`

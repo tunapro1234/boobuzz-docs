@@ -15,6 +15,26 @@ Gün bazlı kayıt. Her günün altında repo bazlı değişiklikler, commit has
 
 ---
 
+## 2026-09-25 — Spec düzeltmesi: drive FLOAT (B01) ve B05 reset metni
+
+### docs
+
+- **Drive BRAKE → FLOAT (ftc-main onayı, arşivden doğrulandı).** Spec 02 ve
+  `hardware-profile-v0.md` "mevcut drive BRAKE değişmez" diyordu. Arşiv drive için
+  zero-power modu ayarlamıyor, bunu Pedro 2.0.4'e bırakıyor. Pedro'da Mecanum
+  constructor `setMotorsToFloat` çağırıyor, `breakFollowing` FLOAT kullanıyor ve
+  `startTeleopDrive` yalnızca `useBrakeModeInTeleOp=true` ise BRAKE yapıyor
+  (arşivde bu false). simple-code de FLOAT. Kod tarafındaki FLOAT doğru; spec
+  metni düzeltildi. (ftc-robocode)
+- **B05 reset metni (ftc-main onayı, arşivden doğrulandı).** Spec 03 B05
+  "hedef değişimi/disable/geçersiz sensörde controller ve dwell temizlenir"
+  diyordu. Arşivde (`ShooterPidfPowerSubsystem:64-68`, `:79-86`) >50 RPM hedef
+  değişimi yalnızca hazırlık bayrağını ve sayacını sıfırlıyor; integral ve önceki
+  hata yalnızca disable'da sıfırlanıyor. Kod bunu izliyor (robot-code 393dbc1).
+  Tuning değişiminde ve sensör kaybında tam reset arşivde yok (tuning statik,
+  sensör kaybı kavramı yok). Bunlar güvenlik eklemesi olarak kabul edildi ve
+  spec'te ve kodda "deliberate non-archive addition" diye işaretlendi. (ftc-robocode)
+
 ## 2026-09-25 — Spec düzeltmesi: hood_left yönü (B01/B06)
 
 ### docs

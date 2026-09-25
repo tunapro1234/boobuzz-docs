@@ -52,7 +52,7 @@ OpMode annotations in TeamCode occur only under contingency/lvbelc5 at this comm
 `turret/TurretPidPazarSubsystem.java:56` binds primary CR,`:61` secondary;
 `:66` binds the shared motor port;`:309–310` write equal power;`:69` sets FLOAT.
 `intake/IntakePowerSubsystem.java:22` sets BRAKE;`feeder/FeederPowerSubsystem.java:36`
-sets BRAKE. Existing new-HAL drive BRAKE remains unchanged in B.
+sets BRAKE. Drive is FLOAT like the archive's Pedro 2.0.4 default (spec 02 correction 2026-09-25).
 Short subsystem paths above are under the same `hardware/subsystems/` directory.
 
 ## Inherited constants (retune/verify physically; not new measurements)

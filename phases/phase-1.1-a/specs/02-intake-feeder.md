@@ -111,7 +111,10 @@ Include mass and the typed machine-readable declarations in constantsHash.
 
 Represent direction as declared strings FORWARD/REVERSE (existing scalar parser does
 not read booleans); declare zero-power behavior per motor role too: shooter FLOAT,
-intake/feeder BRAKE; existing drive BRAKE unchanged. Store numeric gear/ticks/free-speed separately. Free-speed plant
+intake/feeder BRAKE; drive FLOAT (spec correction 2026-09-25: the archive sets no
+drive zero-power mode and leaves it to Pedro 2.0.4, whose Mecanum constructor calls
+setMotorsToFloat, breakFollowing uses FLOAT, and startTeleopDrive brakes only when
+useBrakeModeInTeleOp=true, false in the archive; simple-code is FLOAT too). Store numeric gear/ticks/free-speed separately. Free-speed plant
 values without evidence are named fixture values, not hardware specs: intake/feeder
 6000 motor RPM, shooter6000 motor RPM with wheel ratio1.6; common tau.1 s initially.
 Pollen diameter2.8, nectar3.6, capacity3 and labeled mouth geometry also land here
