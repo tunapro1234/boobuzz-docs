@@ -121,7 +121,7 @@ measurement.
 | `feeder` | `FORWARD`, `BRAKE`, encoder `28.0` ticks/rev, `freeRpm=6000.0` named fixture; feed power `1.0`, active pulse `350 ms` plus `100 ms` delay |
 | `shooterRight` / `shooterLeft` | right `REVERSE`, left `FORWARD`, both `FLOAT`, encoder `28.0` ticks/rev, `freeRpm=6000.0` named fixture, follower scale `1.0`, motor-to-wheel ratio `1.6`; speed input is RIGHT |
 | `turret_servo` / `turret_servo2` | both `FORWARD` (archive reverse flags false), equal logical CR power; turret reads `shooterLeft` without owning its motor output |
-| `hood_left` / `hood_right` | typed declarations use left `REVERSE`, initial `1.0`, and right `FORWARD`, initial `0.0`; archive `HoodSubsystem` has no separate `Servo.setDirection`, so preserve `rightInverse=false` complementary logic. The 25° stow vector is `(1.0, 0.0)`; 44° default is `(.4553333333, .5446666667)` |
+| `hood_left` / `hood_right` | typed declarations use left `FORWARD` (amended 25 Sep, B06: `REVERSE` double-inverted the `1-u` command), initial `1.0`, and right `FORWARD`, initial `0.0`; archive `HoodSubsystem` has no separate `Servo.setDirection`, so preserve `rightInverse=false` complementary logic. The 25° stow vector is `(1.0, 0.0)`; 44° default is `(.4553333333, .5446666667)` |
 
 The typed Java declarations are the machine-readable target shape (one record row
 per line where the parser requires it): `DC_DEVICES` is `DcDevice[]`,

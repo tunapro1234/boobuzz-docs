@@ -78,8 +78,11 @@ complementary positions (25° stow = `(1.0,0.0)`, 44° default =
 `(.4553333333,.5446666667)`). The archive has no measured free-RPM constant;
 the named 6000-RPM simulator value remains a fixture value, not hardware data.
 `initialPos` is constrained to `[0,1]`; the authoritative profile values are
-hood_left `REVERSE,1.0` and hood_right `FORWARD,0.0`, the archive-derived 25° stow
-vector.
+hood_left `FORWARD,1.0` and hood_right `FORWARD,0.0`, the archive-derived 25° stow
+vector. (Amended 25 Sep, B06: the archive never reversed a hood servo; the left
+inversion is only the `1-u` command, so `REVERSE` plus `1-u` double-inverted the left
+servo. The real robot writes no hood position before the first command; the simulator
+holds `initialPos` until then — documented sim/real difference.)
 
 Extend `S/sim/mechanism.py` to parse the typed `DcDevice[] DC_DEVICES`,
 `CrServo[] CR_SERVOS`, `PosServo[] SERVOS`, and `String[] ENCODERS` declarations,
