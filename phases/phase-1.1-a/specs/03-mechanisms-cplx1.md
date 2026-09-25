@@ -201,9 +201,17 @@ ShooterLogic HAL write. B09 nominal trace includes actual intake power and pulse
 
 Extend request catalog in a phase-1.1-a addendum (historical catalog unchanged):
 SET_SHOT_PRESET[rpm,hoodDeg,turretRad], STOP_SHOOTING[](finish current pulse, no new
-ones), MECHANISM_RECOVERY[mode] (0 exit,1 reverse intake/feeder,2 operator-held jam
+ones, then spin the flywheel down), MECHANISM_RECOVERY[mode] (0 exit,1 reverse intake/feeder,2 operator-held jam
 clear). Add RequestType entries/parsing/trace tests explicitly. SHOOT retains existing
 count,optionalRPM contract; bounded max count3. CANCEL_ALL remains immediate stop.
+(Spec correction 2026-09-25, archive lvbelc5 ShootingController:111-121,188-190.)
+A completed SHOOT keeps the flywheel at its rpm; only STOP_SHOOTING, CANCEL_ALL or a
+jam clear spin it down. This matches RT held = AUTO_SHOOT: shots within one RT hold
+have no spin-down between them. The RT falling edge MUST send STOP_SHOOTING. If a
+pulse is running, it finishes (archive FINISHING_PULSE) and then the flywheel is
+disabled. Autonomous routines send STOP_SHOOTING at their end. Tests: no spin-down
+between shots while RT is held; an RT release mid-pulse finishes that pulse and then
+disables the flywheel; every auto ends with STOP_SHOOTING.
 No new wire packet is needed for these Java controller->logic requests, but debug/
 bag enum round-trip tests must be updated. Do not overload TURRET_AIM field coordinates
 with relative-angle units; SET_SHOT_PRESET supplies relative turret angle.
@@ -223,7 +231,11 @@ States IDLE/PREPARE/FEED/RECOVER/COMPLETE/FAULT, implemented in existing Shooter
 not another scheduler. CANCEL_ALL disables turret and stops feeder/flywheel until a
 fresh request; idle sense must not re-arm a cancelled target. Feed requires measured shooter-ready, estimated hood-settled,
 valid reachable/settled turret, no fault and stationary gate. Latch preset per pulse;
-recheck before next pulse. Prepare timeout3 s AFTER turret startup ends; stop before
+recheck before next pulse. Prepare timeout3 s AFTER turret startup ends. If startup
+has not ended within one turret calibration window, the prepare timeout starts anyway.
+That bound is SHOT_TURRET_STARTUP_BOUND_MS = (TURRET_FULL_TRUST_S + TURRET_FADE_OUT_S)
+x 1000. It is a derived bound, not an archive value, and is computed from those two
+constants, never written as a literal (spec correction 2026-09-25). Stop before
 startup is always accepted. No readiness from elapsed spinup alone.
 
 PoseMotionEstimator derives speed from Pinpoint samples already in RobotState: fixed

@@ -15,6 +15,24 @@ Gün bazlı kayıt. Her günün altında repo bazlı değişiklikler, commit has
 
 ---
 
+## 2026-09-25 — Spec düzeltmesi: STOP_SHOOTING/sıcak flywheel ve taret açılış sınırı
+
+### docs
+
+- **STOP_SHOOTING ve sıcak flywheel (ftc-main onayı).** Arşiv kaynağı: lvbelc5
+  ShootingController:111-121, 188-190. Tamamlanan SHOOT flywheel'i dönmeye devam
+  ettirir. Onu yalnız STOP_SHOOTING, CANCEL_ALL ya da jam clear durdurur. RT
+  bırakıldığında (düşen kenar) STOP_SHOOTING gönderilmesi zorunlu. O an pulse
+  sürüyorsa önce biter, sonra flywheel disable olur. Auto rutinleri de sonda
+  STOP_SHOOTING gönderir. Spec 03 B08'e test şartlarıyla birlikte yazıldı.
+- **Taret açılış sınırı (ftc-main onayı).** Taret açılışı bir kalibrasyon penceresi
+  içinde bitmezse prepare timeout yine de başlar. Sınır `SHOT_TURRET_STARTUP_BOUND_MS`
+  = (full-trust + fade-out) × 1000. Türetilmiş bir değer, arşivden gelmiyor; kodda
+  literal olarak yazılmaz. Spec 03 B08.
+- **CANCEL_ALL→disable:** spec'te zaten var, değişiklik yok. (ftc-robocode)
+
+---
+
 ## 2026-09-25 — B08 açık maddeleri: gerekçeler ve spec önerileri
 
 ### docs
