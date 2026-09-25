@@ -15,6 +15,25 @@ Gün bazlı kayıt. Her günün altında repo bazlı değişiklikler, commit has
 
 ---
 
+## 2026-09-25 — B08 açık maddeleri: gerekçeler ve spec önerileri
+
+### docs
+
+- `evidence-B.md` "B08 open items" bölümü eklendi (ftc-main isteği). İçerik:
+  - **CANCEL_ALL:** Tareti kapatır (spec B08 bunu zaten istiyor). Hood tekrar
+    komutlanmaz, son konumunda kalır (R `597df71`).
+  - **STOP_SHOOTING:** Mevcut pulse'ı bitirir, sonra flywheel'i durdurur. Count'u biten
+    SHOOT'tan sonra flywheel dönmeye devam eder; gerekçe arşiv RT-held AUTO_SHOOT.
+  - **Taret açılış sınırı:** `SHOT_TURRET_STARTUP_BOUND_MS` = 0.75 + 1.25 s kalibrasyon
+    penceresi. Değer türetilmiş; açılışı hiç bitmeyen taret shot'ı fail ettirir.
+  - **Direct preset shot'ları:** cplx1 gate'leriyle hizalandı.
+  - **Direct 100 ms post-pulse delay:** Direct'te yoktu (parite açığıydı). PulseFeeder'a
+    taşınıyor.
+- STOP_SHOOTING/warm ve startup bound için spec metni **önerildi**, onay ftc-main'de.
+  (ftc-robocode)
+
+---
+
 ## 2026-09-25 — Spec düzeltmesi: drive end hold, socket tek teslim, B09 nectar yeri
 
 ### docs

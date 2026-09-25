@@ -469,3 +469,67 @@ close above.
   **Sim limitation:** the Pymunk field has no floor friction (damping 1.0); a pushed
   ball keeps its speed until a wall. No rolling resistance is modelled because no
   source gives a value (manual §9.8 names the material only).
+
+## B08 open items — decisions and rationale (2026-09-25, ftc-robocode)
+
+Items reported to ftc-main after the B08 review cycle (R `fc84770` → `c1756cd` →
+`c6db9ee`, re-review without majors). Each item says what the code does, why, and
+whether the spec already covers it.
+
+- **CANCEL_ALL disables the turret and holds the hood.** Spec 03 B08 already requires
+  it: "CANCEL_ALL disables turret and stops feeder/flywheel until a fresh request; idle
+  sense must not re-arm a cancelled target". Both engines call `turret.disable()`,
+  which zeroes both CR powers, drops the target, and switches RELATIVE to HOLD. The
+  turret re-arms only on a fresh aim, or when a shot starts (`ShooterLogic.begin()`
+  enables it). The archive has no CANCEL_ALL, so there is no archive parity to keep:
+  this is the spec's safety rule. The hood is not re-commanded after a cancel: R
+  `597df71` `IShooter.holdHood()` stops the hood writes, so both servos hold their last
+  setpoint by omission (spec 03 B06). Test `RealProfileSwitchSafetyTest` runs a
+  mid-pulse switch from both engines. It asserts that the CR powers are zero and the
+  hood keys are absent; removing `disable()` or `holdHood()` from either engine fails
+  it. Spec change: none.
+- **STOP_SHOOTING, and a flywheel that stays warm after a completed count.** The spec
+  (B08 request addendum) says only "finish current pulse, no new ones". The code adds
+  two archive-derived rules:
+  1. A SHOOT whose count completes reports DONE but **keeps the flywheel spinning**. It
+     spins down only on STOP_SHOOTING, CANCEL_ALL, or a mode-2 jam clear. Reason: in
+     the archive `ShootingController`, AUTO_SHOOT keeps the wheel spinning while RT is
+     held. The spec 03 controller map makes RT a sequence of one-shot SHOOTs, each
+     sent after the previous terminal feedback, so spinning down on every DONE would
+     restart spin-up between the shots of one RT hold.
+  2. STOP_SHOOTING finishes the current pulse, then spins down. An active shot ends
+     `DONE "stopped"` with progress fired/count. A busy SPIN_UP ends `DONE "stopped"`.
+     An idle warm wheel is spun down. Reason: an archive RT release goes FINISHING_PULSE
+     → IDLE → `shooter.disable()`, and the spec's RT release sends STOP_SHOOTING.
+  Both engines behave the same (direct `DirectMap.stopShooting`, cplx1
+  `ShooterLogic.stopShooting`). Tests: `FixedShotCoordinatorTest`
+  (countDoneKeepsTheFlywheelWarmUntilStopShooting, stopShootingEndsASpinUp) and
+  `DirectShotGateTest` (stopShootingFinishesTheShotThenSpinsDown,
+  stopShootingSpinsDownAWarmFlywheel). **Proposed spec text** (for ftc-main): "A
+  completed SHOOT keeps the flywheel at its rpm; STOP_SHOOTING, CANCEL_ALL or jam
+  clear spin it down. STOP_SHOOTING finishes the current pulse, then spins down."
+- **`SHOT_TURRET_STARTUP_BOUND_MS` (derived, 2000 ms).** Spec: "Prepare timeout 3 s
+  AFTER turret startup ends". The spec does not say what happens when startup never
+  ends, for example when the analog is invalid. Without a bound, such a shot stayed
+  ACTIVE forever (review B08 major 1). The bound is
+  `round((TURRET_FULL_TRUST_S + TURRET_FADE_OUT_S)·1000) = round((0.75+1.25)·1000)`,
+  one full archive turret calibration window, so it is not a new constant. The 3 s
+  prepare timeout starts at `turret.startupDone()` or once the bound has passed,
+  whichever comes first. A turret that never initializes therefore fails the shot with
+  "prepare timeout: aiming: NOT_INITIALIZED" after at most 2000 + 3000 ms. Tests:
+  `FixedShotCoordinatorTest.neverInitializedTurretFailsAfterTheStartupBound` and
+  `DirectShotGateTest.neverInitialized`. **Proposed spec text:** "If turret startup has
+  not ended within one calibration window (full-trust + fade-out), the prepare timeout
+  starts anyway."
+- **Direct preset shots use the cplx1 gates.** Direct gated shots now have the same
+  prepare timeout, preset re-latch from the next pulse, TURRET_AIM retarget (validated
+  first), per-tick re-aim, and `DONE "stopped"` progress (R `c1756cd`, `c6db9ee`). This
+  keeps "direct and cplx1 share these objects safely" (spec B09) from turning into two
+  different shot rules. Open: STUB/ungated direct spin-up still has no timeout (older
+  than B08).
+- **Direct post-pulse delay (parity gap, being fixed).** The direct engine fed without
+  the archive 100 ms post-pulse delay, which spec B03 requires ("350 ms pulse PLUS
+  100 ms post-pulse delay"). This was not a deliberate choice. ftc-main's decision: the
+  delay lives in the shared `PulseFeeder`, the duplicate gap in cplx1 `ShooterLogic` is
+  removed, and both engines inherit it. Assigned to R on 2026-09-25; the SHA will be
+  added here when it lands.
