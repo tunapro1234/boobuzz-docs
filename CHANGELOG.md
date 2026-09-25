@@ -15,6 +15,27 @@ Gün bazlı kayıt. Her günün altında repo bazlı değişiklikler, commit has
 
 ---
 
+## 2026-09-25 — Spec düzeltmesi: hood_left yönü (B01/B06)
+
+### docs
+
+- **Spec düzeltmesi (ftc-main onayı, arşivden doğrulandı).** B01 metni ve
+  `adr-device-seam-v2.md` hood_left için `REVERSE, initial 1.0` diyordu. Arşiv
+  `HoodSubsystem` hiçbir servonun yönünü ayarlamıyor; soldaki tek ters çevirme,
+  `mechanicalMax - pos` / `1-u` pozisyon eşlemesi. `REVERSE` ile `1-u` birlikte
+  kullanılınca sol servo iki kez ters çevriliyordu. Doğrusu: hood_left `FORWARD`,
+  ters çevirme profildeki eşlemede, init'te servo hareketi yok (arşivle aynı).
+  `initialPos` yalnızca simülatörün tuttuğu değer.
+  Commitler: `cb5779c` (yön, spec 02 B01 metni) ve bu kayıt (ADR init ifadesi).
+  Uygulayan: ftc-robocode (Claude Opus 5.5).
+- simple-code bunu tersinden çözüyor: sol `REVERSE`, iki servoya aynı pozisyon
+  (SDK `REVERSE` = `1-p`). Bu da eşdeğer; simple-code'a dokunulmadı.
+- **Backlog:** Hata sim'de görünmedi, çünkü simülatör servo yönünü uygulamıyor.
+  Ya sim'e servo direction desteği eklenecek ya da profil yönü ile pozisyon
+  eşlemesinin çift ters çevirmesini yakalayan bir test yazılacak.
+
+---
+
 ## 2026-09-16 — Faz 1.1 açıldı; R3 sözleşmesine ve çift fizik backend'ine geçiş
 
 Günün anlatısı: `gunluk/2026-09-16.md`. Bu bölümdeki commitler, gün içindeki
